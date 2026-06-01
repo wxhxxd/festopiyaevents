@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Yellowtail, Caveat } from "next/font/google";
 
-const yellowtail = Yellowtail({ weight: '400', subsets: ['latin'] });
-const caveat = Caveat({ subsets: ['latin'] });
+const yellowtail = { className: "font-yellowtail" };
+const caveat = { className: "font-caveat" };
 
 export default function LandingPage() {
   return (

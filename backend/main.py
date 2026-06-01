@@ -5,7 +5,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
+import bcrypt
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Form, UploadFile, File
@@ -22,11 +22,12 @@ SECRET_KEY = "your-secret-key-for-jwt" # In production, use env variable
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # ----------------- Database Setup -----------------
-SQLALCHEMY_DATABASE_URL = "sqlite:///./events.db"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'events.db')}"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
@@ -48,6 +49,7 @@ class User(Base):
     bio = Column(String, nullable=True)
     instagram_url = Column(String, nullable=True)
     website_url = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
     
     # Relationships
     events = relationship("Event", back_populates="organizer")
@@ -107,8 +109,40 @@ class ChatMessage(Base):
     event_id = Column(Integer, ForeignKey("events.id"))
     text = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    
+
+    # Relationships
     user = relationship("User", foreign_keys=[user_id], back_populates="messages")
+    
+class Follow(Base):
+    __tablename__ = "follows"
+
+    id = Column(Integer, primary_key=True, index=True)
+    follower_id = Column(Integer, ForeignKey("users.id"))
+    vendor_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class VendorMedia(Base):
+    __tablename__ = "vendor_media"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vendor_id = Column(Integer, ForeignKey("users.id"))
+    media_url = Column(String)
+    media_type = Column(String, default="image") # "image" or "video"
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    likes = relationship("MediaLike", back_populates="media", cascade="all, delete-orphan")
+
+class MediaLike(Base):
+    __tablename__ = "media_likes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    media_id = Column(Integer, ForeignKey("vendor_media.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    media = relationship("VendorMedia", back_populates="likes")
 
 Base.metadata.create_all(bind=engine)
 
@@ -128,6 +162,7 @@ class UserResponse(BaseModel):
     bio: Optional[str] = None
     instagram_url: Optional[str] = None
     website_url: Optional[str] = None
+    avatar_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):
@@ -135,6 +170,7 @@ class UserUpdate(BaseModel):
     bio: Optional[str] = None
     instagram_url: Optional[str] = None
     website_url: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str
@@ -218,12 +254,55 @@ class InboxItem(BaseModel):
     other_user_id: int
     other_user_name: str
 
-# ----------------- Auth Utilities -----------------
-def get_password_hash(password):
-    return pwd_context.hash(password)
+class MediaItemResponse(BaseModel):
+    id: int
+    media_url: str
+    media_type: str
+    created_at: datetime
+    like_count: int
+    is_liked_by_me: bool
+    model_config = ConfigDict(from_attributes=True)
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+class BadgeResponse(BaseModel):
+    id: str
+    name: str
+    description: str
+    is_unlocked: bool
+
+class VendorProfileResponse(BaseModel):
+    id: int
+    company_name: str
+    bio: Optional[str] = None
+    instagram_url: Optional[str] = None
+    website_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+    follower_count: int
+    is_followed_by_me: bool
+    total_likes: int
+    badges: List[BadgeResponse]
+    media: List[MediaItemResponse]
+    role: str
+    model_config = ConfigDict(from_attributes=True)
+
+class MediaLinkCreate(BaseModel):
+    media_url: str
+    media_type: str
+
+# ----------------- Auth Utilities -----------------
+def get_password_hash(password: str) -> str:
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    plain_bytes = plain_password.encode('utf-8')
+    try:
+        hashed_bytes = hashed_password.encode('utf-8')
+        return bcrypt.checkpw(plain_bytes, hashed_bytes)
+    except Exception as e:
+        print(f"[AUTH ERROR] Verification failed: {e}")
+        return False
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -401,6 +480,31 @@ def update_current_user_profile(
         current_user.instagram_url = user_update.instagram_url
     if user_update.website_url is not None:
         current_user.website_url = user_update.website_url
+    if user_update.avatar_url is not None:
+        current_user.avatar_url = user_update.avatar_url
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@app.post("/users/me/avatar", response_model=UserResponse)
+def upload_user_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    os.makedirs("static/uploads", exist_ok=True)
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    if file_extension not in [".png", ".jpg", ".jpeg", ".webp"]:
+        raise HTTPException(status_code=400, detail="Only PNG, JPG, JPEG, and WEBP formats are supported for profile pictures")
+        
+    unique_filename = f"avatar_{current_user.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
+    file_location = f"static/uploads/{unique_filename}"
+    
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+
+    avatar_url = f"http://127.0.0.1:8000/static/uploads/{unique_filename}"
+    current_user.avatar_url = avatar_url
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -744,3 +848,234 @@ def get_messages(event_id: int, vendor_id: Optional[int] = None, db: Session = D
         if m.user:
             m.sender = f"{m.user.company_name} ({m.user.role})"
     return messages
+
+# ----------------- Creator Profile API Endpoints -----------------
+
+@app.get("/users/{vendor_id}/profile", response_model=VendorProfileResponse)
+def get_vendor_profile(
+    vendor_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    vendor = db.query(User).filter(User.id == vendor_id).first()
+    if not vendor or vendor.role != "Vendor":
+        raise HTTPException(status_code=404, detail="Vendor profile not found")
+
+    # Follower count & followed status
+    follower_count = db.query(Follow).filter(Follow.vendor_id == vendor_id).count()
+    is_followed_by_me = db.query(Follow).filter(
+        Follow.vendor_id == vendor_id,
+        Follow.follower_id == current_user.id
+    ).first() is not None
+
+    # Media items with like details
+    media_items = db.query(VendorMedia).filter(VendorMedia.vendor_id == vendor_id).order_by(VendorMedia.created_at.desc()).all()
+    
+    media_responses = []
+    total_likes = 0
+    for item in media_items:
+        like_count = db.query(MediaLike).filter(MediaLike.media_id == item.id).count()
+        is_liked_by_me = db.query(MediaLike).filter(
+            MediaLike.media_id == item.id,
+            MediaLike.user_id == current_user.id
+        ).first() is not None
+        
+        total_likes += like_count
+        media_responses.append(
+            MediaItemResponse(
+                id=item.id,
+                media_url=item.media_url,
+                media_type=item.media_type,
+                created_at=item.created_at,
+                like_count=like_count,
+                is_liked_by_me=is_liked_by_me
+            )
+        )
+
+    # Dynamic badge calculations based on database statistics
+    booking_count = db.query(StallBooking).filter(StallBooking.vendor_id == vendor_id).count()
+    
+    badges = [
+        BadgeResponse(
+            id="beginner",
+            name="Beginner",
+            description="Assigned by default to new accounts.",
+            is_unlocked=True
+        ),
+        BadgeResponse(
+            id="most_lovable",
+            name="Most Lovable",
+            description="Unlocked automatically when you hit 5 followers or 5 total post likes.",
+            is_unlocked=(follower_count >= 5 or total_likes >= 5)
+        ),
+        BadgeResponse(
+            id="event_legend",
+            name="Event Legend",
+            description="Unlocked after successfully participating in 2 or more events.",
+            is_unlocked=(booking_count >= 2)
+        )
+    ]
+
+    return VendorProfileResponse(
+        id=vendor.id,
+        company_name=vendor.company_name,
+        bio=vendor.bio,
+        instagram_url=vendor.instagram_url,
+        website_url=vendor.website_url,
+        avatar_url=vendor.avatar_url,
+        follower_count=follower_count,
+        is_followed_by_me=is_followed_by_me,
+        total_likes=total_likes,
+        badges=badges,
+        media=media_responses,
+        role=vendor.role
+    )
+
+@app.post("/users/{vendor_id}/follow")
+def toggle_follow_vendor(
+    vendor_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    vendor = db.query(User).filter(User.id == vendor_id).first()
+    if not vendor or vendor.role != "Vendor":
+        raise HTTPException(status_code=404, detail="Vendor not found")
+
+    existing_follow = db.query(Follow).filter(
+        Follow.vendor_id == vendor_id,
+        Follow.follower_id == current_user.id
+    ).first()
+
+    if existing_follow:
+        db.delete(existing_follow)
+        db.commit()
+        followed = False
+    else:
+        new_follow = Follow(vendor_id=vendor_id, follower_id=current_user.id)
+        db.add(new_follow)
+        db.commit()
+        followed = True
+
+    follower_count = db.query(Follow).filter(Follow.vendor_id == vendor_id).count()
+    return {"followed": followed, "follower_count": follower_count}
+
+@app.post("/users/me/media", response_model=MediaItemResponse)
+def upload_vendor_media(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "Vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can upload media")
+
+    os.makedirs("static/uploads", exist_ok=True)
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    media_type = "video" if file_extension in [".mp4", ".webm", ".avi", ".mov"] else "image"
+    
+    unique_filename = f"{current_user.id}_{int(datetime.utcnow().timestamp())}_{file.filename}"
+    file_location = f"static/uploads/{unique_filename}"
+    
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+
+    media_url = f"http://127.0.0.1:8000/static/uploads/{unique_filename}"
+    
+    db_media = VendorMedia(
+        vendor_id=current_user.id,
+        media_url=media_url,
+        media_type=media_type
+    )
+    db.add(db_media)
+    db.commit()
+    db.refresh(db_media)
+
+    return MediaItemResponse(
+        id=db_media.id,
+        media_url=db_media.media_url,
+        media_type=db_media.media_type,
+        created_at=db_media.created_at,
+        like_count=0,
+        is_liked_by_me=False
+    )
+
+@app.post("/users/me/media/link", response_model=MediaItemResponse)
+def link_supabase_media(
+    media_link: MediaLinkCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "Vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can register media")
+
+    db_media = VendorMedia(
+        vendor_id=current_user.id,
+        media_url=media_link.media_url,
+        media_type=media_link.media_type
+    )
+    db.add(db_media)
+    db.commit()
+    db.refresh(db_media)
+
+    return MediaItemResponse(
+        id=db_media.id,
+        media_url=db_media.media_url,
+        media_type=db_media.media_type,
+        created_at=db_media.created_at,
+        like_count=0,
+        is_liked_by_me=False
+    )
+
+@app.post("/media/{media_id}/like")
+def toggle_like_media(
+    media_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    media = db.query(VendorMedia).filter(VendorMedia.id == media_id).first()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media item not found")
+
+    existing_like = db.query(MediaLike).filter(
+        MediaLike.media_id == media_id,
+        MediaLike.user_id == current_user.id
+    ).first()
+
+    if existing_like:
+        db.delete(existing_like)
+        db.commit()
+        liked = False
+    else:
+        new_like = MediaLike(media_id=media_id, user_id=current_user.id)
+        db.add(new_like)
+        db.commit()
+        liked = True
+
+    like_count = db.query(MediaLike).filter(MediaLike.media_id == media_id).count()
+    return {"liked": liked, "like_count": like_count}
+
+@app.delete("/media/{media_id}")
+def delete_vendor_media(
+    media_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    media = db.query(VendorMedia).filter(VendorMedia.id == media_id).first()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media item not found")
+
+    if media.vendor_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this media item")
+
+    # If it is a local file, remove it from static folder
+    if "static/uploads/" in media.media_url:
+        filename = media.media_url.split("static/uploads/")[-1]
+        local_path = f"static/uploads/{filename}"
+        if os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+            except Exception as e:
+                print(f"[CLEANUP ERROR] Failed to delete file {local_path}: {e}")
+
+    db.delete(media)
+    db.commit()
+    return {"status": "success", "message": "Media deleted successfully"}

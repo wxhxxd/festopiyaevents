@@ -25,13 +25,37 @@ import {
   Compass,
   Send,
   UserCircle,
-  ClipboardList
+  ClipboardList,
+  Heart,
+  UploadCloud,
+  Lock,
+  Unlock,
+  ExternalLink,
+  Trash2
 } from "lucide-react";
-import { Yellowtail } from "next/font/google";
 import Link from "next/link";
 import ChatInterface, { ChatContext } from "@/components/ChatInterface";
 
-const yellowtail = Yellowtail({ weight: "400", subsets: ["latin"] });
+const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const yellowtail = { className: "font-yellowtail" };
 interface EventData {
   id: number;
   name: string;
@@ -70,7 +94,170 @@ export default function VendorDashboard() {
   const [bookings, setBookings] = useState<BookingData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "settings">("find_events");
+  const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "profile" | "settings">("find_events");
+  const [myUserId, setMyUserId] = useState<number | null>(null);
+  const [vendorProfile, setVendorProfile] = useState<any>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<any>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
+
+  const fetchMyProfile = async (userId: number) => {
+    setIsProfileLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/users/${userId}/profile`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVendorProfile(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  const handleMediaUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+
+    setIsUploading(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseAnonKey) {
+        const cleanUrl = supabaseUrl.replace(/\/$/, "");
+        const uniqueFilename = `${myUserId || 'vendor'}_${Date.now()}_${uploadFile.name}`;
+        const uploadUrl = `${cleanUrl}/storage/v1/object/vendor-media/${uniqueFilename}`;
+
+        const uploadRes = await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${supabaseAnonKey}`,
+            "apikey": supabaseAnonKey,
+            "Content-Type": uploadFile.type
+          },
+          body: uploadFile
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => null);
+          throw new Error(errData?.message || "Failed to upload to Supabase");
+        }
+
+        const publicUrl = `${cleanUrl}/storage/v1/object/public/vendor-media/${uniqueFilename}`;
+        const fileExtension = uploadFile.name.split('.').pop()?.toLowerCase();
+        const mediaType = ["mp4", "webm", "avi", "mov"].includes(fileExtension || "") ? "video" : "image";
+
+        const registerRes = await fetch("http://127.0.0.1:8000/users/me/media/link", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            media_url: publicUrl,
+            media_type: mediaType
+          })
+        });
+
+        if (!registerRes.ok) {
+          throw new Error("Failed to register Supabase link in backend");
+        }
+      } else {
+        const formData = new FormData();
+        formData.append("file", uploadFile);
+
+        const uploadRes = await fetch("http://127.0.0.1:8000/users/me/media", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => null);
+          throw new Error(errData?.detail || "Failed to upload media locally");
+        }
+      }
+
+      setUploadFile(null);
+      if (myUserId) fetchMyProfile(myUserId);
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/users/me/avatar", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        if (myUserId) fetchMyProfile(myUserId);
+      } else {
+        const errData = await res.json().catch(() => null);
+        alert(errData?.detail || "Failed to upload profile picture");
+      }
+    } catch (err) {
+      console.error("Failed to upload avatar", err);
+    }
+  };
+
+  const handleLikeMedia = async (mediaId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}/like`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        if (myUserId) fetchMyProfile(myUserId);
+      }
+    } catch (err) {
+      console.error("Failed to like media", err);
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: number) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSelectedMedia(null);
+        if (myUserId) fetchMyProfile(myUserId);
+      }
+    } catch (err) {
+      console.error("Failed to delete media", err);
+    }
+  };
   const [eventBookings, setEventBookings] = useState<BookingData[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
   const [selectedStall, setSelectedStall] = useState<number | null>(null);
@@ -161,12 +348,32 @@ export default function VendorDashboard() {
     Promise.all([fetchEvents(), fetchBookings(), fetchMyPitches()]).then(() => {
       setLoading(false);
     });
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("http://127.0.0.1:8000/users/me", {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          setMyUserId(data.id);
+          fetchMyProfile(data.id);
+        })
+        .catch(err => console.error("Failed to fetch user me", err));
+    }
   }, []);
 
   // Re-fetch pitches whenever My Pitches tab is opened
   useEffect(() => {
     if (activeTab === 'my_pitches') fetchMyPitches();
   }, [activeTab]);
+
+  // Re-fetch profile when profile tab is opened
+  useEffect(() => {
+    if (activeTab === 'profile' && myUserId) {
+      fetchMyProfile(myUserId);
+    }
+  }, [activeTab, myUserId]);
 
   // Fetch user profile whenever the settings tab is opened
   useEffect(() => {
@@ -348,11 +555,12 @@ export default function VendorDashboard() {
               { icon: Search, label: "Find Events", tab: "find_events" },
               { icon: Store, label: "My Stalls", tab: "my_stalls" },
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches" },
+              { icon: UserCircle, label: "My Profile", tab: "profile" },
               { icon: Settings, label: "Settings", tab: "settings" },
             ].map((item, i) => (
               <button 
                 key={i} 
-                onClick={() => setActiveTab(item.tab as "find_events" | "my_stalls" | "my_pitches" | "settings")}
+                onClick={() => setActiveTab(item.tab as "find_events" | "my_stalls" | "my_pitches" | "profile" | "settings")}
                 className={`w-full flex items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
                   activeTab === item.tab 
                     ? "bg-white/10 text-white shadow-inner border border-white/10" 
@@ -394,7 +602,7 @@ export default function VendorDashboard() {
       <section className="relative z-10 flex-1 h-screen overflow-y-auto scrollbar-hide p-4 md:p-6 md:pl-0">
         <div className="max-w-7xl mx-auto space-y-8 h-full flex flex-col">
           
-          {activeTab === "find_events" ? (
+          {activeTab === "find_events" && (
             <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-8 rounded-[2.5rem]">
 
               {/* ── Hero 2-col grid ──────────────────────────────── */}
@@ -571,7 +779,9 @@ export default function VendorDashboard() {
               </div>
 
             </div>
-          ) : (
+          )}
+
+          {activeTab === "my_stalls" && (
             <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-8">
               <div className="flex items-center justify-between mb-8 px-2">
                 <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
@@ -772,6 +982,270 @@ export default function VendorDashboard() {
             </div>
           )}
 
+          {/* ── Instagram-Style Creator Profile Tab ─────────────────── */}
+          {activeTab === "profile" && (
+            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10 flex flex-col gap-8">
+              {isProfileLoading && !vendorProfile ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 className="w-12 h-12 text-pink-500 animate-spin mb-4" />
+                  <p className="text-white/60">Loading Creator Profile...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Profile Header */}
+                  <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/10">
+                    <div className="relative shrink-0 group/avatar">
+                      <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-[3px] relative overflow-hidden">
+                        {vendorProfile?.avatar_url ? (
+                          <img 
+                            src={vendorProfile.avatar_url} 
+                            alt={vendorProfile.company_name} 
+                            className="w-full h-full rounded-full object-cover border border-black/40 shadow-inner"
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black shadow-inner border border-black/40">
+                            {vendorProfile?.company_name?.charAt(0) || "V"}
+                          </div>
+                        )}
+                        
+                        {/* Change DP Camera/Upload Overlay */}
+                        <label className="absolute inset-0 rounded-full bg-black/75 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-black uppercase tracking-wider gap-1.5 backdrop-blur-[1px]">
+                          <UploadCloud className="w-5 h-5 text-pink-400 animate-pulse" />
+                          <span>Change DP</span>
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      <span className="absolute bottom-1 right-1 px-2.5 py-0.5 text-[10px] font-black uppercase rounded-full bg-emerald-500 text-white border-2 border-black tracking-wide shadow-md pointer-events-none">
+                        Creator
+                      </span>
+                    </div>
+
+                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
+                      <div>
+                        <div className="flex flex-col md:flex-row items-center gap-3">
+                          {isEditingName ? (
+                            <form 
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (!editNameValue.trim()) return;
+                                try {
+                                  const token = localStorage.getItem("token");
+                                  const res = await fetch("http://127.0.0.1:8000/users/me", {
+                                    method: "PUT",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      "Authorization": `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ company_name: editNameValue })
+                                  });
+                                  if (res.ok) {
+                                    setIsEditingName(false);
+                                    if (myUserId) fetchMyProfile(myUserId);
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to save brand name", err);
+                                }
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <input 
+                                type="text"
+                                value={editNameValue}
+                                onChange={(e) => setEditNameValue(e.target.value)}
+                                className="px-3 py-1.5 rounded-xl bg-white/5 border border-rose-500/40 text-white outline-none focus:ring-2 focus:ring-rose-500/20 text-lg font-bold"
+                                autoFocus
+                              />
+                              <button type="submit" className="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/30 transition-all">Save</button>
+                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-white/5 text-white/50 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Cancel</button>
+                            </form>
+                          ) : (
+                            <>
+                              <h2 className="text-3xl font-extrabold text-white tracking-tight">{vendorProfile?.company_name || "Vendor Name"}</h2>
+                              <button 
+                                onClick={() => {
+                                  setEditNameValue(vendorProfile?.company_name || "");
+                                  setIsEditingName(true);
+                                }}
+                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+                              >
+                                Edit Name
+                              </button>
+                            </>
+                          )}
+                          <div className="flex gap-2">
+                            {vendorProfile?.instagram_url && (
+                              <a 
+                                href={vendorProfile.instagram_url.startsWith("http") ? vendorProfile.instagram_url : `https://instagram.com/${vendorProfile.instagram_url}`} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="p-2 rounded-full bg-white/5 hover:bg-pink-500/10 text-white/60 hover:text-pink-400 border border-white/10 hover:border-pink-500/30 transition-all"
+                              >
+                                <Instagram className="w-4 h-4" />
+                              </a>
+                            )}
+                            {vendorProfile?.website_url && (
+                              <a 
+                                href={vendorProfile.website_url.startsWith("http") ? vendorProfile.website_url : `https://${vendorProfile.website_url}`} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="p-2 rounded-full bg-white/5 hover:bg-indigo-500/10 text-white/60 hover:text-indigo-400 border border-white/10 hover:border-indigo-500/30 transition-all"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
+                          {vendorProfile?.bio || "No biography added yet. Optimize your profile details inside the settings tab!"}
+                        </p>
+                      </div>
+
+                      {/* Stats Section / Follower count */}
+                      <div className="flex gap-6 mt-2">
+                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">
+                            {vendorProfile?.follower_count || 0}
+                          </p>
+                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Hype Score (Followers)</p>
+                        </div>
+                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                            {vendorProfile?.total_likes || 0}
+                          </p>
+                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Total Hype (Likes)</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trust Badge System */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Unlocked Trust Badges</p>
+                    <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2">
+                      {vendorProfile?.badges?.map((badge: any) => {
+                        const iconColor = badge.is_unlocked 
+                          ? badge.id === "beginner" ? "text-emerald-400 bg-emerald-400/20 border-emerald-500/30"
+                            : badge.id === "most_lovable" ? "text-amber-400 bg-amber-400/20 border-amber-500/30"
+                            : "text-rose-400 bg-rose-400/20 border-rose-500/30"
+                          : "text-white/20 bg-white/5 border-white/5";
+                        
+                        return (
+                          <div 
+                            key={badge.id}
+                            className={`flex items-center gap-3 px-5 py-3 rounded-2xl border backdrop-blur-md shrink-0 transition-all ${
+                              badge.is_unlocked 
+                                ? "bg-white/10 border-white/10 shadow-lg shadow-black/20" 
+                                : "opacity-40 border-dashed border-white/5"
+                            }`}
+                          >
+                            <div className={`p-2 rounded-xl border ${iconColor}`}>
+                              {badge.is_unlocked ? <Unlock className="w-4 h-4 animate-pulse" /> : <Lock className="w-4 h-4" />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-white flex items-center gap-1.5">
+                                {badge.name}
+                                {badge.is_unlocked && <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />}
+                              </p>
+                              <p className="text-[10px] text-white/50 max-w-[200px] mt-0.5 leading-tight">{badge.description}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Drag-and-Drop Media Upload Zone */}
+                  <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
+                    <div className="p-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all cursor-pointer relative group">
+                      <input 
+                        type="file" 
+                        accept="image/*,video/*"
+                        onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <UploadCloud className="w-8 h-8 text-pink-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">
+                        {uploadFile ? uploadFile.name : "Select past stall photo or video"}
+                      </p>
+                      <p className="text-white/40 text-xs mt-1">Supports PNG, JPG, JPEG, and MP4 (Max 15MB)</p>
+                    </div>
+                    {uploadFile && (
+                      <button
+                        type="submit"
+                        disabled={isUploading}
+                        className="px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-indigo-500 hover:from-pink-600 hover:to-indigo-600 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
+                          </>
+                        ) : (
+                          "Upload to Feed 🚀"
+                        )}
+                      </button>
+                    )}
+                  </form>
+
+                  {/* 3-Column Instagram-Style Media Feed Grid */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Past Stall Gallery</p>
+                    {vendorProfile?.media?.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
+                        <Instagram className="w-12 h-12 text-white/10 mb-3" />
+                        <p className="text-white/50 font-medium">Your feed is empty.</p>
+                        <p className="text-white/30 text-xs mt-1">Upload files above to showcase your stall setups, crowd pulls, and dishes!</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2 md:gap-4">
+                        {vendorProfile?.media?.map((post: any) => (
+                          <div 
+                            key={post.id}
+                            onClick={() => setSelectedMedia(post)}
+                            className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md"
+                          >
+                            {post.media_type === "video" ? (
+                              <video 
+                                src={post.media_url} 
+                                className="w-full h-full object-cover" 
+                                muted 
+                                playsInline 
+                              />
+                            ) : (
+                              <img 
+                                src={post.media_url} 
+                                alt="Vendor setup post" 
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                              />
+                            )}
+
+                            {/* Hover Overlay with Heart/Likes count */}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold backdrop-blur-[2px]">
+                              <Heart className="w-6 h-6 text-pink-500 fill-pink-500 animate-pulse" />
+                              <span className="text-lg tracking-wide">{post.like_count}</span>
+                            </div>
+                            
+                            {post.media_type === "video" && (
+                              <div className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 border border-white/10 text-[10px] font-black uppercase tracking-widest pointer-events-none">
+                                Video
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {activeTab === "settings" && (
             <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10">
               {/* Settings Header */}
@@ -894,6 +1368,85 @@ export default function VendorDashboard() {
           
         </div>
       </section>
+
+      {/* Immersive Full-Screen Media Modal */}
+      <AnimatePresence>
+        {selectedMedia && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          >
+            <div className="relative max-w-3xl w-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-2xl flex flex-col md:flex-row shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]">
+              {/* Media viewer */}
+              <div className="flex-1 bg-black aspect-square md:aspect-auto md:h-[500px] flex items-center justify-center">
+                {selectedMedia.media_type === "video" ? (
+                  <video 
+                    src={selectedMedia.media_url} 
+                    className="w-full h-full object-contain" 
+                    controls 
+                    autoPlay 
+                    loop 
+                  />
+                ) : (
+                  <img 
+                    src={selectedMedia.media_url} 
+                    alt="Vendor visual media detail" 
+                    className="w-full h-full object-contain" 
+                  />
+                )}
+              </div>
+
+              {/* Media sidebar info / action */}
+              <div className="w-full md:w-80 p-6 flex flex-col gap-6 justify-between border-t md:border-t-0 md:border-l border-white/10">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 font-black uppercase tracking-wider">
+                      {selectedMedia.media_type} post
+                    </span>
+                    <button 
+                      onClick={() => setSelectedMedia(null)}
+                      className="p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="text-white/50 text-xs mt-2">
+                    <p>Uploaded: {new Date(selectedMedia.created_at).toLocaleDateString(undefined, {
+                      year: 'numeric', month: 'long', day: 'numeric'
+                    })}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-6 border-t border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Heart 
+                        className={`w-6 h-6 cursor-pointer hover:scale-110 transition-transform ${
+                          selectedMedia.is_liked_by_me ? "text-pink-500 fill-pink-500" : "text-white/50"
+                        }`}
+                        onClick={() => handleLikeMedia(selectedMedia.id)}
+                      />
+                      <span className="text-white font-extrabold text-lg">{selectedMedia.like_count} Likes</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleDeleteMedia(selectedMedia.id)}
+                      className="w-full py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold text-sm transition-all flex items-center justify-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" /> Delete Post
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Interactive Stall Map Modal */}
       <AnimatePresence>

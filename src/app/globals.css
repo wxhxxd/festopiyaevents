@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat&family=Yellowtail&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -11,6 +12,23 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+
+.font-yellowtail {
+  font-family: 'Yellowtail', cursive;
+}
+
+.font-caveat {
+  font-family: 'Caveat', cursive;
+}
+
+.font-geist-sans {
+  font-family: 'Geist', sans-serif;
+}
+
+.font-geist-mono {
+  font-family: 'Geist Mono', monospace;
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {

@@ -22,14 +22,36 @@ import {
   Save,
   Sparkles,
   CalendarPlus,
-  LayoutGrid
+  LayoutGrid,
+  Heart,
+  Lock,
+  Unlock,
+  ExternalLink
 } from "lucide-react";
-import { Yellowtail } from "next/font/google";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import ChatInterface, { ChatContext } from "@/components/ChatInterface";
 
-const yellowtail = Yellowtail({ weight: "400", subsets: ["latin"] });
+const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const yellowtail = { className: "font-yellowtail" };
 
 interface EventData {
   id: number;
@@ -176,6 +198,95 @@ export default function OrganizerDashboard() {
   const [eventBookings, setEventBookings] = useState<any[]>([]);
   const [isBookingsLoading, setIsBookingsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'events' | 'vendors' | 'settings'>('events');
+
+  // --- Creator Profile States ---
+  const [selectedVendorForProfile, setSelectedVendorForProfile] = useState<number | null>(null);
+  const [vendorProfileData, setVendorProfileData] = useState<any>(null);
+  const [isProfileModalLoading, setIsProfileModalLoading] = useState(false);
+  const [selectedMediaDetail, setSelectedMediaDetail] = useState<any>(null);
+
+  const handleOpenVendorProfile = async (vendorId: number) => {
+    setSelectedVendorForProfile(vendorId);
+    setIsProfileModalLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/users/${vendorId}/profile`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVendorProfileData(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch vendor profile", err);
+    } finally {
+      setIsProfileModalLoading(false);
+    }
+  };
+
+  const handleFollowVendor = async (vendorId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/users/${vendorId}/follow`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVendorProfileData((prev: any) => {
+          if (!prev || prev.id !== vendorId) return prev;
+          return {
+            ...prev,
+            is_followed_by_me: data.followed,
+            follower_count: data.follower_count,
+            badges: prev.badges.map((b: any) => {
+              if (b.id === "most_lovable") {
+                return {
+                  ...b,
+                  is_unlocked: data.follower_count >= 5 || prev.total_likes >= 5
+                };
+              }
+              return b;
+            })
+          };
+        });
+      }
+    } catch (err) {
+      console.error("Failed to toggle follow status", err);
+    }
+  };
+
+  const handleLikeVendorMedia = async (mediaId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}/like`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedMediaDetail((prev: any) => {
+          if (!prev || prev.id !== mediaId) return prev;
+          return {
+            ...prev,
+            is_liked_by_me: data.liked,
+            like_count: data.like_count
+          };
+        });
+        if (selectedVendorForProfile) {
+          const resProfile = await fetch(`http://127.0.0.1:8000/users/${selectedVendorForProfile}/profile`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (resProfile.ok) {
+            const dataProfile = await resProfile.json();
+            setVendorProfileData(dataProfile);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to like media", err);
+    }
+  };
 
   // --- Pitches State ---
   const [pitches, setPitches] = useState<PitchData[]>([]);
@@ -634,12 +745,15 @@ export default function OrganizerDashboard() {
                       <div key={pitch.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-4">
                         {/* Header */}
                         <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-lg">
+                          <div 
+                            className="flex items-center gap-3 cursor-pointer group/vendor"
+                            onClick={() => handleOpenVendorProfile(pitch.vendor_id)}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-lg border border-indigo-500/20 group-hover/vendor:border-fuchsia-500/50 group-hover/vendor:bg-fuchsia-500/10 group-hover/vendor:text-fuchsia-300 transition-all">
                               {(pitch.vendor_name || 'V').charAt(0)}
                             </div>
                             <div>
-                              <p className="text-white font-semibold leading-tight">{pitch.vendor_name || `Vendor #${pitch.vendor_id}`}</p>
+                              <p className="text-white font-semibold leading-tight group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-indigo-300 group-hover/vendor:to-fuchsia-300 transition-all">{pitch.vendor_name || `Vendor #${pitch.vendor_id}`}</p>
                               <p className="text-white/40 text-xs">{pitch.event_name || `Event #${pitch.event_id}`}</p>
                             </div>
                           </div>
@@ -914,11 +1028,18 @@ export default function OrganizerDashboard() {
                           <span className="text-white/30 text-xs">ID: #{booking.id}</span>
                         </div>
                         <div className="flex items-center justify-between mt-1">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm">
+                          <div 
+                            className="flex items-center gap-3 cursor-pointer group/vendor"
+                            onClick={() => {
+                              setSelectedEventForBookings(null);
+                              handleOpenVendorProfile(booking.vendor_id);
+                            }}
+                            title="View Creator Profile"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/20 group-hover/vendor:border-fuchsia-500/50 group-hover/vendor:bg-fuchsia-500/10 group-hover/vendor:text-fuchsia-300 transition-all">
                               {booking.vendor_name.charAt(0)}
                             </div>
-                            <span className="text-white font-medium">{booking.vendor_name}</span>
+                            <span className="text-white font-medium group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-indigo-300 group-hover/vendor:to-fuchsia-300 transition-all">{booking.vendor_name}</span>
                           </div>
                           <button
                             onClick={() => {
@@ -1127,6 +1248,334 @@ export default function OrganizerDashboard() {
         )}
       </AnimatePresence>
       
+      {/* Immersive Instagram-Style Creator Profile Modal */}
+      <AnimatePresence>
+        {selectedVendorForProfile !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] flex flex-col"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+                    Vendor Creator Profile
+                  </h3>
+                  <p className="text-white/40 text-xs mt-0.5">Explore setups, hype score, and achievements</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    setSelectedVendorForProfile(null);
+                    setVendorProfileData(null);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="p-6 md:p-8 overflow-y-auto flex-1 scrollbar-hide space-y-8">
+                {isProfileModalLoading && !vendorProfileData ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mb-4" />
+                    <p className="text-white/60">Loading Creator Profile...</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Header Info Block */}
+                    <div className="flex flex-col md:flex-row items-center gap-8 pb-6 border-b border-white/10">
+                      <div className="relative shrink-0">
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] shadow-lg shadow-indigo-500/20">
+                          {vendorProfileData?.avatar_url ? (
+                            <img 
+                              src={vendorProfileData.avatar_url} 
+                              alt={vendorProfileData.company_name} 
+                              className="w-full h-full rounded-full object-cover border border-black/40"
+                            />
+                          ) : (
+                            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black border border-black/40">
+                              {vendorProfileData?.company_name?.charAt(0) || "V"}
+                            </div>
+                          )}
+                        </div>
+                        <span className="absolute bottom-1 right-1 px-2.5 py-0.5 text-[9px] font-black uppercase rounded-full bg-indigo-500 text-white border-2 border-black tracking-wide shadow-md">
+                          Creator
+                        </span>
+                      </div>
+
+                      <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
+                        <div className="w-full">
+                          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h2 className="text-3xl font-extrabold text-white tracking-tight">{vendorProfileData?.company_name || "Vendor Name"}</h2>
+                                <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-widest">Verified</span>
+                              </div>
+                              <div className="flex justify-center md:justify-start gap-2 mt-2">
+                                {vendorProfileData?.instagram_url && (
+                                  <a 
+                                    href={vendorProfileData.instagram_url.startsWith("http") ? vendorProfileData.instagram_url : `https://instagram.com/${vendorProfileData.instagram_url}`} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-full bg-white/5 hover:bg-pink-500/10 text-white/60 hover:text-pink-400 border border-white/10 hover:border-pink-500/30 transition-all text-xs flex items-center gap-1.5"
+                                  >
+                                    <Instagram className="w-3.5 h-3.5" />
+                                    <span className="text-[10px]">Instagram</span>
+                                  </a>
+                                )}
+                                {vendorProfileData?.website_url && (
+                                  <a 
+                                    href={vendorProfileData.website_url.startsWith("http") ? vendorProfileData.website_url : `https://${vendorProfileData.website_url}`} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-full bg-white/5 hover:bg-indigo-500/10 text-white/60 hover:text-indigo-400 border border-white/10 hover:border-indigo-500/30 transition-all text-xs flex items-center gap-1.5"
+                                  >
+                                    <Globe className="w-3.5 h-3.5 text-indigo-400" />
+                                    <span className="text-[10px]">Website</span>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Follow Button */}
+                            <button
+                              onClick={() => handleFollowVendor(vendorProfileData.id)}
+                              className={`px-8 py-3 rounded-2xl font-bold text-sm tracking-wide shadow-md transition-all ${
+                                vendorProfileData?.is_followed_by_me
+                                  ? "bg-white/10 hover:bg-white/20 text-white border border-white/15"
+                                  : "bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+                              }`}
+                            >
+                              {vendorProfileData?.is_followed_by_me ? "✓ Following" : "Follow Vendor"}
+                            </button>
+                          </div>
+                          <p className="text-white/60 text-sm mt-4 leading-relaxed max-w-2xl">
+                            {vendorProfileData?.bio || "No biography added yet."}
+                          </p>
+                        </div>
+
+                        {/* Hype stats */}
+                        <div className="flex gap-4 mt-2">
+                          <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                            <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                              {vendorProfileData?.follower_count || 0}
+                            </p>
+                            <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Hype Score (Followers)</p>
+                          </div>
+                          <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                            <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">
+                              {vendorProfileData?.total_likes || 0}
+                            </p>
+                            <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Total Hype (Likes)</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Badge Rack */}
+                    <div className="flex flex-col gap-3">
+                      <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Earned Trust Badges</p>
+                      <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2">
+                        {vendorProfileData?.badges?.map((badge: any) => {
+                          const iconColor = badge.is_unlocked 
+                            ? badge.id === "beginner" ? "text-emerald-400 bg-emerald-400/20 border-emerald-500/30"
+                              : badge.id === "most_lovable" ? "text-amber-400 bg-amber-400/20 border-amber-500/30"
+                              : "text-rose-400 bg-rose-400/20 border-rose-500/30"
+                            : "text-white/20 bg-white/5 border-white/5";
+                          
+                          return (
+                            <div 
+                              key={badge.id}
+                              className={`flex items-center gap-3 px-5 py-3 rounded-2xl border backdrop-blur-md shrink-0 transition-all ${
+                                badge.is_unlocked 
+                                  ? "bg-white/10 border-white/10 shadow-md shadow-black/25" 
+                                  : "opacity-40 border-dashed border-white/5"
+                              }`}
+                            >
+                              <div className={`p-2 rounded-xl border ${iconColor}`}>
+                                {badge.is_unlocked ? <Unlock className="w-4 h-4 animate-pulse" /> : <Lock className="w-4 h-4" />}
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white flex items-center gap-1.5">
+                                  {badge.name}
+                                  {badge.is_unlocked && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                                </p>
+                                <p className="text-[10px] text-white/50 max-w-[200px] mt-0.5 leading-tight">{badge.description}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Media Grid */}
+                    <div className="flex flex-col gap-3">
+                      <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Creator Media Feed</p>
+                      {vendorProfileData?.media?.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
+                          <Instagram className="w-12 h-12 text-white/10 mb-3" />
+                          <p className="text-white/50 font-medium">Feed is currently empty</p>
+                          <p className="text-white/30 text-xs mt-1">This vendor has not uploaded any stall visuals yet.</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2 md:gap-4">
+                          {vendorProfileData?.media?.map((post: any) => (
+                            <div 
+                              key={post.id}
+                              onClick={() => setSelectedMediaDetail(post)}
+                              className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md"
+                            >
+                              {post.media_type === "video" ? (
+                                <video 
+                                  src={post.media_url} 
+                                  className="w-full h-full object-cover" 
+                                  muted 
+                                  playsInline 
+                                />
+                              ) : (
+                                <img 
+                                  src={post.media_url} 
+                                  alt="Vendor setup post" 
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                />
+                              )}
+
+                              {/* Hover Overlay with Heart/Likes count */}
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold backdrop-blur-[2px]">
+                                <Heart className={`w-6 h-6 text-pink-500 ${post.is_liked_by_me ? 'fill-pink-500' : ''}`} />
+                                <span className="text-lg tracking-wide">{post.like_count}</span>
+                              </div>
+                              
+                              {post.media_type === "video" && (
+                                <div className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 border border-white/10 text-[9px] font-black uppercase tracking-widest pointer-events-none">
+                                  Video
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Creator Media Detail Overlay */}
+      <AnimatePresence>
+        {selectedMediaDetail !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl flex flex-col md:flex-row"
+            >
+              {/* Media viewer */}
+              <div className="flex-1 h-full bg-[#030303] flex items-center justify-center relative">
+                {selectedMediaDetail.media_type === "video" ? (
+                  <video 
+                    src={selectedMediaDetail.media_url} 
+                    className="w-full h-full object-contain" 
+                    controls 
+                    autoPlay 
+                    loop
+                  />
+                ) : (
+                  <img 
+                    src={selectedMediaDetail.media_url} 
+                    alt="Visual setup detail" 
+                    className="w-full h-full object-contain"
+                  />
+                )}
+                <button 
+                  onClick={() => setSelectedMediaDetail(null)}
+                  className="absolute top-4 left-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 border border-white/10 md:hidden transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Side panel for details */}
+              <div className="w-full md:w-80 h-full p-6 bg-[#090909] border-t md:border-t-0 md:border-l border-white/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-white/30 text-xs uppercase tracking-widest font-black">Detail View</span>
+                    <button 
+                      onClick={() => setSelectedMediaDetail(null)}
+                      className="hidden md:flex w-8 h-8 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors border border-white/10"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px]">
+                      {vendorProfileData?.avatar_url ? (
+                        <img 
+                          src={vendorProfileData.avatar_url} 
+                          alt={vendorProfileData.company_name} 
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-bold">
+                          {vendorProfileData?.company_name?.charAt(0) || "V"}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-white font-bold leading-tight">{vendorProfileData?.company_name}</p>
+                      <p className="text-white/40 text-[10px]">Stall visualizer</p>
+                    </div>
+                  </div>
+
+                  <p className="text-white/70 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    Stall visual uploaded on {new Date(selectedMediaDetail.created_at).toLocaleDateString()}. Like this stall setup to build up their creator hype score!
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleLikeVendorMedia(selectedMediaDetail.id)}
+                      className={`p-3 rounded-2xl border transition-all ${
+                        selectedMediaDetail.is_liked_by_me 
+                          ? "bg-pink-500/20 border-pink-500/40 text-pink-500" 
+                          : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+                      }`}
+                    >
+                      <Heart className={`w-6 h-6 ${selectedMediaDetail.is_liked_by_me ? 'fill-pink-500' : ''}`} />
+                    </button>
+                    <div>
+                      <p className="text-white font-black text-lg">{selectedMediaDetail.like_count}</p>
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Hype Likes</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ChatInterface 
         isOpen={isChatOpen} 
         onClose={() => setIsChatOpen(false)} 
