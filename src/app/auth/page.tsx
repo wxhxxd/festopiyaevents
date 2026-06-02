@@ -53,7 +53,7 @@ export default function AuthPage() {
 
       } else {
         // Signup — role comes from the top toggle, not a form field
-        const res = await fetch("http://127.0.0.1:8000/signup", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, company_name: companyName, role }),
@@ -65,7 +65,7 @@ export default function AuthPage() {
         const formData = new URLSearchParams();
         formData.append("username", email);
         formData.append("password", password);
-        const loginRes = await fetch("http://127.0.0.1:8000/login", {
+        const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: formData.toString(),

@@ -117,7 +117,7 @@ function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings
         <div className="relative z-10 flex flex-col h-full">
           {event.image_url ? (
             <img 
-              src={event.image_url.startsWith('http') ? event.image_url : `http://127.0.0.1:8000${event.image_url}`} 
+              src={event.image_url.startsWith('http') ? event.image_url : `${process.env.NEXT_PUBLIC_API_URL}${event.image_url}`} 
               alt={event.name} 
               className="w-full h-48 object-cover rounded-2xl mb-6 shadow-inner" 
             />
@@ -210,7 +210,7 @@ export default function OrganizerDashboard() {
     setIsProfileModalLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/users/${vendorId}/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${vendorId}/profile`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -227,7 +227,7 @@ export default function OrganizerDashboard() {
   const handleFollowVendor = async (vendorId: number) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/users/${vendorId}/follow`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${vendorId}/follow`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -259,7 +259,7 @@ export default function OrganizerDashboard() {
   const handleLikeVendorMedia = async (mediaId: number) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}/like`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}/like`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -274,7 +274,7 @@ export default function OrganizerDashboard() {
           };
         });
         if (selectedVendorForProfile) {
-          const resProfile = await fetch(`http://127.0.0.1:8000/users/${selectedVendorForProfile}/profile`, {
+          const resProfile = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${selectedVendorForProfile}/profile`, {
             headers: { "Authorization": `Bearer ${token}` }
           });
           if (resProfile.ok) {
@@ -330,7 +330,7 @@ export default function OrganizerDashboard() {
     try {
       const headers = getHeaders();
       if (!headers) return;
-      const res = await fetch(`http://127.0.0.1:8000/events/${event.id}/bookings`, { headers });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${event.id}/bookings`, { headers });
       const data = await res.json();
       setEventBookings(data);
     } catch (err) {
@@ -343,7 +343,7 @@ export default function OrganizerDashboard() {
   const fetchEvents = () => {
     const headers = getHeaders();
     if (!headers) return;
-    fetch("http://127.0.0.1:8000/events/", { headers })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, { headers })
       .then((res) => res.json())
       .then((data) => {
         console.log("Raw API Response:", data);
@@ -361,7 +361,7 @@ export default function OrganizerDashboard() {
     try {
       const headers = getHeaders();
       if (!headers) return;
-      const res = await fetch("http://127.0.0.1:8000/pitches/", { headers });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/`, { headers });
       const data = await res.json();
       setPitches(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -377,7 +377,7 @@ export default function OrganizerDashboard() {
       if (!headers) return;
       const body: any = { status };
       if (price !== undefined) body.offered_price = price;
-      const res = await fetch(`http://127.0.0.1:8000/pitches/${pitchId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${pitchId}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(body),
@@ -405,7 +405,7 @@ export default function OrganizerDashboard() {
     if (activeTab !== 'settings') return;
     const token = localStorage.getItem('token');
     if (!token) return;
-    fetch('http://127.0.0.1:8000/users/me', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(r => r.json())
@@ -427,7 +427,7 @@ export default function OrganizerDashboard() {
     setIsSavingProfile(true);
     setSaveSuccess(false);
     try {
-      const res = await fetch('http://127.0.0.1:8000/users/me', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -476,7 +476,7 @@ export default function OrganizerDashboard() {
         formData.append('image', eventImage);
       }
 
-      const response = await fetch("http://127.0.0.1:8000/events/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, {
         method: "POST",
         headers: fetchHeaders,
         body: formData
@@ -1016,7 +1016,7 @@ export default function OrganizerDashboard() {
                       <div key={booking.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2">
                         {booking.image_url && (
                           <img 
-                            src={booking.image_url.startsWith('http') ? booking.image_url : `http://127.0.0.1:8000${booking.image_url}`} 
+                            src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
                             alt={`Vendor for Stall #${booking.stall_number}`} 
                             className="w-full h-32 object-cover rounded-xl mb-2 shadow-inner" 
                           />

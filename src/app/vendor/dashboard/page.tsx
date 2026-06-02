@@ -108,7 +108,7 @@ export default function VendorDashboard() {
     setIsProfileLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/users/${userId}/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/profile`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -157,7 +157,7 @@ export default function VendorDashboard() {
         const fileExtension = uploadFile.name.split('.').pop()?.toLowerCase();
         const mediaType = ["mp4", "webm", "avi", "mov"].includes(fileExtension || "") ? "video" : "image";
 
-        const registerRes = await fetch("http://127.0.0.1:8000/users/me/media/link", {
+        const registerRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/media/link`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -176,7 +176,7 @@ export default function VendorDashboard() {
         const formData = new FormData();
         formData.append("file", uploadFile);
 
-        const uploadRes = await fetch("http://127.0.0.1:8000/users/me/media", {
+        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/media`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`
@@ -208,7 +208,7 @@ export default function VendorDashboard() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/users/me/avatar", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/avatar`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -230,7 +230,7 @@ export default function VendorDashboard() {
   const handleLikeMedia = async (mediaId: number) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}/like`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}/like`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -246,7 +246,7 @@ export default function VendorDashboard() {
     if (!confirm("Are you sure you want to delete this post?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/media/${mediaId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -310,7 +310,7 @@ export default function VendorDashboard() {
     try {
       const headers = getHeaders();
       if (!headers) return;
-      const res = await fetch("http://127.0.0.1:8000/events/", { headers });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, { headers });
       const data = await res.json();
       setEvents(Array.isArray(data) ? data : (data.events || []));
     } catch (err) {
@@ -322,7 +322,7 @@ export default function VendorDashboard() {
     try {
       const headers = getHeaders();
       if (!headers) return;
-      const res = await fetch("http://127.0.0.1:8000/bookings/", { headers });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, { headers });
       const data = await res.json();
       setBookings(data);
     } catch (err) {
@@ -334,7 +334,7 @@ export default function VendorDashboard() {
     try {
       const headers = getHeaders();
       if (!headers) return;
-      const res = await fetch("http://127.0.0.1:8000/pitches/", { headers });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/`, { headers });
       const data = await res.json();
       setMyPitches(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -351,7 +351,7 @@ export default function VendorDashboard() {
 
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://127.0.0.1:8000/users/me", {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       })
         .then(r => r.json())
@@ -380,7 +380,7 @@ export default function VendorDashboard() {
     if (activeTab !== 'settings') return;
     const token = localStorage.getItem('token');
     if (!token) return;
-    fetch('http://127.0.0.1:8000/users/me', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(r => r.json())
@@ -402,7 +402,7 @@ export default function VendorDashboard() {
     setIsSavingProfile(true);
     setSaveSuccess(false);
     try {
-      const res = await fetch('http://127.0.0.1:8000/users/me', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ export default function VendorDashboard() {
         try {
           const headers = getHeaders();
           if (!headers) return;
-          const res = await fetch(`http://127.0.0.1:8000/events/${selectedEvent.id}/bookings`, { headers });
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { headers });
           const data = await res.json();
           setEventBookings(data);
         } catch (err) {
@@ -477,7 +477,7 @@ export default function VendorDashboard() {
       const headers = getHeaders();
       if (!headers) return;
 
-      const response = await fetch("http://127.0.0.1:8000/pitches/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify({
@@ -499,7 +499,7 @@ export default function VendorDashboard() {
       if (selectedEvent) {
         const headers = getHeaders();
         if (headers) {
-          const res = await fetch(`http://127.0.0.1:8000/events/${selectedEvent.id}/bookings`, { headers });
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { headers });
           const data = await res.json();
           setEventBookings(data);
         }
@@ -710,7 +710,7 @@ export default function VendorDashboard() {
                         <div className="relative z-10 flex flex-col h-full">
                           {event.image_url ? (
                             <img
-                              src={event.image_url.startsWith('http') ? event.image_url : `http://127.0.0.1:8000${event.image_url}`}
+                              src={event.image_url.startsWith('http') ? event.image_url : `${process.env.NEXT_PUBLIC_API_URL}${event.image_url}`}
                               alt={event.name}
                               className="w-full h-48 object-cover rounded-2xl mb-6 shadow-inner"
                             />
@@ -812,7 +812,7 @@ export default function VendorDashboard() {
                     >
                       {booking.image_url && (
                         <img 
-                          src={booking.image_url.startsWith('http') ? booking.image_url : `http://127.0.0.1:8000${booking.image_url}`} 
+                          src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
                           alt={`Stall ${booking.stall_number}`} 
                           className="w-full h-32 object-cover rounded-2xl mb-4 shadow-inner" 
                         />
@@ -934,7 +934,7 @@ export default function VendorDashboard() {
                                 onClick={async () => {
                                   const headers = getHeaders();
                                   if (!headers) return;
-                                  await fetch(`http://127.0.0.1:8000/pitches/${pitch.id}`, {
+                                  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${pitch.id}`, {
                                     method: 'PUT',
                                     headers,
                                     body: JSON.stringify({ status: 'Accepted' }),
@@ -951,7 +951,7 @@ export default function VendorDashboard() {
                                   if (!headers) return;
                                   const newPrice = prompt('Enter your counter price (₹):');
                                   if (!newPrice) return;
-                                  await fetch(`http://127.0.0.1:8000/pitches/${pitch.id}`, {
+                                  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${pitch.id}`, {
                                     method: 'PUT',
                                     headers,
                                     body: JSON.stringify({ status: 'Pending', offered_price: parseFloat(newPrice) }),
@@ -1035,7 +1035,7 @@ export default function VendorDashboard() {
                                 if (!editNameValue.trim()) return;
                                 try {
                                   const token = localStorage.getItem("token");
-                                  const res = await fetch("http://127.0.0.1:8000/users/me", {
+                                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
                                     method: "PUT",
                                     headers: {
                                       "Content-Type": "application/json",

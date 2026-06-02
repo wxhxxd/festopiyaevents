@@ -20,7 +20,7 @@ function VerifyEmailContent() {
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/verify-email?token=${token}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/verify-email?token=${token}`)
       .then(async (res) => {
         const data = await res.json();
         if (res.ok) {

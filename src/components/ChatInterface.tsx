@@ -79,7 +79,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
       setInboxLoading(true);
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await fetch("http://127.0.0.1:8000/messages/inbox", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages/inbox`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -98,14 +98,14 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await fetch(`http://127.0.0.1:8000/messages?event_id=${activeContext.eventId}${activeContext.vendorId ? `&vendor_id=${activeContext.vendorId}` : ''}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages?event_id=${activeContext.eventId}${activeContext.vendorId ? `&vendor_id=${activeContext.vendorId}` : ''}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
       }
-      const pitchRes = await fetch(`http://127.0.0.1:8000/pitches/for-chat?event_id=${activeContext.eventId}${activeContext.vendorId ? `&vendor_id=${activeContext.vendorId}` : ''}`, {
+      const pitchRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/for-chat?event_id=${activeContext.eventId}${activeContext.vendorId ? `&vendor_id=${activeContext.vendorId}` : ''}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (pitchRes.ok) {
@@ -135,7 +135,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
     if (!pitch) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://127.0.0.1:8000/pitches/${pitch.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${pitch.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status, offered_price: price ?? pitch.offered_price })
@@ -158,7 +158,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await fetch("http://127.0.0.1:8000/messages", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
