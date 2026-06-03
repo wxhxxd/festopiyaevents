@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
@@ -21,7 +21,6 @@ from email.mime.multipart import MIMEMultipart
 SECRET_KEY = "your-secret-key-for-jwt" # In production, use env variable
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-API_URL = os.getenv("API_URL") or os.getenv("NEXT_PUBLIC_API_URL") or "http://localhost:8000"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -489,6 +488,7 @@ def update_current_user_profile(
 
 @app.post("/users/me/avatar", response_model=UserResponse)
 def upload_user_avatar(
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -504,7 +504,8 @@ def upload_user_avatar(
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    avatar_url = f"{API_URL}/static/uploads/{unique_filename}"
+    base_url = str(request.base_url).rstrip("/")
+    avatar_url = f"{base_url}/static/uploads/{unique_filename}"
     current_user.avatar_url = avatar_url
     db.commit()
     db.refresh(current_user)
@@ -544,7 +545,7 @@ def create_event(
     return db_event
 
 @app.get("/events/")
-def get_all_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     events = db.query(Event).offset(skip).limit(limit).all()
     result = []
     
@@ -553,6 +554,7 @@ def get_all_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     except FileNotFoundError:
         files = []
         
+    base_url = str(request.base_url).rstrip("/")
     for event in events:
         event_dict = {
             "id": event.id,
@@ -567,7 +569,7 @@ def get_all_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
         }
         for f in files:
             if f.startswith(f"{event.id}_"):
-                event_dict["image_url"] = f"{API_URL}/static/events/{f}"
+                event_dict["image_url"] = f"{base_url}/static/events/{f}"
                 break
         result.append(event_dict)
         
@@ -575,6 +577,7 @@ def get_all_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
 
 @app.post("/bookings/", response_model=StallBookingResponse)
 def book_stall(
+    request: Request,
     event_id: int = Form(...),
     stall_number: int = Form(...),
     image: Optional[UploadFile] = File(None),
@@ -613,13 +616,14 @@ def book_stall(
         file_location = f"static/bookings/{db_booking.id}_{image.filename}"
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(image.file, file_object)
-        db_booking.image_url = f"{API_URL}/static/bookings/{db_booking.id}_{image.filename}"
+        base_url = str(request.base_url).rstrip("/")
+        db_booking.image_url = f"{base_url}/static/bookings/{db_booking.id}_{image.filename}"
     
     db_booking.vendor_name = current_user.company_name
     return db_booking
 
 @app.get("/bookings/", response_model=List[StallBookingResponse])
-def get_all_bookings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_all_bookings(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Vendors only see their own bookings; Organizers see all
     if current_user.role == "Vendor":
         bookings = db.query(StallBooking).filter(StallBooking.vendor_id == current_user.id).offset(skip).limit(limit).all()
@@ -629,17 +633,18 @@ def get_all_bookings(skip: int = 0, limit: int = 100, db: Session = Depends(get_
         files = os.listdir("static/bookings")
     except FileNotFoundError:
         files = []
+    base_url = str(request.base_url).rstrip("/")
     for b in bookings:
         if b.vendor:
             b.vendor_name = b.vendor.company_name
         for f in files:
             if f.startswith(f"{b.id}_"):
-                b.image_url = f"{API_URL}/static/bookings/{f}"
+                b.image_url = f"{base_url}/static/bookings/{f}"
                 break
     return bookings
 
 @app.get("/events/{event_id}/bookings", response_model=List[StallBookingResponse])
-def get_event_bookings(event_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_event_bookings(request: Request, event_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -649,12 +654,13 @@ def get_event_bookings(event_id: int, skip: int = 0, limit: int = 100, db: Sessi
         files = os.listdir("static/bookings")
     except FileNotFoundError:
         files = []
+    base_url = str(request.base_url).rstrip("/")
     for b in bookings:
         if b.vendor:
             b.vendor_name = b.vendor.company_name
         for f in files:
             if f.startswith(f"{b.id}_"):
-                b.image_url = f"{API_URL}/static/bookings/{f}"
+                b.image_url = f"{base_url}/static/bookings/{f}"
                 break
     return bookings
 
@@ -962,6 +968,7 @@ def toggle_follow_vendor(
 
 @app.post("/users/me/media", response_model=MediaItemResponse)
 def upload_vendor_media(
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -979,7 +986,8 @@ def upload_vendor_media(
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    media_url = f"{API_URL}/static/uploads/{unique_filename}"
+    base_url = str(request.base_url).rstrip("/")
+    media_url = f"{base_url}/static/uploads/{unique_filename}"
     
     db_media = VendorMedia(
         vendor_id=current_user.id,
