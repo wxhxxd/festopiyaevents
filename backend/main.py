@@ -21,6 +21,7 @@ from email.mime.multipart import MIMEMultipart
 SECRET_KEY = "your-secret-key-for-jwt" # In production, use env variable
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+API_URL = os.getenv("API_URL") or os.getenv("NEXT_PUBLIC_API_URL") or "http://localhost:8000"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -348,11 +349,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://festopiya.vercel.app",
-        "https://festopiya-8mcxewwb0-wxhxxds-projects.vercel.app"
-    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -507,7 +505,7 @@ def upload_user_avatar(
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    avatar_url = f"http://127.0.0.1:8000/static/uploads/{unique_filename}"
+    avatar_url = f"{API_URL}/static/uploads/{unique_filename}"
     current_user.avatar_url = avatar_url
     db.commit()
     db.refresh(current_user)
@@ -570,7 +568,7 @@ def get_all_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
         }
         for f in files:
             if f.startswith(f"{event.id}_"):
-                event_dict["image_url"] = f"http://127.0.0.1:8000/static/events/{f}"
+                event_dict["image_url"] = f"{API_URL}/static/events/{f}"
                 break
         result.append(event_dict)
         
@@ -616,7 +614,7 @@ def book_stall(
         file_location = f"static/bookings/{db_booking.id}_{image.filename}"
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(image.file, file_object)
-        db_booking.image_url = f"http://127.0.0.1:8000/static/bookings/{db_booking.id}_{image.filename}"
+        db_booking.image_url = f"{API_URL}/static/bookings/{db_booking.id}_{image.filename}"
     
     db_booking.vendor_name = current_user.company_name
     return db_booking
@@ -637,7 +635,7 @@ def get_all_bookings(skip: int = 0, limit: int = 100, db: Session = Depends(get_
             b.vendor_name = b.vendor.company_name
         for f in files:
             if f.startswith(f"{b.id}_"):
-                b.image_url = f"http://127.0.0.1:8000/static/bookings/{f}"
+                b.image_url = f"{API_URL}/static/bookings/{f}"
                 break
     return bookings
 
@@ -657,7 +655,7 @@ def get_event_bookings(event_id: int, skip: int = 0, limit: int = 100, db: Sessi
             b.vendor_name = b.vendor.company_name
         for f in files:
             if f.startswith(f"{b.id}_"):
-                b.image_url = f"http://127.0.0.1:8000/static/bookings/{f}"
+                b.image_url = f"{API_URL}/static/bookings/{f}"
                 break
     return bookings
 
@@ -982,7 +980,7 @@ def upload_vendor_media(
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    media_url = f"http://127.0.0.1:8000/static/uploads/{unique_filename}"
+    media_url = f"{API_URL}/static/uploads/{unique_filename}"
     
     db_media = VendorMedia(
         vendor_id=current_user.id,
