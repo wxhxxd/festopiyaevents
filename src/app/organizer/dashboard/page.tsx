@@ -514,7 +514,7 @@ export default function OrganizerDashboard() {
   };
 
   return (
-    <main className="relative min-h-screen w-full overflow-hidden bg-black font-sans flex">
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-black font-sans flex flex-col md:flex-row">
       {/* Cinematic 3D Video Background */}
       <div className="fixed inset-0 z-0">
         <video 
@@ -530,17 +530,38 @@ export default function OrganizerDashboard() {
         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-indigo-950/50 to-black/90 mix-blend-overlay backdrop-blur-[2px]"></div>
       </div>
 
+      {/* Mobile Top Header */}
+      <header className="fixed top-0 left-0 right-0 h-16 z-50 flex md:hidden items-center justify-between px-6 bg-black/65 backdrop-blur-xl border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0" />
+          <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 tracking-tight">
+            Festopiya
+          </span>
+        </div>
+        <button 
+          onClick={() => { 
+            localStorage.removeItem("token"); 
+            localStorage.removeItem("company_name"); 
+            localStorage.removeItem("role"); 
+            router.push("/auth"); 
+          }}
+          className="p-2 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
+      </header>
+
       {/* Sidebar - Glassmorphism */}
-      <aside className="relative z-10 w-20 md:w-64 h-screen p-4 md:p-6 flex flex-col transition-all duration-300">
-        <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] py-8 px-3 md:px-4 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center md:justify-start gap-3 px-2 mb-10">
+      <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/10 bg-black/60 md:bg-white/5 backdrop-blur-2xl md:backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] px-4 py-2 md:py-8 md:px-4 md:overflow-hidden">
+          <div className="hidden md:flex items-center justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto mr-2 shrink-0" />
-            <span className="hidden md:block text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 tracking-tight">
+            <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 tracking-tight">
               Festopiya
             </span>
           </div>
 
-          <nav className="flex-1 space-y-2">
+          <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
             {([
               { icon: CalendarDays, label: "Events", tab: "events" },
               { icon: Users, label: "Vendor Hub", tab: "vendors" },
@@ -549,7 +570,7 @@ export default function OrganizerDashboard() {
               <button 
                 key={i} 
                 onClick={() => setActiveTab(item.tab)}
-                className={`w-full flex items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
                   activeTab === item.tab 
                     ? "bg-white/10 text-white shadow-inner border border-white/10" 
                     : "text-white/50 hover:bg-white/10 hover:text-white"
@@ -561,14 +582,14 @@ export default function OrganizerDashboard() {
             
             <button 
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-              className="w-full flex items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group text-white/50 hover:bg-white/10 hover:text-white"
+              className="flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group text-white/50 hover:bg-white/10 hover:text-white"
             >
               <MessageSquare className="w-6 h-6 md:w-5 md:h-5 group-hover:text-fuchsia-400 transition-colors" />
               <span className="hidden md:block font-medium tracking-wide">Messages</span>
             </button>
           </nav>
 
-          <div className="mt-auto pt-6 border-t border-white/10">
+          <div className="hidden md:block mt-auto pt-6 border-t border-white/10">
             <button 
               onClick={() => { 
                 localStorage.removeItem("token"); 
@@ -586,11 +607,11 @@ export default function OrganizerDashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <section className="relative z-10 flex-1 h-screen overflow-y-auto scrollbar-hide p-4 md:p-6 md:pl-0">
+      <section className="relative z-10 w-full flex-1 md:h-screen md:overflow-y-auto scrollbar-hide p-4 pt-20 pb-28 md:p-6 md:pt-6 md:pl-0">
         <div className="max-w-7xl mx-auto h-full flex flex-col">
           
           {activeTab === 'events' && (
-            <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-8 rounded-[2.5rem]">
+            <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem]">
 
               {/* ── Hero 2-col grid ──────────────────────────────── */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
@@ -604,7 +625,7 @@ export default function OrganizerDashboard() {
                   </div>
 
                   {/* Headline */}
-                  <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight text-white">
+                  <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-white">
                     Manage <br />
                     <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
                       your festivals
