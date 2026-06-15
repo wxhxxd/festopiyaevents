@@ -94,15 +94,21 @@ export default function AuthPage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4">
 
-      {/* ── Video Background ──────────────────────────────────── */}
-      <video
-        src="/club-bg.mp4.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        className="fixed top-0 left-0 w-full h-full object-cover -z-20"
+      <div
+        dangerouslySetInnerHTML={{
+          __html: `
+            <video
+              src="/club-bg.mp4.mp4"
+              autoplay
+              loop
+              muted
+              playsinline
+              webkit-playsinline
+              preload="auto"
+              class="fixed top-0 left-0 w-full h-full object-cover -z-20"
+            ></video>
+          `
+        }}
       />
       {/* Semi-transparent overlay — absolute so it shares the same stacking context */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 -z-10" />

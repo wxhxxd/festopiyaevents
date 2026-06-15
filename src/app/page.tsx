@@ -9,13 +9,20 @@ export default function LandingPage() {
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black font-sans">
 
-      <video
-        src="/bg-video.mp4"
-        playsInline
-        muted
-        autoPlay
-        loop
-        className="fixed inset-0 w-full h-full object-cover z-0"
+      <div
+        dangerouslySetInnerHTML={{
+          __html: `
+            <video
+              src="/bg-video.mp4"
+              autoplay
+              loop
+              muted
+              playsinline
+              webkit-playsinline
+              class="fixed inset-0 w-full h-full object-cover z-0"
+            ></video>
+          `
+        }}
       />
 
       {/* ── Dark Overlay ────────────────────────────────────── */}
