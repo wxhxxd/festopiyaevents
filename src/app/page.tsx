@@ -9,13 +9,12 @@ export default function LandingPage() {
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black font-sans">
 
-      {/* ── Video Background ─────────────────────────────────── */}
       <video
         src="/bg-video.mp4"
+        playsInline
+        muted
         autoPlay
         loop
-        muted
-        playsInline
         className="fixed inset-0 w-full h-full object-cover z-0"
       />
 

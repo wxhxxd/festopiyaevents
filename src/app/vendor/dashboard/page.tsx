@@ -867,33 +867,43 @@ export default function VendorDashboard() {
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-                      className="p-6 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col"
+                      className="overflow-hidden rounded-2xl bg-gray-900/50 border border-gray-800 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col"
                     >
-                      {booking.image_url && (
+                      {booking.image_url ? (
                         <img 
                           src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
                           alt={`Stall ${booking.stall_number}`} 
-                          className="w-full h-32 object-cover rounded-2xl mb-4 shadow-inner" 
+                          className="w-full h-40 object-cover" 
                         />
-                      )}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-2">
-                          <CheckCircle2 className="w-3 h-3" /> Booked
-                        </span>
-                        <span className="text-white/50 text-sm">ID: #{booking.id}</span>
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-1">
-                        Stall #{booking.stall_number ?? 'N/A'}
-                      </h3>
-                      <p className="text-rose-400 font-medium mb-6">
-                        {getEventName(booking.event_id)}
-                      </p>
-                      
-                      <div className="pt-4 border-t border-white/10 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold">
-                          {booking.vendor_name.charAt(0)}
+                      ) : (
+                        <div className="w-full h-40 bg-gray-800/10 border-b border-gray-800 flex items-center justify-center relative overflow-hidden shrink-0">
+                          {/* Grid background pattern */}
+                          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
+                          <Store className="w-10 h-10 text-gray-700 relative z-10" />
                         </div>
-                        <span className="text-white/70 text-sm font-medium">{booking.vendor_name}</span>
+                      )}
+                      
+                      <div className="p-5 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Booked
+                          </span>
+                          <span className="text-gray-400 text-sm">ID: #{booking.id}</span>
+                        </div>
+                        
+                        <h3 className="text-lg font-bold text-white mt-2">
+                          Stall #{booking.stall_number ?? 'N/A'}
+                        </h3>
+                        <p className="text-sm text-gray-400 font-medium mt-0.5 mb-4">
+                          {getEventName(booking.event_id)}
+                        </p>
+                        
+                        <div className="border-t border-gray-800 mt-auto flex items-center gap-3 py-3">
+                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                            {booking.vendor_name.charAt(0)}
+                          </div>
+                          <span className="text-white/70 text-sm font-medium truncate">{booking.vendor_name}</span>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
