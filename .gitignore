@@ -26,3 +26,8 @@ backend/__pycache__/
 *.njsproj
 *.sln
 *.sw?
+
+# Database files
+*.db
+events.db
+backend/events.db
