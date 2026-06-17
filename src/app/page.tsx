@@ -9,24 +9,32 @@ export default function LandingPage() {
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black font-sans">
 
-      {/* Desktop Video Background */}
-      <video
-        src="/bg-video.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="hidden md:block fixed inset-0 w-full h-full object-cover z-0"
-      />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: `
+            <!-- Desktop Video Background -->
+            <video
+              src="/bg-video.mp4"
+              autoplay
+              loop
+              muted
+              playsinline
+              webkit-playsinline
+              class="hidden md:block fixed inset-0 w-full h-full object-cover z-0"
+            ></video>
 
-      {/* Mobile Video Background */}
-      <video
-        src="/phoneveiw.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="block md:hidden fixed inset-0 w-full h-full object-cover z-0"
+            <!-- Mobile Video Background -->
+            <video
+              src="/phoneveiw.mp4"
+              autoplay
+              loop
+              muted
+              playsinline
+              webkit-playsinline
+              class="block md:hidden fixed inset-0 w-full h-full object-cover z-0"
+            ></video>
+          `
+        }}
       />
 
       {/* ── Dark Overlay ────────────────────────────────────── */}
