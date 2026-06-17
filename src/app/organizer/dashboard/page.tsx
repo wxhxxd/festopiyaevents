@@ -37,13 +37,44 @@ import ChatInterface, { ChatContext } from "@/components/ChatInterface";
 
 const getFullImageUrl = (url?: string) => {
   if (!url) return "";
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
+  
+  const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+  let resolvedUrl = url;
+
+  // 1. If relative path, prepend base URL
+  if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://")) {
+    let baseUrl = configuredApiUrl;
+    if (!baseUrl && typeof window !== "undefined") {
+      baseUrl = `${window.location.protocol}//${window.location.hostname}:5000`;
+    }
+    if (!baseUrl) {
+      baseUrl = "http://localhost:5000";
+    }
+    const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+    const cleanPath = resolvedUrl.startsWith("/") ? resolvedUrl : `/${resolvedUrl}`;
+    return `${cleanBase}${cleanPath}`;
   }
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-  const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-  const cleanPath = url.startsWith("/") ? url : `/${url}`;
-  return `${cleanBase}${cleanPath}`;
+
+  // 2. If absolute path, check if it contains localhost/127.0.0.1 to replace with active API or browser host
+  if (resolvedUrl.includes("localhost") || resolvedUrl.includes("127.0.0.1")) {
+    let targetBase = configuredApiUrl;
+    if (!targetBase && typeof window !== "undefined") {
+      // If we are accessing via local IP (e.g. 192.168.x.x) on mobile, use that hostname
+      targetBase = `${window.location.protocol}//${window.location.hostname}:5000`;
+    }
+    if (targetBase) {
+      try {
+        const urlObj = new URL(resolvedUrl);
+        const pathAndSearch = urlObj.pathname + urlObj.search;
+        const cleanBase = targetBase.endsWith("/") ? targetBase.slice(0, -1) : targetBase;
+        resolvedUrl = `${cleanBase}${pathAndSearch}`;
+      } catch (e) {
+        // Fallback
+      }
+    }
+  }
+
+  return resolvedUrl;
 };
 
 interface SafeImageProps {
