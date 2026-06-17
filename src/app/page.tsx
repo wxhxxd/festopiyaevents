@@ -1,28 +1,38 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 const yellowtail = { className: "font-yellowtail" };
 const caveat = { className: "font-caveat" };
 
 export default function LandingPage() {
+  const [videoSrc, setVideoSrc] = useState("/bg-video.mp4");
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth < 768) {
+        setVideoSrc("/auth-bg.mp4");
+      } else {
+        setVideoSrc("/bg-video.mp4");
+      }
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black font-sans">
 
-      <div
-        dangerouslySetInnerHTML={{
-          __html: `
-            <video
-              src="/bg-video.mp4"
-              autoplay
-              loop
-              muted
-              playsinline
-              webkit-playsinline
-              class="fixed inset-0 w-full h-full object-cover z-0"
-            ></video>
-          `
-        }}
+      <video
+        key={videoSrc}
+        src={videoSrc}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 w-full h-full object-cover z-0"
       />
 
       {/* ── Dark Overlay ────────────────────────────────────── */}

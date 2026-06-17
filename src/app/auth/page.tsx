@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Building2, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const router = useRouter();
+  const [videoSrc, setVideoSrc] = useState("/club-bg.mp4.mp4");
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth < 768) {
+        setVideoSrc("/auth-bg.mp4");
+      } else {
+        setVideoSrc("/club-bg.mp4.mp4");
+      }
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // ── Role (drives signup payload + top toggle) ─────────────────
   const [role, setRole] = useState<"Vendor" | "Organizer">("Vendor");
@@ -94,21 +108,14 @@ export default function AuthPage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4">
 
-      <div
-        dangerouslySetInnerHTML={{
-          __html: `
-            <video
-              src="/club-bg.mp4.mp4"
-              autoplay
-              loop
-              muted
-              playsinline
-              webkit-playsinline
-              preload="auto"
-              class="fixed top-0 left-0 w-full h-full object-cover -z-20"
-            ></video>
-          `
-        }}
+      <video
+        key={videoSrc}
+        src={videoSrc}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed top-0 left-0 w-full h-full object-cover -z-20"
       />
       {/* Semi-transparent overlay — absolute so it shares the same stacking context */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/40 -z-10" />
