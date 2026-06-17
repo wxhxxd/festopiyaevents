@@ -844,14 +844,14 @@ export default function VendorDashboard() {
             <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8">
               <div className="flex items-center justify-between mb-8 px-2">
                 <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                  <Store className="text-rose-400 w-8 h-8" />
+                  <Store className="text-purple-400 w-8 h-8 animate-pulse" />
                   My Stalls
                 </h2>
               </div>
               
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-12 h-12 text-rose-400 animate-spin mb-4" />
+                  <Loader2 className="w-12 h-12 text-purple-400 animate-spin mb-4" />
                   <p className="text-white/60 font-medium text-lg">Loading bookings...</p>
                 </div>
               ) : bookings.length === 0 ? (
@@ -867,38 +867,41 @@ export default function VendorDashboard() {
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-                      className="overflow-hidden rounded-2xl bg-gray-900/50 border border-gray-800 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col"
+                      className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300"
                     >
+                      {/* Animated gradient glow effect that appears on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-fuchsia-500/0 group-hover:from-purple-500/10 group-hover:via-indigo-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
+                      
                       {booking.image_url ? (
                         <img 
                           src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
                           alt={`Stall ${booking.stall_number}`} 
-                          className="w-full h-40 object-cover" 
+                          className="w-full h-40 object-cover relative z-10" 
                         />
                       ) : (
-                        <div className="w-full h-40 bg-gray-800/10 border-b border-gray-800 flex items-center justify-center relative overflow-hidden shrink-0">
+                        <div className="w-full h-40 bg-white/5 border-b border-white/10 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
                           {/* Grid background pattern */}
                           <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
-                          <Store className="w-10 h-10 text-gray-700 relative z-10" />
+                          <Store className="w-10 h-10 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-purple-400 transition-all duration-300" />
                         </div>
                       )}
                       
-                      <div className="p-5 flex flex-col flex-1">
+                      <div className="p-5 flex flex-col flex-1 relative z-10">
                         <div className="flex items-center justify-between">
                           <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Booked
                           </span>
-                          <span className="text-gray-400 text-sm">ID: #{booking.id}</span>
+                          <span className="text-white/40 text-sm">ID: #{booking.id}</span>
                         </div>
                         
-                        <h3 className="text-lg font-bold text-white mt-2">
+                        <h3 className="text-lg font-bold text-white mt-2 group-hover:text-purple-300 transition-all duration-300">
                           Stall #{booking.stall_number ?? 'N/A'}
                         </h3>
-                        <p className="text-sm text-gray-400 font-medium mt-0.5 mb-4">
+                        <p className="text-sm font-semibold mt-0.5 mb-4 bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
                           {getEventName(booking.event_id)}
                         </p>
                         
-                        <div className="border-t border-gray-800 mt-auto flex items-center gap-3 py-3">
+                        <div className="border-t border-white/10 mt-auto flex items-center gap-3 py-3">
                           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
                             {booking.vendor_name.charAt(0)}
                           </div>

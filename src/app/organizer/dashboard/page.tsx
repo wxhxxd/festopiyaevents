@@ -26,7 +26,8 @@ import {
   Heart,
   Lock,
   Unlock,
-  ExternalLink
+  ExternalLink,
+  Store
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -1034,21 +1035,33 @@ export default function OrganizerDashboard() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {eventBookings.map((booking) => (
-                      <div key={booking.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2">
-                        {booking.image_url && (
+                      <div 
+                        key={booking.id} 
+                        className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col p-4 gap-2 hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300"
+                      >
+                        {/* Animated gradient glow effect that appears on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-fuchsia-500/0 group-hover:from-purple-500/10 group-hover:via-indigo-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
+                        
+                        {booking.image_url ? (
                           <img 
                             src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
                             alt={`Vendor for Stall #${booking.stall_number}`} 
-                            className="w-full h-32 object-cover rounded-xl mb-2 shadow-inner" 
+                            className="w-full h-32 object-cover rounded-xl mb-2 shadow-inner relative z-10" 
                           />
+                        ) : (
+                          <div className="w-full h-32 bg-white/5 border border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
+                            {/* Grid background pattern */}
+                            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
+                            <Store className="w-8 h-8 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-purple-400 transition-all duration-300" />
+                          </div>
                         )}
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex justify-between items-center mb-2 relative z-10">
                           <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                             Stall #{booking.stall_number ?? 'N/A'}
                           </span>
-                          <span className="text-white/30 text-xs">ID: #{booking.id}</span>
+                          <span className="text-white/40 text-xs">ID: #{booking.id}</span>
                         </div>
-                        <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center justify-between mt-1 relative z-10">
                           <div 
                             className="flex items-center gap-3 cursor-pointer group/vendor"
                             onClick={() => {
@@ -1057,10 +1070,10 @@ export default function OrganizerDashboard() {
                             }}
                             title="View Creator Profile"
                           >
-                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/20 group-hover/vendor:border-fuchsia-500/50 group-hover/vendor:bg-fuchsia-500/10 group-hover/vendor:text-fuchsia-300 transition-all">
+                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/20 group-hover/vendor:border-purple-500/50 group-hover/vendor:bg-purple-500/10 group-hover/vendor:text-purple-300 transition-all">
                               {booking.vendor_name.charAt(0)}
                             </div>
-                            <span className="text-white font-medium group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-indigo-300 group-hover/vendor:to-fuchsia-300 transition-all">{booking.vendor_name}</span>
+                            <span className="text-white font-medium group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-pink-400 group-hover/vendor:to-cyan-400 transition-all duration-300">{booking.vendor_name}</span>
                           </div>
                           <button
                             onClick={() => {
@@ -1075,7 +1088,7 @@ export default function OrganizerDashboard() {
                             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                             title="Message Vendor"
                           >
-                            <MessageSquare className="w-4 h-4 text-indigo-400" />
+                            <MessageSquare className="w-4 h-4 text-purple-400" />
                           </button>
                         </div>
                       </div>
