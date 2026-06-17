@@ -12,7 +12,7 @@ export default function AuthPage() {
   useEffect(() => {
     const checkMobile = () => {
       if (window.innerWidth < 768) {
-        setVideoSrc("/auth-bg.mp4");
+        setVideoSrc("/phoneveiw.mp4");
       } else {
         setVideoSrc("/club-bg.mp4.mp4");
       }

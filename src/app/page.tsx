@@ -12,7 +12,7 @@ export default function LandingPage() {
   useEffect(() => {
     const checkMobile = () => {
       if (window.innerWidth < 768) {
-        setVideoSrc("/auth-bg.mp4");
+        setVideoSrc("/phoneveiw.mp4");
       } else {
         setVideoSrc("/bg-video.mp4");
       }
