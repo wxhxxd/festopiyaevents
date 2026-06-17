@@ -27,11 +27,89 @@ import {
   Lock,
   Unlock,
   ExternalLink,
-  Store
+  Store,
+  UserCircle
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ChatInterface, { ChatContext } from "@/components/ChatInterface";
+
+const getFullImageUrl = (url?: string) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${cleanBase}${cleanPath}`;
+};
+
+interface SafeImageProps {
+  src?: string;
+  alt: string;
+  className?: string;
+  aspectRatio?: string;
+  maxWDesktop?: string;
+  roundedClass?: string;
+  fallbackIcon?: "store" | "avatar";
+}
+
+const SafeImage = ({
+  src,
+  alt,
+  className = "",
+  aspectRatio = "aspect-video",
+  maxWDesktop = "md:max-w-md",
+  roundedClass = "rounded-2xl",
+  fallbackIcon = "store"
+}: SafeImageProps) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fullUrl = getFullImageUrl(src);
+
+  return (
+    <div className={`relative w-full ${aspectRatio} ${maxWDesktop} mx-auto overflow-hidden bg-gray-900 ${roundedClass} shadow-inner`}>
+      {loading && (
+        <div className="absolute inset-0 bg-gray-800 animate-pulse flex items-center justify-center z-20">
+          {fallbackIcon === "store" ? (
+            <Store className="w-8 h-8 text-white/10" />
+          ) : (
+            <UserCircle className="w-8 h-8 text-white/10" />
+          )}
+        </div>
+      )}
+
+      {(!src || error) ? (
+        <div className="absolute inset-0 bg-gray-900/40 flex flex-col items-center justify-center border border-white/5 relative z-10">
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
+          {fallbackIcon === "store" ? (
+            <Store className="w-10 h-10 text-white/20" />
+          ) : (
+            <UserCircle className="w-10 h-10 text-white/20" />
+          )}
+        </div>
+      ) : (
+        <Image
+          src={fullUrl}
+          alt={alt}
+          fill
+          unoptimized
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className={`object-cover transition-all duration-500 relative z-10 ${loading ? 'scale-105 blur-lg opacity-0' : 'scale-100 blur-0 opacity-100'} ${className}`}
+          onLoad={() => setLoading(false)}
+          onError={() => {
+            setLoading(false);
+            setError(true);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
 
 const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -117,10 +195,13 @@ function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings
         
         <div className="relative z-10 flex flex-col h-full">
           {event.image_url ? (
-            <img 
-              src={event.image_url.startsWith('http') ? event.image_url : `${process.env.NEXT_PUBLIC_API_URL}${event.image_url}`} 
-              alt={event.name} 
-              className="w-full h-48 object-cover rounded-2xl mb-6 shadow-inner" 
+            <SafeImage
+              src={event.image_url}
+              alt={event.name}
+              aspectRatio="aspect-video"
+              maxWDesktop=""
+              roundedClass="rounded-2xl mb-6 shadow-inner"
+              fallbackIcon="store"
             />
           ) : (
             <div className="w-full h-48 rounded-2xl mb-6 bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner">
@@ -1043,13 +1124,16 @@ export default function OrganizerDashboard() {
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-fuchsia-500/0 group-hover:from-purple-500/10 group-hover:via-indigo-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
                         
                         {booking.image_url ? (
-                          <img 
-                            src={booking.image_url.startsWith('http') ? booking.image_url : `${process.env.NEXT_PUBLIC_API_URL}${booking.image_url}`} 
-                            alt={`Vendor for Stall #${booking.stall_number}`} 
-                            className="w-full h-32 object-cover rounded-xl mb-2 shadow-inner relative z-10" 
+                          <SafeImage
+                            src={booking.image_url}
+                            alt={`Vendor for Stall #${booking.stall_number}`}
+                            aspectRatio="aspect-video"
+                            maxWDesktop="md:max-w-md"
+                            roundedClass="rounded-xl mb-2"
+                            fallbackIcon="store"
                           />
                         ) : (
-                          <div className="w-full h-32 bg-white/5 border border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
+                          <div className="w-full aspect-video md:max-w-md mx-auto bg-white/5 border border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
                             {/* Grid background pattern */}
                             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
                             <Store className="w-8 h-8 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-purple-400 transition-all duration-300" />
@@ -1329,12 +1413,14 @@ export default function OrganizerDashboard() {
                     {/* Header Info Block */}
                     <div className="flex flex-col md:flex-row items-center gap-8 pb-6 border-b border-white/10">
                       <div className="relative shrink-0">
-                        <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] shadow-lg shadow-indigo-500/20">
+                        <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] shadow-lg shadow-indigo-500/20 relative overflow-hidden">
                           {vendorProfileData?.avatar_url ? (
-                            <img 
-                              src={vendorProfileData.avatar_url} 
+                            <Image 
+                              src={getFullImageUrl(vendorProfileData.avatar_url)} 
                               alt={vendorProfileData.company_name} 
-                              className="w-full h-full rounded-full object-cover border border-black/40"
+                              fill
+                              unoptimized
+                              className="rounded-full object-cover border border-black/40"
                             />
                           ) : (
                             <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black border border-black/40">
@@ -1469,20 +1555,24 @@ export default function OrganizerDashboard() {
                               onClick={() => setSelectedMediaDetail(post)}
                               className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md"
                             >
-                              {post.media_type === "video" ? (
-                                <video 
-                                  src={post.media_url} 
-                                  className="w-full h-full object-cover" 
-                                  muted 
-                                  playsInline 
-                                />
-                              ) : (
-                                <img 
-                                  src={post.media_url} 
-                                  alt="Vendor setup post" 
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                                />
-                              )}
+                            {post.media_type === "video" ? (
+                              <video 
+                                src={post.media_url} 
+                                className="w-full h-full object-cover" 
+                                muted 
+                                playsInline 
+                              />
+                            ) : (
+                              <SafeImage
+                                src={post.media_url}
+                                alt="Vendor setup post"
+                                aspectRatio="aspect-square"
+                                maxWDesktop=""
+                                roundedClass="rounded-none"
+                                className="transition-transform duration-500 group-hover:scale-110"
+                                fallbackIcon="store"
+                              />
+                            )}
 
                               {/* Hover Overlay with Heart/Likes count */}
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold backdrop-blur-[2px]">
@@ -1534,10 +1624,14 @@ export default function OrganizerDashboard() {
                     loop
                   />
                 ) : (
-                  <img 
-                    src={selectedMediaDetail.media_url} 
-                    alt="Visual setup detail" 
-                    className="w-full h-full object-contain"
+                  <SafeImage
+                    src={selectedMediaDetail.media_url}
+                    alt="Visual setup detail"
+                    aspectRatio="aspect-auto h-full w-full"
+                    maxWDesktop=""
+                    roundedClass="rounded-none"
+                    className="object-contain"
+                    fallbackIcon="store"
                   />
                 )}
                 <button 
@@ -1562,12 +1656,14 @@ export default function OrganizerDashboard() {
                   </div>
 
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px]">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px] relative overflow-hidden">
                       {vendorProfileData?.avatar_url ? (
-                        <img 
-                          src={vendorProfileData.avatar_url} 
+                        <Image 
+                          src={getFullImageUrl(vendorProfileData.avatar_url)} 
                           alt={vendorProfileData.company_name} 
-                          className="w-full h-full rounded-full object-cover"
+                          fill
+                          unoptimized
+                          className="rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-bold">
