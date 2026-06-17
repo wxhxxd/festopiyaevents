@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -78,6 +78,7 @@ class Event(Base):
     premium_price = Column(Float, default=0.0)
     # JSON array string of stall numbers designated as Premium, e.g. "[1,3,5]"
     premium_stall_ids = Column(String, default="[]")
+    image_url = Column(String, nullable=True)
 
     organizer = relationship("User", back_populates="events")
     bookings = relationship("StallBooking", back_populates="event")
@@ -90,6 +91,7 @@ class StallBooking(Base):
     event_id = Column(Integer, ForeignKey("events.id"))
     stall_number = Column(Integer)
     vendor_id = Column(Integer, ForeignKey("users.id"))
+    image_url = Column(String, nullable=True)
 
     event = relationship("Event", back_populates="bookings")
     vendor = relationship("User", back_populates="bookings")
@@ -154,6 +156,135 @@ class MediaLike(Base):
     media = relationship("VendorMedia", back_populates="likes")
 
 Base.metadata.create_all(bind=engine)
+
+# ----------------- Supabase Storage Integration & Helper Functions -----------------
+import urllib.request
+import urllib.error
+from urllib.parse import quote
+
+def upload_to_supabase(file_data: bytes, file_name: str, content_type: str) -> Optional[str]:
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+    bucket_name = "vendor-media"
+    
+    if not supabase_url or not supabase_key:
+        print("[SUPABASE] Supabase credentials not found. Using local storage fallback.")
+        return None
+        
+    supabase_url = supabase_url.strip().rstrip("/")
+    if not supabase_url.startswith("http"):
+        supabase_url = f"https://{supabase_url}"
+        
+    quoted_file_name = quote(file_name)
+    url = f"{supabase_url}/storage/v1/object/{bucket_name}/{quoted_file_name}"
+    
+    headers = {
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Content-Type": content_type
+    }
+    
+    req = urllib.request.Request(url, data=file_data, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req) as response:
+            public_url = f"{supabase_url}/storage/v1/object/public/{bucket_name}/{file_name}"
+            print(f"[SUPABASE] Successfully uploaded {file_name} to Supabase. Public URL: {public_url}")
+            return public_url
+    except urllib.error.HTTPError as e:
+        print(f"[SUPABASE ERROR] HTTP Error {e.code}: {e.read().decode('utf-8', errors='ignore')}")
+        return None
+    except Exception as e:
+        print(f"[SUPABASE ERROR] Failed to upload {file_name} to Supabase: {e}")
+        return None
+
+def delete_from_supabase(file_name: str):
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+    bucket_name = "vendor-media"
+    
+    if not supabase_url or not supabase_key:
+        return
+        
+    supabase_url = supabase_url.strip().rstrip("/")
+    if not supabase_url.startswith("http"):
+        supabase_url = f"https://{supabase_url}"
+        
+    quoted_file_name = quote(file_name)
+    url = f"{supabase_url}/storage/v1/object/{bucket_name}/{quoted_file_name}"
+    
+    headers = {
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}"
+    }
+    
+    req = urllib.request.Request(url, headers=headers, method="DELETE")
+    try:
+        with urllib.request.urlopen(req) as response:
+            print(f"[SUPABASE] Deleted {file_name} from Supabase.")
+    except Exception as e:
+        print(f"[SUPABASE ERROR] Failed to delete {file_name} from Supabase: {e}")
+
+def run_migrations():
+    db = SessionLocal()
+    try:
+        # 1. users migrations
+        for col_name, col_type in [
+            ("avatar_url", "VARCHAR(500)"),
+            ("is_verified", "BOOLEAN DEFAULT TRUE"),
+            ("verification_token", "VARCHAR(200)"),
+            ("bio", "VARCHAR(1000)"),
+            ("instagram_url", "VARCHAR(200)"),
+            ("website_url", "VARCHAR(200)")
+        ]:
+            try:
+                db.execute(text(f"SELECT {col_name} FROM users LIMIT 1"))
+            except Exception:
+                db.rollback()
+                try:
+                    db.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    db.commit()
+                    print(f"[MIGRATION] Added {col_name} column to users.")
+                except Exception as e:
+                    db.rollback()
+                    print(f"[MIGRATION ERROR] Failed to add {col_name} to users: {e}")
+
+        # 2. events migrations
+        for col_name, col_type in [
+            ("standard_price", "FLOAT DEFAULT 0.0"),
+            ("premium_price", "FLOAT DEFAULT 0.0"),
+            ("premium_stall_ids", "VARCHAR(500) DEFAULT '[]'"),
+            ("image_url", "VARCHAR(500)")
+        ]:
+            try:
+                db.execute(text(f"SELECT {col_name} FROM events LIMIT 1"))
+            except Exception:
+                db.rollback()
+                try:
+                    db.execute(text(f"ALTER TABLE events ADD COLUMN {col_name} {col_type}"))
+                    db.commit()
+                    print(f"[MIGRATION] Added {col_name} column to events.")
+                except Exception as e:
+                    db.rollback()
+                    print(f"[MIGRATION ERROR] Failed to add {col_name} to events: {e}")
+
+        # 3. stall_bookings migrations
+        try:
+            db.execute(text("SELECT image_url FROM stall_bookings LIMIT 1"))
+        except Exception:
+            db.rollback()
+            try:
+                db.execute(text("ALTER TABLE stall_bookings ADD COLUMN image_url VARCHAR(500)"))
+                db.commit()
+                print("[MIGRATION] Added image_url column to stall_bookings.")
+            except Exception as e:
+                db.rollback()
+                print(f"[MIGRATION ERROR] Failed to add image_url to stall_bookings: {e}")
+
+    finally:
+        db.close()
+
+# Execute self-healing migrations at startup
+run_migrations()
 
 # ----------------- Pydantic Schemas -----------------
 class UserCreate(BaseModel):
@@ -502,7 +633,6 @@ def upload_user_avatar(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    os.makedirs("static/uploads", exist_ok=True)
     file_extension = os.path.splitext(file.filename)[1].lower()
     if file_extension not in [".png", ".jpg", ".jpeg", ".webp"]:
         raise HTTPException(status_code=400, detail="Only PNG, JPG, JPEG, and WEBP formats are supported for profile pictures")
@@ -510,11 +640,30 @@ def upload_user_avatar(
     unique_filename = f"avatar_{current_user.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
     file_location = f"static/uploads/{unique_filename}"
     
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
-
-    base_url = str(request.base_url).rstrip("/")
-    avatar_url = f"{base_url}/static/uploads/{unique_filename}"
+    # Check if we should delete old Supabase avatar first to prevent leak
+    if current_user.avatar_url and "/storage/v1/object/public/vendor-media/" in current_user.avatar_url:
+        old_file_name = current_user.avatar_url.split("/storage/v1/object/public/vendor-media/")[-1]
+        delete_from_supabase(old_file_name)
+        
+    file_content = file.file.read()
+    
+    # Upload to Supabase if configured
+    supabase_avatar_url = upload_to_supabase(
+        file_data=file_content,
+        file_name=unique_filename,
+        content_type=file.content_type or "image/png"
+    )
+    
+    if supabase_avatar_url:
+        avatar_url = supabase_avatar_url
+    else:
+        # Fallback to local file storage
+        os.makedirs("static/uploads", exist_ok=True)
+        with open(file_location, "wb+") as file_object:
+            file_object.write(file_content)
+        base_url = str(request.base_url).rstrip("/")
+        avatar_url = f"{base_url}/static/uploads/{unique_filename}"
+        
     current_user.avatar_url = avatar_url
     db.commit()
     db.refresh(current_user)
@@ -522,6 +671,7 @@ def upload_user_avatar(
 
 @app.post("/events/", response_model=EventResponse)
 def create_event(
+    request: Request,
     name: str = Form(...),
     date: str = Form(...),
     total_stalls: int = Form(...),
@@ -546,10 +696,31 @@ def create_event(
     db.refresh(db_event)
     
     if image:
-        os.makedirs("static/events", exist_ok=True)
-        file_location = f"static/events/{db_event.id}_{image.filename}"
-        with open(file_location, "wb+") as file_object:
-            shutil.copyfileobj(image.file, file_object)
+        file_extension = os.path.splitext(image.filename)[1].lower()
+        unique_filename = f"event_{db_event.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
+        file_location = f"static/events/{unique_filename}"
+        
+        image_content = image.file.read()
+        
+        # Upload to Supabase if configured
+        supabase_image_url = upload_to_supabase(
+            file_data=image_content,
+            file_name=unique_filename,
+            content_type=image.content_type or "image/png"
+        )
+        
+        if supabase_image_url:
+            db_event.image_url = supabase_image_url
+        else:
+            # Fallback to local storage
+            os.makedirs("static/events", exist_ok=True)
+            with open(file_location, "wb+") as file_object:
+                file_object.write(image_content)
+            base_url = str(request.base_url).rstrip("/")
+            db_event.image_url = f"{base_url}/static/events/{unique_filename}"
+            
+        db.commit()
+        db.refresh(db_event)
             
     return db_event
 
@@ -565,6 +736,14 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
         
     base_url = str(request.base_url).rstrip("/")
     for event in events:
+        image_url = event.image_url
+        if not image_url:
+            # Fallback to scanning directory for older local files
+            for f in files:
+                if f.startswith(f"{event.id}_"):
+                    image_url = f"{base_url}/static/events/{f}"
+                    break
+                    
         event_dict = {
             "id": event.id,
             "name": event.name,
@@ -574,12 +753,8 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
             "standard_price": event.standard_price or 0.0,
             "premium_price": event.premium_price or 0.0,
             "premium_stall_ids": event.premium_stall_ids or "[]",
-            "image_url": None
+            "image_url": image_url
         }
-        for f in files:
-            if f.startswith(f"{event.id}_"):
-                event_dict["image_url"] = f"{base_url}/static/events/{f}"
-                break
         result.append(event_dict)
         
     return result
@@ -621,12 +796,31 @@ def book_stall(
     db.refresh(db_booking)
     
     if image:
-        os.makedirs("static/bookings", exist_ok=True)
-        file_location = f"static/bookings/{db_booking.id}_{image.filename}"
-        with open(file_location, "wb+") as file_object:
-            shutil.copyfileobj(image.file, file_object)
-        base_url = str(request.base_url).rstrip("/")
-        db_booking.image_url = f"{base_url}/static/bookings/{db_booking.id}_{image.filename}"
+        file_extension = os.path.splitext(image.filename)[1].lower()
+        unique_filename = f"booking_{db_booking.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
+        file_location = f"static/bookings/{unique_filename}"
+        
+        image_content = image.file.read()
+        
+        # Upload to Supabase if configured
+        supabase_image_url = upload_to_supabase(
+            file_data=image_content,
+            file_name=unique_filename,
+            content_type=image.content_type or "image/png"
+        )
+        
+        if supabase_image_url:
+            db_booking.image_url = supabase_image_url
+        else:
+            # Fallback to local storage
+            os.makedirs("static/bookings", exist_ok=True)
+            with open(file_location, "wb+") as file_object:
+                file_object.write(image_content)
+            base_url = str(request.base_url).rstrip("/")
+            db_booking.image_url = f"{base_url}/static/bookings/{unique_filename}"
+            
+        db.commit()
+        db.refresh(db_booking)
     
     db_booking.vendor_name = current_user.company_name
     return db_booking
@@ -646,10 +840,14 @@ def get_all_bookings(request: Request, skip: int = 0, limit: int = 100, db: Sess
     for b in bookings:
         if b.vendor:
             b.vendor_name = b.vendor.company_name
-        for f in files:
-            if f.startswith(f"{b.id}_"):
-                b.image_url = f"{base_url}/static/bookings/{f}"
-                break
+        image_url = b.image_url
+        if not image_url:
+            # Fallback for old local files
+            for f in files:
+                if f.startswith(f"{b.id}_"):
+                    image_url = f"{base_url}/static/bookings/{f}"
+                    break
+        b.image_url = image_url
     return bookings
 
 @app.get("/events/{event_id}/bookings", response_model=List[StallBookingResponse])
@@ -667,10 +865,14 @@ def get_event_bookings(request: Request, event_id: int, skip: int = 0, limit: in
     for b in bookings:
         if b.vendor:
             b.vendor_name = b.vendor.company_name
-        for f in files:
-            if f.startswith(f"{b.id}_"):
-                b.image_url = f"{base_url}/static/bookings/{f}"
-                break
+        image_url = b.image_url
+        if not image_url:
+            # Fallback for old local files
+            for f in files:
+                if f.startswith(f"{b.id}_"):
+                    image_url = f"{base_url}/static/bookings/{f}"
+                    break
+        b.image_url = image_url
     return bookings
 
 # ----------------- Pitch Endpoints -----------------
@@ -985,18 +1187,30 @@ def upload_vendor_media(
     if current_user.role != "Vendor":
         raise HTTPException(status_code=403, detail="Only vendors can upload media")
 
-    os.makedirs("static/uploads", exist_ok=True)
     file_extension = os.path.splitext(file.filename)[1].lower()
     media_type = "video" if file_extension in [".mp4", ".webm", ".avi", ".mov"] else "image"
     
-    unique_filename = f"{current_user.id}_{int(datetime.utcnow().timestamp())}_{file.filename}"
+    unique_filename = f"media_{current_user.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
     file_location = f"static/uploads/{unique_filename}"
     
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
-
-    base_url = str(request.base_url).rstrip("/")
-    media_url = f"{base_url}/static/uploads/{unique_filename}"
+    file_content = file.file.read()
+    
+    # Upload to Supabase if configured
+    supabase_media_url = upload_to_supabase(
+        file_data=file_content,
+        file_name=unique_filename,
+        content_type=file.content_type or ("video/mp4" if media_type == "video" else "image/png")
+    )
+    
+    if supabase_media_url:
+        media_url = supabase_media_url
+    else:
+        # Fallback to local storage
+        os.makedirs("static/uploads", exist_ok=True)
+        with open(file_location, "wb+") as file_object:
+            file_object.write(file_content)
+        base_url = str(request.base_url).rstrip("/")
+        media_url = f"{base_url}/static/uploads/{unique_filename}"
     
     db_media = VendorMedia(
         vendor_id=current_user.id,
@@ -1084,8 +1298,12 @@ def delete_vendor_media(
     if media.vendor_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this media item")
 
+    # If it is a Supabase Storage file, delete it from the bucket
+    if "/storage/v1/object/public/vendor-media/" in media.media_url:
+        filename = media.media_url.split("/storage/v1/object/public/vendor-media/")[-1]
+        delete_from_supabase(filename)
     # If it is a local file, remove it from static folder
-    if "static/uploads/" in media.media_url:
+    elif "static/uploads/" in media.media_url:
         filename = media.media_url.split("static/uploads/")[-1]
         local_path = f"static/uploads/{filename}"
         if os.path.exists(local_path):
