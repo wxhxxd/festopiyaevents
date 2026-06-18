@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, text, UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -75,7 +75,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=False), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     company_name = Column(String)
@@ -96,11 +96,11 @@ class User(Base):
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=False), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, index=True)
     date = Column(String)
     total_stalls = Column(Integer)
-    organizer_id = Column(String, ForeignKey("users.id"))
+    organizer_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     standard_price = Column(Float, default=0.0)
     premium_price = Column(Float, default=0.0)
     # JSON array string of stall numbers designated as Premium, e.g. "[1,3,5]"
@@ -115,9 +115,9 @@ class StallBooking(Base):
     __tablename__ = "stall_bookings"
 
     id = Column(Integer, primary_key=True, index=True)
-    event_id = Column(String, ForeignKey("events.id"))
+    event_id = Column(UUID(as_uuid=False), ForeignKey("events.id"))
     stall_number = Column(Integer)
-    vendor_id = Column(String, ForeignKey("users.id"))
+    vendor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     image_url = Column(String, nullable=True)
 
     event = relationship("Event", back_populates="bookings")
@@ -127,8 +127,8 @@ class Pitch(Base):
     __tablename__ = "pitches"
 
     id = Column(Integer, primary_key=True, index=True)
-    event_id = Column(String, ForeignKey("events.id"))
-    vendor_id = Column(String, ForeignKey("users.id"))
+    event_id = Column(UUID(as_uuid=False), ForeignKey("events.id"))
+    vendor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     stall_type = Column(String, default="Standard")
     stall_number = Column(Integer, nullable=True)
     offered_price = Column(Float)
@@ -142,9 +142,9 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    receiver_id = Column(String, ForeignKey("users.id"))
-    event_id = Column(String, ForeignKey("events.id"))
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
+    receiver_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
+    event_id = Column(UUID(as_uuid=False), ForeignKey("events.id"))
     text = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
@@ -155,15 +155,15 @@ class Follow(Base):
     __tablename__ = "follows"
 
     id = Column(Integer, primary_key=True, index=True)
-    follower_id = Column(String, ForeignKey("users.id"))
-    vendor_id = Column(String, ForeignKey("users.id"))
+    follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
+    vendor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class VendorMedia(Base):
     __tablename__ = "vendor_media"
 
     id = Column(Integer, primary_key=True, index=True)
-    vendor_id = Column(String, ForeignKey("users.id"))
+    vendor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     media_url = Column(String)
     media_type = Column(String, default="image") # "image" or "video"
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -175,7 +175,7 @@ class MediaLike(Base):
     __tablename__ = "media_likes"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     media_id = Column(Integer, ForeignKey("vendor_media.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
