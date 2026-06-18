@@ -194,9 +194,17 @@ try:
     if "events" in inspector.get_table_names():
         columns = [col["name"] for col in inspector.get_columns("events")]
         if "image_urls" not in columns or "standard_stall_size" not in columns:
-            print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema on Render...")
+            print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema...")
             with engine.connect() as conn:
-                conn.execute(text("DROP TABLE IF EXISTS bookings, stall_bookings, pitches, chat_messages, follows, media_likes, vendor_media, events, users CASCADE"))
+                tables_to_drop = ["bookings", "stall_bookings", "pitches", "chat_messages", "follows", "media_likes", "vendor_media", "events", "users"]
+                for table in tables_to_drop:
+                    try:
+                        if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+                            conn.execute(text(f"DROP TABLE IF EXISTS {table}"))
+                        else:
+                            conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+                    except Exception as drop_err:
+                        print(f"[DATABASE] Warning: Failed to drop table {table}: {drop_err}")
                 conn.commit()
             print("[DATABASE] Mismatched tables dropped successfully.")
 except Exception as e:
@@ -752,34 +760,37 @@ def create_event(
         premium_stall_location=premium_stall_location
     )
     db.add(db_event)
-    db.commit()
-    db.refresh(db_event)
+    db.flush()  # Populate db_event.id for filenames before committing
     
     uploaded_urls = []
     for image in images:
         if image and image.filename:
-            file_extension = os.path.splitext(image.filename)[1].lower()
-            unique_filename = f"event_{db_event.id}_{int(datetime.utcnow().timestamp())}_{len(uploaded_urls)}{file_extension}"
-            file_location = f"static/events/{unique_filename}"
-            
-            image_content = image.file.read()
-            
-            # Upload to Supabase if configured
-            supabase_image_url = upload_to_supabase(
-                file_data=image_content,
-                file_name=unique_filename,
-                content_type=image.content_type or "image/png"
-            )
-            
-            if supabase_image_url:
-                uploaded_urls.append(supabase_image_url)
-            else:
-                # Fallback to local storage
-                os.makedirs("static/events", exist_ok=True)
-                with open(file_location, "wb+") as file_object:
-                    file_object.write(image_content)
-                base_url = str(request.base_url).rstrip("/")
-                uploaded_urls.append(f"{base_url}/static/events/{unique_filename}")
+            try:
+                file_extension = os.path.splitext(image.filename)[1].lower()
+                unique_filename = f"event_{db_event.id}_{int(datetime.utcnow().timestamp())}_{len(uploaded_urls)}{file_extension}"
+                file_location = f"static/events/{unique_filename}"
+                
+                image_content = image.file.read()
+                
+                # Upload to Supabase if configured
+                supabase_image_url = upload_to_supabase(
+                    file_data=image_content,
+                    file_name=unique_filename,
+                    content_type=image.content_type or "image/png"
+                )
+                
+                if supabase_image_url:
+                    uploaded_urls.append(supabase_image_url)
+                else:
+                    # Fallback to local storage
+                    os.makedirs("static/events", exist_ok=True)
+                    with open(file_location, "wb+") as file_object:
+                        file_object.write(image_content)
+                    base_url = str(request.base_url).rstrip("/")
+                    uploaded_urls.append(f"{base_url}/static/events/{unique_filename}")
+            except Exception as e:
+                print(f"[EVENT CREATE] Failed to upload or save image {image.filename}: {e}")
+                # Continue processing other images rather than failing the whole request
                 
     db_event.image_urls = json.dumps(uploaded_urls)
     db.commit()
