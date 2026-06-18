@@ -61,7 +61,7 @@ export default function LandingPage() {
         </p>
 
         <Link href="/auth">
-          <button className="animate-fade-rise-delay-2 mt-10 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white font-medium tracking-widest uppercase transition-all duration-300 rounded-full px-8 py-4 cursor-pointer">
+          <button className="animate-fade-rise-delay-2 mt-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-medium tracking-widest uppercase transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] active:scale-95 rounded-full px-8 py-4 cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.3)] border border-white/10">
             Start Cooking 🍳
           </button>
         </Link>

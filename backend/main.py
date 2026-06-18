@@ -1284,6 +1284,31 @@ def link_supabase_media(
         is_liked_by_me=False
     )
 
+@app.get("/media/{media_id}", response_model=MediaItemResponse)
+def get_media_item(
+    media_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    media = db.query(VendorMedia).filter(VendorMedia.id == media_id).first()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media item not found")
+    
+    like_count = db.query(MediaLike).filter(MediaLike.media_id == media_id).count()
+    is_liked_by_me = db.query(MediaLike).filter(
+        MediaLike.media_id == media_id,
+        MediaLike.user_id == current_user.id
+    ).first() is not None
+    
+    return MediaItemResponse(
+        id=media.id,
+        media_url=media.media_url,
+        media_type=media.media_type,
+        created_at=media.created_at,
+        like_count=like_count,
+        is_liked_by_me=is_liked_by_me
+    )
+
 @app.post("/media/{media_id}/like")
 def toggle_like_media(
     media_id: int,

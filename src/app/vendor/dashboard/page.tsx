@@ -1395,10 +1395,10 @@ export default function VendorDashboard() {
                     ) : (
                       <div className="grid grid-cols-3 gap-2 md:gap-4">
                         {vendorProfile?.media?.map((post: any) => (
-                          <div 
+                          <Link 
                             key={post.id}
-                            onClick={() => setSelectedMedia(post)}
-                            className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md"
+                            href={`/posts/${post.id}`}
+                            className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md block"
                           >
                             {post.media_type === "video" ? (
                               <video 
@@ -1430,7 +1430,7 @@ export default function VendorDashboard() {
                                 Video
                               </div>
                             )}
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     )}

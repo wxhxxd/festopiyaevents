@@ -297,6 +297,7 @@ export default function OrganizerDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [rawEventDate, setRawEventDate] = useState("");
   const [totalStalls, setTotalStalls] = useState("");
   const [standardPrice, setStandardPrice] = useState("");
   const [premiumPrice, setPremiumPrice] = useState("");
@@ -558,6 +559,24 @@ export default function OrganizerDashboard() {
     }
   };
 
+  const handleDateChange = (val: string) => {
+    setRawEventDate(val);
+    if (val) {
+      const dateObj = new Date(val);
+      const formatted = dateObj.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+      setEventDate(formatted);
+    } else {
+      setEventDate("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventName || !eventDate || !totalStalls) return;
@@ -605,6 +624,7 @@ export default function OrganizerDashboard() {
       // Clear form
       setEventName("");
       setEventDate("");
+      setRawEventDate("");
       setTotalStalls("");
       setStandardPrice("");
       setPremiumPrice("");
@@ -1265,14 +1285,13 @@ export default function OrganizerDashboard() {
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Date</label>
+                      <label className="text-sm font-medium text-white/60 pl-1">Date &amp; Time</label>
                       <input 
-                        type="text" 
+                        type="datetime-local" 
                         required
-                        value={eventDate}
-                        onChange={e => setEventDate(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                        placeholder="e.g. October 24, 2026"
+                        value={rawEventDate}
+                        onChange={e => handleDateChange(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner [color-scheme:dark]"
                       />
                     </div>
                   </div>
@@ -1581,10 +1600,10 @@ export default function OrganizerDashboard() {
                       ) : (
                         <div className="grid grid-cols-3 gap-2 md:gap-4">
                           {vendorProfileData?.media?.map((post: any) => (
-                            <div 
+                            <Link 
                               key={post.id}
-                              onClick={() => setSelectedMediaDetail(post)}
-                              className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md"
+                              href={`/posts/${post.id}`}
+                              className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md block"
                             >
                             {post.media_type === "video" ? (
                               <video 
@@ -1616,7 +1635,7 @@ export default function OrganizerDashboard() {
                                   Video
                                 </div>
                               )}
-                            </div>
+                            </Link>
                           ))}
                         </div>
                       )}
