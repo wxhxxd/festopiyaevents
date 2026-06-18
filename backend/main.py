@@ -28,18 +28,44 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+import urllib.parse
+
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 if not SQLALCHEMY_DATABASE_URL:
     SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'events.db')}"
+
+if not SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    # Render and other hosts use postgres:// which is deprecated in modern SQLAlchemy; rewrite to postgresql://
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+        try:
+            scheme, rest = SQLALCHEMY_DATABASE_URL.split("://", 1)
+            if "/" in rest:
+                netloc, path = rest.split("/", 1)
+                path = "/" + path
+            else:
+                netloc = rest
+                path = ""
+            
+            if "@" in netloc:
+                userinfo, hostinfo = netloc.rsplit("@", 1)
+                if ":" in userinfo:
+                    username, password = userinfo.split(":", 1)
+                    decoded_password = urllib.parse.unquote(password)
+                    encoded_password = urllib.parse.quote_plus(decoded_password)
+                    netloc = f"{username}:{encoded_password}@{hostinfo}"
+            
+            SQLALCHEMY_DATABASE_URL = f"{scheme}://{netloc}{path}"
+        except Exception:
+            pass  # Fall back to original URL on parsing exception
 
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
     )
 else:
-    # Render and other hosts use postgres:// which is deprecated in modern SQLAlchemy; rewrite to postgresql://
-    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
