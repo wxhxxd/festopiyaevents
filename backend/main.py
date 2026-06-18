@@ -12,6 +12,7 @@ from fastapi import Form, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 import os
 import shutil
+import json
 import secrets
 import smtplib
 from email.mime.text import MIMEText
@@ -105,7 +106,11 @@ class Event(Base):
     premium_price = Column(Float, default=0.0)
     # JSON array string of stall numbers designated as Premium, e.g. "[1,3,5]"
     premium_stall_ids = Column(String, default="[]")
-    image_url = Column(String, nullable=True)
+    image_urls = Column(String, default="[]")
+    standard_stall_size = Column(String, default="10x10")
+    premium_stall_size = Column(String, default="12x12")
+    standard_stall_location = Column(String, default="Main Hall")
+    premium_stall_location = Column(String, default="VIP Area")
 
     organizer = relationship("User", back_populates="events")
     bookings = relationship("StallBooking", back_populates="event")
@@ -188,8 +193,8 @@ try:
     inspector = inspect(engine)
     if "events" in inspector.get_table_names():
         columns = [col["name"] for col in inspector.get_columns("events")]
-        if "name" not in columns:
-            print("[DATABASE] Mismatch detected: 'events' table is missing 'name' column. Resetting database schema on Render...")
+        if "image_urls" not in columns or "standard_stall_size" not in columns:
+            print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema on Render...")
             with engine.connect() as conn:
                 conn.execute(text("DROP TABLE IF EXISTS bookings, stall_bookings, pitches, chat_messages, follows, media_likes, vendor_media, events, users CASCADE"))
                 conn.commit()
@@ -367,6 +372,11 @@ class EventBase(BaseModel):
     standard_price: float = 0.0
     premium_price: float = 0.0
     premium_stall_ids: str = "[]"
+    image_urls: str = "[]"
+    standard_stall_size: str = "10x10"
+    premium_stall_size: str = "12x12"
+    standard_stall_location: str = "Main Hall"
+    premium_stall_location: str = "VIP Area"
 
 class EventCreate(EventBase):
     pass
@@ -720,7 +730,11 @@ def create_event(
     standard_price: float = Form(0.0),
     premium_price: float = Form(0.0),
     premium_stall_ids: str = Form("[]"),
-    image: Optional[UploadFile] = File(None),
+    standard_stall_size: str = Form("10x10"),
+    premium_stall_size: str = Form("12x12"),
+    standard_stall_location: str = Form("Main Hall"),
+    premium_stall_location: str = Form("VIP Area"),
+    images: List[UploadFile] = File(default=[]),
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
@@ -731,38 +745,45 @@ def create_event(
         name=name, date=date, total_stalls=total_stalls,
         organizer_id=current_user.id,
         standard_price=standard_price, premium_price=premium_price,
-        premium_stall_ids=premium_stall_ids
+        premium_stall_ids=premium_stall_ids,
+        standard_stall_size=standard_stall_size,
+        premium_stall_size=premium_stall_size,
+        standard_stall_location=standard_stall_location,
+        premium_stall_location=premium_stall_location
     )
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
     
-    if image:
-        file_extension = os.path.splitext(image.filename)[1].lower()
-        unique_filename = f"event_{db_event.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
-        file_location = f"static/events/{unique_filename}"
-        
-        image_content = image.file.read()
-        
-        # Upload to Supabase if configured
-        supabase_image_url = upload_to_supabase(
-            file_data=image_content,
-            file_name=unique_filename,
-            content_type=image.content_type or "image/png"
-        )
-        
-        if supabase_image_url:
-            db_event.image_url = supabase_image_url
-        else:
-            # Fallback to local storage
-            os.makedirs("static/events", exist_ok=True)
-            with open(file_location, "wb+") as file_object:
-                file_object.write(image_content)
-            base_url = str(request.base_url).rstrip("/")
-            db_event.image_url = f"{base_url}/static/events/{unique_filename}"
+    uploaded_urls = []
+    for image in images:
+        if image and image.filename:
+            file_extension = os.path.splitext(image.filename)[1].lower()
+            unique_filename = f"event_{db_event.id}_{int(datetime.utcnow().timestamp())}_{len(uploaded_urls)}{file_extension}"
+            file_location = f"static/events/{unique_filename}"
             
-        db.commit()
-        db.refresh(db_event)
+            image_content = image.file.read()
+            
+            # Upload to Supabase if configured
+            supabase_image_url = upload_to_supabase(
+                file_data=image_content,
+                file_name=unique_filename,
+                content_type=image.content_type or "image/png"
+            )
+            
+            if supabase_image_url:
+                uploaded_urls.append(supabase_image_url)
+            else:
+                # Fallback to local storage
+                os.makedirs("static/events", exist_ok=True)
+                with open(file_location, "wb+") as file_object:
+                    file_object.write(image_content)
+                base_url = str(request.base_url).rstrip("/")
+                uploaded_urls.append(f"{base_url}/static/events/{unique_filename}")
+                
+    db_event.image_urls = json.dumps(uploaded_urls)
+    db.commit()
+    db.refresh(db_event)
             
     return db_event
 
@@ -778,14 +799,22 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
         
     base_url = str(request.base_url).rstrip("/")
     for event in events:
-        image_url = event.image_url
-        if not image_url:
-            # Fallback to scanning directory for older local files
-            for f in files:
-                if f.startswith(f"{event.id}_"):
-                    image_url = f"{base_url}/static/events/{f}"
-                    break
-                    
+        try:
+            urls = json.loads(event.image_urls or "[]")
+        except Exception:
+            urls = []
+            
+        # Fallback to scanning directory or single url for backward compatibility
+        if not urls:
+            fallback = getattr(event, "image_url", None)
+            if fallback:
+                urls = [fallback]
+            else:
+                for f in files:
+                    if f.startswith(f"{event.id}_"):
+                        urls = [f"{base_url}/static/events/{f}"]
+                        break
+                        
         event_dict = {
             "id": event.id,
             "name": event.name,
@@ -795,7 +824,12 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
             "standard_price": event.standard_price or 0.0,
             "premium_price": event.premium_price or 0.0,
             "premium_stall_ids": event.premium_stall_ids or "[]",
-            "image_url": image_url
+            "image_urls": urls,
+            "image_url": urls[0] if urls else "",
+            "standard_stall_size": event.standard_stall_size or "10x10",
+            "premium_stall_size": event.premium_stall_size or "12x12",
+            "standard_stall_location": event.standard_stall_location or "Main Hall",
+            "premium_stall_location": event.premium_stall_location or "VIP Area",
         }
         result.append(event_dict)
         

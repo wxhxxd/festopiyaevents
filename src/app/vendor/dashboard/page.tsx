@@ -9,6 +9,7 @@ import {
   MessageSquare, 
   LogOut, 
   MapPin, 
+  Clock,
   CalendarDays,
   X,
   CheckCircle2,
@@ -174,6 +175,104 @@ interface EventData {
   premium_price: number;
   premium_stall_ids: string; // JSON array string e.g. "[1,3,5]"
   image_url?: string;
+  image_urls?: string | string[];
+  standard_stall_size?: string;
+  premium_stall_size?: string;
+  standard_stall_location?: string;
+  premium_stall_location?: string;
+}
+
+const isEventExpired = (eventDateStr: string) => {
+  if (!eventDateStr) return false;
+  try {
+    const parsedDate = Date.parse(eventDateStr);
+    if (isNaN(parsedDate)) return false;
+    return parsedDate < Date.now();
+  } catch (e) {
+    return false;
+  }
+};
+
+const getImageUrls = (event: any) => {
+  try {
+    if (Array.isArray(event.image_urls)) return event.image_urls;
+    if (typeof event.image_urls === 'string') return JSON.parse(event.image_urls);
+  } catch (e) {}
+  return event.image_url ? [event.image_url] : [];
+};
+
+function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass = "rounded-2xl" }: { urls: string[], alt: string, aspectRatio?: string, roundedClass?: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!urls || urls.length === 0) {
+    return (
+      <div className={`w-full ${aspectRatio} ${roundedClass} bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner`}>
+        No Banner
+      </div>
+    );
+  }
+
+  if (urls.length === 1) {
+    return (
+      <SafeImage
+        src={urls[0]}
+        alt={alt}
+        aspectRatio={aspectRatio}
+        maxWDesktop=""
+        roundedClass={`${roundedClass} shadow-inner`}
+        fallbackIcon="store"
+      />
+    );
+  }
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? urls.length - 1 : prev - 1));
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === urls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className={`relative w-full ${aspectRatio} ${roundedClass} overflow-hidden group/carousel shadow-inner bg-black`}>
+      <SafeImage
+        src={urls[currentIndex]}
+        alt={`${alt} - Image ${currentIndex + 1}`}
+        aspectRatio={aspectRatio}
+        maxWDesktop=""
+        roundedClass="rounded-none"
+        fallbackIcon="store"
+      />
+      
+      {/* Navigation Arrows */}
+      <button 
+        type="button"
+        onClick={handlePrev}
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center border border-white/10 opacity-0 group-hover/carousel:opacity-100 transition-opacity z-20 cursor-pointer text-xs"
+      >
+        &#9664;
+      </button>
+      <button 
+        type="button"
+        onClick={handleNext}
+        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center border border-white/10 opacity-0 group-hover/carousel:opacity-100 transition-opacity z-20 cursor-pointer text-xs"
+      >
+        &#9654;
+      </button>
+
+      {/* Dots Indicator */}
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+        {urls.map((_, idx) => (
+          <span 
+            key={idx}
+            className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentIndex ? 'bg-white scale-125' : 'bg-white/40'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 interface BookingData {
@@ -201,6 +300,7 @@ export default function VendorDashboard() {
   const [events, setEvents] = useState<EventData[]>([]);
   const [bookings, setBookings] = useState<BookingData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [eventFilter, setEventFilter] = useState<'active' | 'past'>('active');
 
   const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "profile" | "settings">("find_events");
   const [myUserId, setMyUserId] = useState<number | null>(null);
@@ -849,106 +949,134 @@ export default function VendorDashboard() {
               </div>
 
               {/* ── Event Grid (preserved) ────────────────────────────── */}
-              <div id="discover-events-section" className="max-w-7xl mx-auto mt-16">
-                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 mb-8">
-                  <Ticket className="text-pink-400 w-7 h-7" />
-                  Upcoming Events
-                </h2>
+              {(() => {
+                const activeEvents = events.filter(e => !isEventExpired(e.date));
+                const pastEvents = events.filter(e => isEventExpired(e.date));
+                const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
+                return (
+                  <div id="discover-events-section" className="max-w-7xl mx-auto mt-16">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-white/10 pb-4">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                        <Ticket className="text-pink-400 w-7 h-7" />
+                        {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
+                      </h2>
+                      <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setEventFilter('active')}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Active ({activeEvents.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEventFilter('past')}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Past ({pastEvents.length})
+                        </button>
+                      </div>
+                    </div>
 
-                {loading ? (
-                  <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
-                    <p className="text-white/60 font-medium text-lg">Loading events from database...</p>
-                  </div>
-                ) : events.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-                    <Ticket className="w-12 h-12 text-white/20 mb-4" />
-                    <p className="text-white/60 font-medium text-lg">No upcoming events found.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                    {Array.isArray(events) && events.map((event, index) => (
-                      <motion.div
-                        key={event.id}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                        className="group relative p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md overflow-hidden shadow-lg hover:shadow-rose-500/20 transition-all duration-300"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 via-rose-500/0 to-red-500/0 group-hover:from-pink-500/10 group-hover:via-rose-500/10 group-hover:to-red-500/5 transition-colors duration-500" />
-                        <div className="relative z-10 flex flex-col h-full">
-                          {event.image_url ? (
-                            <SafeImage
-                              src={event.image_url}
-                              alt={event.name}
-                              aspectRatio="aspect-video"
-                              maxWDesktop=""
-                              roundedClass="rounded-2xl mb-6"
-                              fallbackIcon="store"
-                            />
-                          ) : (
-                            <div className="w-full h-48 rounded-2xl mb-6 bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner">
-                              No Banner
-                            </div>
-                          )}
-                          <div className="flex justify-between items-start mb-4">
-                            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Exhibition</span>
-                          </div>
-                          <h3 className="text-2xl font-bold text-white mb-3">{event.name}</h3>
-                          <div className="space-y-2 text-white/70 mb-5">
-                            <div className="flex items-center gap-2">
-                              <CalendarDays className="w-4 h-4 text-rose-400" />
-                              <span className="font-medium">{event.date}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-pink-400" />
-                              <span className="font-medium">TBD</span>
-                            </div>
-                          </div>
+                    {loading ? (
+                      <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
+                        <p className="text-white/60 font-medium text-lg">Loading events from database...</p>
+                      </div>
+                    ) : filteredEvents.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                        <Ticket className="w-12 h-12 text-white/20 mb-4" />
+                        <p className="text-white/60 font-medium text-lg">
+                          {eventFilter === 'active' ? 'No active events found.' : 'No past events found.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                        {Array.isArray(filteredEvents) && filteredEvents.map((event, index) => (
+                          <motion.div
+                            key={event.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
+                            className="group relative p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md overflow-hidden shadow-lg hover:shadow-rose-500/20 transition-all duration-300"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 via-rose-500/0 to-red-500/0 group-hover:from-pink-500/10 group-hover:via-rose-500/10 group-hover:to-red-500/5 transition-colors duration-500" />
+                            <div className="relative z-10 flex flex-col h-full">
+                              <ImageCarousel
+                                urls={getImageUrls(event)}
+                                alt={event.name}
+                                aspectRatio="aspect-video"
+                                roundedClass="rounded-2xl mb-6"
+                              />
+                              <div className="flex justify-between items-start mb-4">
+                                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Exhibition</span>
+                              </div>
+                              <h3 className="text-2xl font-bold text-white mb-3">{event.name}</h3>
+                              <div className="space-y-2 text-white/70 mb-5">
+                                <div className="flex items-center gap-2">
+                                  <CalendarDays className="w-4 h-4 text-rose-400" />
+                                  <span className="font-medium">{event.date}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4 text-pink-400" />
+                                  <span className="font-medium">TBD</span>
+                                </div>
+                              </div>
 
-                          {/* ── Stall Tier Selector ───────────────────── */}
-                          <div className="mt-auto pt-5 border-t border-white/10">
-                            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">Choose Stall Type</p>
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                              {/* Standard */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedEvent(event);
-                                  setSelectedStall(null);
-                                  setBookingError(null);
-                                  setStallType("Standard");
-                                  setOfferedPrice(event.standard_price?.toString() || "0");
-                                }}
-                                className="flex flex-col items-center p-3 rounded-2xl border border-white/10 bg-white/5 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group/btn"
-                              >
-                                <span className="text-xs font-bold text-white/50 group-hover/btn:text-emerald-300 transition-colors uppercase tracking-wider mb-1">Standard</span>
-                                <span className="text-xl font-black text-white group-hover/btn:text-emerald-300 transition-colors">₹{event.standard_price || 0}</span>
-                              </button>
-                              {/* Premium */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedEvent(event);
-                                  setSelectedStall(null);
-                                  setBookingError(null);
-                                  setStallType("Premium");
-                                  setOfferedPrice(event.premium_price?.toString() || "0");
-                                }}
-                                className="flex flex-col items-center p-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 hover:border-amber-500/60 hover:bg-amber-500/15 transition-all group/btn relative overflow-hidden"
-                              >
-                                <span className="absolute top-1 right-2 text-[9px] font-black text-amber-400 uppercase tracking-widest">★ Best</span>
-                                <span className="text-xs font-bold text-amber-400/70 group-hover/btn:text-amber-300 transition-colors uppercase tracking-wider mb-1">Premium</span>
-                                <span className="text-xl font-black text-amber-300 group-hover/btn:text-amber-200 transition-colors">₹{event.premium_price || 0}</span>
-                              </button>
+                              {/* ── Stall Tier Selector or Ended Badge ────── */}
+                              <div className="mt-auto pt-5 border-t border-white/10">
+                                {isEventExpired(event.date) ? (
+                                  <div className="flex items-center justify-between p-3 rounded-2xl border border-white/10 bg-white/5">
+                                    <span className="text-sm font-semibold text-white/40">Event has ended</span>
+                                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-red-500/10 text-red-400 border border-red-500/25 uppercase tracking-wide">Past Event</span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">Choose Stall Type</p>
+                                    <div className="grid grid-cols-2 gap-3 mb-4">
+                                      {/* Standard */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedEvent(event);
+                                          setSelectedStall(null);
+                                          setBookingError(null);
+                                          setStallType("Standard");
+                                          setOfferedPrice(event.standard_price?.toString() || "0");
+                                        }}
+                                        className="flex flex-col items-center p-3 rounded-2xl border border-white/10 bg-white/5 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group/btn"
+                                      >
+                                        <span className="text-xs font-bold text-white/50 group-hover/btn:text-emerald-300 transition-colors uppercase tracking-wider mb-1">Standard</span>
+                                        <span className="text-xl font-black text-white group-hover/btn:text-emerald-300 transition-colors">₹{event.standard_price || 0}</span>
+                                      </button>
+                                      {/* Premium */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedEvent(event);
+                                          setSelectedStall(null);
+                                          setBookingError(null);
+                                          setStallType("Premium");
+                                          setOfferedPrice(event.premium_price?.toString() || "0");
+                                        }}
+                                        className="flex flex-col items-center p-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 hover:border-amber-500/60 hover:bg-amber-500/15 transition-all group/btn relative overflow-hidden"
+                                      >
+                                        <span className="absolute top-1 right-2 text-[9px] font-black text-amber-400 uppercase tracking-widest">★ Best</span>
+                                        <span className="text-xs font-bold text-amber-400/70 group-hover/btn:text-amber-300 transition-colors uppercase tracking-wider mb-1">Premium</span>
+                                        <span className="text-xl font-black text-amber-300 group-hover/btn:text-amber-200 transition-colors">₹{event.premium_price || 0}</span>
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
             </div>
           )}
@@ -974,58 +1102,85 @@ export default function VendorDashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.isArray(bookings) && bookings.map((booking, index) => (
-                    <motion.div 
-                      key={booking.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-                      className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300"
-                    >
-                      {/* Animated gradient glow effect that appears on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-fuchsia-500/0 group-hover:from-purple-500/10 group-hover:via-indigo-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
-                      
-                      {booking.image_url ? (
-                        <SafeImage
-                          src={booking.image_url}
-                          alt={`Stall ${booking.stall_number}`}
-                          aspectRatio="aspect-video"
-                          maxWDesktop="md:max-w-md"
-                          roundedClass="rounded-t-3xl"
-                          fallbackIcon="store"
-                        />
-                      ) : (
-                        <div className="w-full aspect-video md:max-w-md mx-auto bg-white/5 border-b border-white/10 flex items-center justify-center relative overflow-hidden shrink-0 z-10 rounded-t-3xl">
-                          {/* Grid background pattern */}
-                          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
-                          <Store className="w-10 h-10 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-purple-400 transition-all duration-300" />
-                        </div>
-                      )}
-                      
-                      <div className="p-5 flex flex-col flex-1 relative z-10">
-                        <div className="flex items-center justify-between">
-                          <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Booked
-                          </span>
-                          <span className="text-white/40 text-sm">ID: #{booking.id}</span>
-                        </div>
+                  {Array.isArray(bookings) && bookings.map((booking, index) => {
+                    const eventObj = events.find(e => e.id === booking.event_id);
+                    let size = "";
+                    let location = "";
+                    let isPremium = false;
+                    if (eventObj) {
+                      try {
+                        const premiumIds = JSON.parse(eventObj.premium_stall_ids || '[]');
+                        isPremium = premiumIds.includes(booking.stall_number);
+                      } catch (e) {}
+                      size = isPremium 
+                        ? (eventObj.premium_stall_size || '12x12') 
+                        : (eventObj.standard_stall_size || '10x10');
+                      location = isPremium 
+                        ? (eventObj.premium_stall_location || 'VIP Area') 
+                        : (eventObj.standard_stall_location || 'Main Hall');
+                    }
+                    return (
+                      <motion.div 
+                        key={booking.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                        className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col hover:shadow-purple-500/20 hover:border-purple-500/30 transition-all duration-300"
+                      >
+                        {/* Animated gradient glow effect that appears on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-indigo-500/0 to-fuchsia-500/0 group-hover:from-purple-500/10 group-hover:via-indigo-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
                         
-                        <h3 className="text-lg font-bold text-white mt-2 group-hover:text-purple-300 transition-all duration-300">
-                          Stall #{booking.stall_number ?? 'N/A'}
-                        </h3>
-                        <p className="text-sm font-semibold mt-0.5 mb-4 bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                          {getEventName(booking.event_id)}
-                        </p>
-                        
-                        <div className="border-t border-white/10 mt-auto flex items-center gap-3 py-3">
-                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                            {booking.vendor_name.charAt(0)}
+                        {booking.image_url ? (
+                          <SafeImage
+                            src={booking.image_url}
+                            alt={`Stall ${booking.stall_number}`}
+                            aspectRatio="aspect-video"
+                            maxWDesktop="md:max-w-md"
+                            roundedClass="rounded-t-3xl"
+                            fallbackIcon="store"
+                          />
+                        ) : (
+                          <div className="w-full aspect-video md:max-w-md mx-auto bg-white/5 border-b border-white/10 flex items-center justify-center relative overflow-hidden shrink-0 z-10 rounded-t-3xl">
+                            {/* Grid background pattern */}
+                            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
+                            <Store className="w-10 h-10 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-purple-400 transition-all duration-300" />
                           </div>
-                          <span className="text-white/70 text-sm font-medium truncate">{booking.vendor_name}</span>
+                        )}
+                        
+                        <div className="p-5 flex flex-col flex-1 relative z-10">
+                          <div className="flex items-center justify-between">
+                            <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Booked
+                            </span>
+                            {size && (
+                              <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${isPremium ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
+                                {isPremium ? 'Premium' : 'Standard'} ({size})
+                              </span>
+                            )}
+                          </div>
+                          
+                          <h3 className="text-lg font-bold text-white mt-2 group-hover:text-purple-300 transition-all duration-300">
+                            Stall #{booking.stall_number ?? 'N/A'}
+                          </h3>
+                          <p className="text-sm font-semibold mt-0.5 mb-1 bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                            {getEventName(booking.event_id)}
+                          </p>
+                          {location && (
+                            <p className="text-xs text-white/50 mb-4 flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-pink-400" /> {location}
+                            </p>
+                          )}
+                          
+                          <div className="border-t border-white/10 mt-auto flex items-center gap-3 py-3">
+                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                              {booking.vendor_name.charAt(0)}
+                            </div>
+                            <span className="text-white/70 text-sm font-medium truncate">{booking.vendor_name}</span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1749,6 +1904,14 @@ export default function VendorDashboard() {
 
               {/* Right Side: Booking Panel */}
               <div className="w-full md:w-80 p-8 flex flex-col bg-white/[0.02]">
+                <div className="mb-6">
+                  <ImageCarousel
+                    urls={getImageUrls(selectedEvent)}
+                    alt={selectedEvent.name}
+                    aspectRatio="aspect-video"
+                    roundedClass="rounded-2xl"
+                  />
+                </div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-xl font-bold text-white">Stall Details</h3>
                   <button 
@@ -1790,6 +1953,25 @@ export default function VendorDashboard() {
                           }`}>
                             <span>{stallType === 'Premium' ? '★' : '◉'}</span>
                             <span>{stallType} Stall</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                              <span className="block text-[10px] text-white/40 uppercase font-semibold">Stall Size</span>
+                              <span className="text-sm font-bold text-white">
+                                {stallType === 'Premium' 
+                                  ? (selectedEvent.premium_stall_size || '12x12') 
+                                  : (selectedEvent.standard_stall_size || '10x10')}
+                              </span>
+                            </div>
+                            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                              <span className="block text-[10px] text-white/40 uppercase font-semibold">Location</span>
+                              <span className="text-sm font-bold text-white truncate block">
+                                {stallType === 'Premium' 
+                                  ? (selectedEvent.premium_stall_location || 'VIP Area') 
+                                  : (selectedEvent.standard_stall_location || 'Main Hall')}
+                              </span>
+                            </div>
                           </div>
 
                           <div>

@@ -169,6 +169,14 @@ interface EventData {
   date: string;
   total_stalls: number;
   image_url?: string;
+  image_urls?: string | string[];
+  premium_stall_ids?: string;
+  standard_price?: number;
+  premium_price?: number;
+  standard_stall_size?: string;
+  premium_stall_size?: string;
+  standard_stall_location?: string;
+  premium_stall_location?: string;
 }
 
 interface PitchData {
@@ -181,6 +189,99 @@ interface PitchData {
   status: string;
   vendor_name?: string;
   event_name?: string;
+}
+
+const isEventExpired = (eventDateStr: string) => {
+  if (!eventDateStr) return false;
+  try {
+    const parsedDate = Date.parse(eventDateStr);
+    if (isNaN(parsedDate)) return false;
+    return parsedDate < Date.now();
+  } catch (e) {
+    return false;
+  }
+};
+
+const getImageUrls = (event: any) => {
+  try {
+    if (Array.isArray(event.image_urls)) return event.image_urls;
+    if (typeof event.image_urls === 'string') return JSON.parse(event.image_urls);
+  } catch (e) {}
+  return event.image_url ? [event.image_url] : [];
+};
+
+function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass = "rounded-2xl" }: { urls: string[], alt: string, aspectRatio?: string, roundedClass?: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!urls || urls.length === 0) {
+    return (
+      <div className={`w-full ${aspectRatio} ${roundedClass} bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner`}>
+        No Banner
+      </div>
+    );
+  }
+
+  if (urls.length === 1) {
+    return (
+      <SafeImage
+        src={urls[0]}
+        alt={alt}
+        aspectRatio={aspectRatio}
+        maxWDesktop=""
+        roundedClass={`${roundedClass} shadow-inner`}
+        fallbackIcon="store"
+      />
+    );
+  }
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? urls.length - 1 : prev - 1));
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === urls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className={`relative w-full ${aspectRatio} ${roundedClass} overflow-hidden group/carousel shadow-inner bg-black`}>
+      <SafeImage
+        src={urls[currentIndex]}
+        alt={`${alt} - Image ${currentIndex + 1}`}
+        aspectRatio={aspectRatio}
+        maxWDesktop=""
+        roundedClass="rounded-none"
+        fallbackIcon="store"
+      />
+      
+      {/* Navigation Arrows */}
+      <button 
+        type="button"
+        onClick={handlePrev}
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center border border-white/10 opacity-0 group-hover/carousel:opacity-100 transition-opacity z-20 cursor-pointer text-xs"
+      >
+        &#9664;
+      </button>
+      <button 
+        type="button"
+        onClick={handleNext}
+        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center border border-white/10 opacity-0 group-hover/carousel:opacity-100 transition-opacity z-20 cursor-pointer text-xs"
+      >
+        &#9654;
+      </button>
+
+      {/* Dots Indicator */}
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+        {urls.map((_, idx) => (
+          <span 
+            key={idx}
+            className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentIndex ? 'bg-white scale-125' : 'bg-white/40'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings: (event: EventData, e: any) => void }) {
@@ -225,20 +326,12 @@ function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-fuchsia-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:via-fuchsia-500/10 group-hover:to-purple-500/10 transition-colors duration-500" />
         
         <div className="relative z-10 flex flex-col h-full">
-          {event.image_url ? (
-            <SafeImage
-              src={event.image_url}
-              alt={event.name}
-              aspectRatio="aspect-video"
-              maxWDesktop=""
-              roundedClass="rounded-2xl mb-6 shadow-inner"
-              fallbackIcon="store"
-            />
-          ) : (
-            <div className="w-full h-48 rounded-2xl mb-6 bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner">
-              No Banner
-            </div>
-          )}
+          <ImageCarousel
+            urls={getImageUrls(event)}
+            alt={event.name}
+            aspectRatio="aspect-video"
+            roundedClass="rounded-2xl mb-6 shadow-inner"
+          />
           
           <div className="flex justify-between items-start mb-6">
             <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
@@ -302,7 +395,12 @@ export default function OrganizerDashboard() {
   const [standardPrice, setStandardPrice] = useState("");
   const [premiumPrice, setPremiumPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [eventImage, setEventImage] = useState<File | null>(null);
+  const [eventImages, setEventImages] = useState<File[]>([]);
+  const [standardStallSize, setStandardStallSize] = useState("10x10");
+  const [premiumStallSize, setPremiumStallSize] = useState("12x12");
+  const [standardStallLocation, setStandardStallLocation] = useState("Main Hall");
+  const [premiumStallLocation, setPremiumStallLocation] = useState("VIP Area");
+  const [eventFilter, setEventFilter] = useState<'active' | 'past'>('active');
   const [successMsg, setSuccessMsg] = useState(false);
   const [premiumStalls, setPremiumStalls] = useState<Set<number>>(new Set());
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -604,8 +702,14 @@ export default function OrganizerDashboard() {
       formData.append('standard_price', standardPrice.toString());
       formData.append('premium_price', premiumPrice.toString());
       formData.append('premium_stall_ids', JSON.stringify(Array.from(premiumStalls)));
-      if (eventImage) {
-        formData.append('image', eventImage);
+      formData.append('standard_stall_size', standardStallSize);
+      formData.append('premium_stall_size', premiumStallSize);
+      formData.append('standard_stall_location', standardStallLocation);
+      formData.append('premium_stall_location', premiumStallLocation);
+      if (eventImages && eventImages.length > 0) {
+        eventImages.forEach((img) => {
+          formData.append('images', img);
+        });
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, {
@@ -628,8 +732,12 @@ export default function OrganizerDashboard() {
       setTotalStalls("");
       setStandardPrice("");
       setPremiumPrice("");
-      setEventImage(null);
+      setEventImages([]);
       setPremiumStalls(new Set());
+      setStandardStallSize("10x10");
+      setPremiumStallSize("12x12");
+      setStandardStallLocation("Main Hall");
+      setPremiumStallLocation("VIP Area");
       
       // Show success
       setSuccessMsg(true);
@@ -822,37 +930,64 @@ export default function OrganizerDashboard() {
               </div>
 
               {/* ── Event Grid (preserved) ────────────────────────────── */}
-              <div id="current-events-section" className="max-w-7xl mx-auto mt-16">
-                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 mb-8">
-                  <Clock className="text-pink-400 w-7 h-7" />
-                  Current Events
-                </h2>
+              {(() => {
+                const activeEvents = events.filter(e => !isEventExpired(e.date));
+                const pastEvents = events.filter(e => isEventExpired(e.date));
+                const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
+                return (
+                  <div id="current-events-section" className="max-w-7xl mx-auto mt-16">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-white/10 pb-4">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                        <Clock className="text-pink-400 w-7 h-7" />
+                        {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
+                      </h2>
+                      <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setEventFilter('active')}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Active ({activeEvents.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEventFilter('past')}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Past ({pastEvents.length})
+                        </button>
+                      </div>
+                    </div>
 
-                {loading ? (
-                  <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
-                    <p className="text-white/60 font-medium text-lg">Loading events from database...</p>
+                    {loading ? (
+                      <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
+                        <p className="text-white/60 font-medium text-lg">Loading events from database...</p>
+                      </div>
+                    ) : filteredEvents.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                        <CalendarDays className="w-12 h-12 text-white/20 mb-4" />
+                        <p className="text-white/60 font-medium text-lg">
+                          {eventFilter === 'active' ? 'No active events found. Create your first one!' : 'No past events found.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                        {filteredEvents.map((event, index) => (
+                          <motion.div
+                            key={event.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
+                          >
+                            <EventCard event={event} onViewBookings={handleViewBookings} />
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : events.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-                    <CalendarDays className="w-12 h-12 text-white/20 mb-4" />
-                    <p className="text-white/60 font-medium text-lg">No events found. Create your first one!</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                    {Array.isArray(events) && events.map((event, index) => (
-                      <motion.div
-                        key={event.id}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                      >
-                        <EventCard event={event} onViewBookings={handleViewBookings} />
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                );
+              })()}
 
             </div>
           )}
@@ -1196,6 +1331,28 @@ export default function OrganizerDashboard() {
                           </span>
                           <span className="text-white/40 text-xs">ID: #{booking.id}</span>
                         </div>
+                        {(() => {
+                          const isPremium = (() => {
+                            try {
+                              const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
+                              return Array.isArray(ids) && ids.includes(booking.stall_number);
+                            } catch {
+                              return false;
+                            }
+                          })();
+                          const size = isPremium 
+                            ? (selectedEventForBookings.premium_stall_size || '12x12') 
+                            : (selectedEventForBookings.standard_stall_size || '10x10');
+                          const loc = isPremium 
+                            ? (selectedEventForBookings.premium_stall_location || 'VIP Area') 
+                            : (selectedEventForBookings.standard_stall_location || 'Main Hall');
+                          return (
+                            <div className="flex justify-between text-xs text-white/50 relative z-10 px-0.5 border-t border-white/5 pt-2 mt-1">
+                              <span>Size: <strong className="text-white/80">{size}</strong></span>
+                              <span>Loc: <strong className="text-white/80">{loc}</strong></span>
+                            </div>
+                          );
+                        })()}
                         <div className="flex items-center justify-between mt-1 relative z-10">
                           <div 
                             className="flex items-center gap-3 cursor-pointer group/vendor"
@@ -1382,12 +1539,67 @@ export default function OrganizerDashboard() {
                     </div>
                   </div>
 
+                  {/* Physical Details (Stall Size & Location) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={standardStallSize}
+                        onChange={e => setStandardStallSize(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        placeholder="e.g. 10x10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white/60 pl-1">Standard Stall Location</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={standardStallLocation}
+                        onChange={e => setStandardStallLocation(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        placeholder="e.g. Main Hall"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={premiumStallSize}
+                        onChange={e => setPremiumStallSize(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-white placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                        placeholder="e.g. 12x12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-amber-400/80 pl-1">★ Premium Stall Location</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={premiumStallLocation}
+                        onChange={e => setPremiumStallLocation(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-white placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                        placeholder="e.g. VIP Area"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2 mt-6">
-                    <label className="text-sm font-medium text-white/60 pl-1">Event Banner Image (Optional)</label>
+                    <label className="text-sm font-medium text-white/60 pl-1">Event Banner Images (Optional, Multiple)</label>
                     <input 
                       type="file" 
+                      multiple
                       accept="image/*"
-                      onChange={(e) => setEventImage(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const files = e.target.files ? Array.from(e.target.files) : [];
+                        setEventImages(files);
+                      }}
                       className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
                     />
                   </div>
