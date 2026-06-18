@@ -29,6 +29,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 import urllib.parse
+import uuid
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 if not SQLALCHEMY_DATABASE_URL:
@@ -74,7 +75,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     company_name = Column(String)
@@ -95,11 +96,11 @@ class User(Base):
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, index=True)
     date = Column(String)
     total_stalls = Column(Integer)
-    organizer_id = Column(Integer, ForeignKey("users.id"))
+    organizer_id = Column(String, ForeignKey("users.id"))
     standard_price = Column(Float, default=0.0)
     premium_price = Column(Float, default=0.0)
     # JSON array string of stall numbers designated as Premium, e.g. "[1,3,5]"
@@ -114,9 +115,9 @@ class StallBooking(Base):
     __tablename__ = "stall_bookings"
 
     id = Column(Integer, primary_key=True, index=True)
-    event_id = Column(Integer, ForeignKey("events.id"))
+    event_id = Column(String, ForeignKey("events.id"))
     stall_number = Column(Integer)
-    vendor_id = Column(Integer, ForeignKey("users.id"))
+    vendor_id = Column(String, ForeignKey("users.id"))
     image_url = Column(String, nullable=True)
 
     event = relationship("Event", back_populates="bookings")
@@ -126,8 +127,8 @@ class Pitch(Base):
     __tablename__ = "pitches"
 
     id = Column(Integer, primary_key=True, index=True)
-    event_id = Column(Integer, ForeignKey("events.id"))
-    vendor_id = Column(Integer, ForeignKey("users.id"))
+    event_id = Column(String, ForeignKey("events.id"))
+    vendor_id = Column(String, ForeignKey("users.id"))
     stall_type = Column(String, default="Standard")
     stall_number = Column(Integer, nullable=True)
     offered_price = Column(Float)
@@ -141,9 +142,9 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    receiver_id = Column(Integer, ForeignKey("users.id"))
-    event_id = Column(Integer, ForeignKey("events.id"))
+    user_id = Column(String, ForeignKey("users.id"))
+    receiver_id = Column(String, ForeignKey("users.id"))
+    event_id = Column(String, ForeignKey("events.id"))
     text = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
@@ -154,15 +155,15 @@ class Follow(Base):
     __tablename__ = "follows"
 
     id = Column(Integer, primary_key=True, index=True)
-    follower_id = Column(Integer, ForeignKey("users.id"))
-    vendor_id = Column(Integer, ForeignKey("users.id"))
+    follower_id = Column(String, ForeignKey("users.id"))
+    vendor_id = Column(String, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class VendorMedia(Base):
     __tablename__ = "vendor_media"
 
     id = Column(Integer, primary_key=True, index=True)
-    vendor_id = Column(Integer, ForeignKey("users.id"))
+    vendor_id = Column(String, ForeignKey("users.id"))
     media_url = Column(String)
     media_type = Column(String, default="image") # "image" or "video"
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -174,7 +175,7 @@ class MediaLike(Base):
     __tablename__ = "media_likes"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("users.id"))
     media_id = Column(Integer, ForeignKey("vendor_media.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -320,7 +321,7 @@ class UserCreate(BaseModel):
     role: str
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     email: str
     company_name: str
     role: str
@@ -356,12 +357,12 @@ class EventCreate(EventBase):
     pass
 
 class EventResponse(EventBase):
-    id: int
-    organizer_id: int
+    id: str
+    organizer_id: str
     model_config = ConfigDict(from_attributes=True)
 
 class StallBookingBase(BaseModel):
-    event_id: int
+    event_id: str
     stall_number: Optional[int] = None
 
 class StallBookingCreate(StallBookingBase):
@@ -369,13 +370,13 @@ class StallBookingCreate(StallBookingBase):
 
 class StallBookingResponse(StallBookingBase):
     id: int
-    vendor_id: int
+    vendor_id: str
     vendor_name: Optional[str] = None
     image_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class PitchBase(BaseModel):
-    event_id: int
+    event_id: str
     stall_type: str
     stall_number: Optional[int] = None
     offered_price: float
@@ -389,35 +390,35 @@ class PitchUpdate(BaseModel):
 
 class PitchResponse(PitchBase):
     id: int
-    vendor_id: int
+    vendor_id: str
     status: str
     vendor_name: Optional[str] = None
     event_name: Optional[str] = None
-    organizer_id: Optional[int] = None
+    organizer_id: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class ChatMessageBase(BaseModel):
     text: str
 
 class ChatMessageCreate(ChatMessageBase):
-    event_id: int
-    receiver_id: int
+    event_id: str
+    receiver_id: str
 
 class ChatMessageResponse(ChatMessageBase):
     id: int
-    user_id: int
-    receiver_id: int
-    event_id: int
+    user_id: str
+    receiver_id: str
+    event_id: str
     sender: Optional[str] = None # For UI
     timestamp: datetime
     model_config = ConfigDict(from_attributes=True)
 
 class InboxItem(BaseModel):
-    event_id: int
+    event_id: str
     event_name: str
-    vendor_id: int
+    vendor_id: str
     vendor_name: str
-    other_user_id: int
+    other_user_id: str
     other_user_name: str
 
 class MediaItemResponse(BaseModel):
@@ -436,7 +437,7 @@ class BadgeResponse(BaseModel):
     is_unlocked: bool
 
 class VendorProfileResponse(BaseModel):
-    id: int
+    id: str
     company_name: str
     bio: Optional[str] = None
     instagram_url: Optional[str] = None
@@ -788,7 +789,7 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
 @app.post("/bookings/", response_model=StallBookingResponse)
 def book_stall(
     request: Request,
-    event_id: int = Form(...),
+    event_id: str = Form(...),
     stall_number: int = Form(...),
     image: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_user), 
@@ -877,7 +878,7 @@ def get_all_bookings(request: Request, skip: int = 0, limit: int = 100, db: Sess
     return bookings
 
 @app.get("/events/{event_id}/bookings", response_model=List[StallBookingResponse])
-def get_event_bookings(request: Request, event_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_event_bookings(request: Request, event_id: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -1011,8 +1012,8 @@ def get_pitches(
 
 @app.get("/pitches/for-chat", response_model=Optional[PitchResponse])
 def get_pitch_for_chat(
-    event_id: int,
-    vendor_id: Optional[int] = None,
+    event_id: str,
+    vendor_id: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -1078,7 +1079,7 @@ def create_message(message: ChatMessageCreate, current_user: User = Depends(get_
     return db_message
 
 @app.get("/messages", response_model=List[ChatMessageResponse])
-def get_messages(event_id: int, vendor_id: Optional[int] = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_messages(event_id: str, vendor_id: Optional[str] = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if current_user.role == "Vendor":
         vendor_id = current_user.id
     if not vendor_id:
@@ -1097,7 +1098,7 @@ def get_messages(event_id: int, vendor_id: Optional[int] = None, db: Session = D
 
 @app.get("/users/{vendor_id}/profile", response_model=VendorProfileResponse)
 def get_vendor_profile(
-    vendor_id: int,
+    vendor_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -1177,7 +1178,7 @@ def get_vendor_profile(
 
 @app.post("/users/{vendor_id}/follow")
 def toggle_follow_vendor(
-    vendor_id: int,
+    vendor_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
