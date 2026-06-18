@@ -182,6 +182,18 @@ class MediaLike(Base):
     # Relationships
     media = relationship("VendorMedia", back_populates="likes")
 
+from sqlalchemy import inspect
+
+try:
+    inspector = inspect(engine)
+    if "events" in inspector.get_table_names():
+        columns = [col["name"] for col in inspector.get_columns("events")]
+        if "name" not in columns:
+            print("[DATABASE] Mismatch detected: 'events' table is missing 'name' column. Resetting database schema on Render...")
+            Base.metadata.drop_all(bind=engine)
+except Exception as e:
+    print(f"[DATABASE] Schema check error: {e}")
+
 Base.metadata.create_all(bind=engine)
 
 # ----------------- Supabase Storage Integration & Helper Functions -----------------
