@@ -182,7 +182,7 @@ class MediaLike(Base):
     # Relationships
     media = relationship("VendorMedia", back_populates="likes")
 
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 
 try:
     inspector = inspect(engine)
@@ -190,7 +190,10 @@ try:
         columns = [col["name"] for col in inspector.get_columns("events")]
         if "name" not in columns:
             print("[DATABASE] Mismatch detected: 'events' table is missing 'name' column. Resetting database schema on Render...")
-            Base.metadata.drop_all(bind=engine)
+            with engine.connect() as conn:
+                conn.execute(text("DROP TABLE IF EXISTS bookings, stall_bookings, pitches, chat_messages, follows, media_likes, vendor_media, events, users CASCADE"))
+                conn.commit()
+            print("[DATABASE] Mismatched tables dropped successfully.")
 except Exception as e:
     print(f"[DATABASE] Schema check error: {e}")
 
