@@ -889,6 +889,64 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
         
     return result
 
+@app.delete("/events/{event_id}")
+def delete_event(
+    event_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "Organizer":
+        raise HTTPException(status_code=403, detail="Only organizers can delete events")
+        
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+        
+    if event.organizer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this event")
+        
+    # Delete associated records
+    db.query(StallBooking).filter(StallBooking.event_id == event_id).delete()
+    db.query(Pitch).filter(Pitch.event_id == event_id).delete()
+    db.query(ChatMessage).filter(ChatMessage.event_id == event_id).delete()
+    
+    # Try deleting files from local/Supabase storage if applicable
+    # Delete banner
+    if event.banner_url:
+        if "/storage/v1/object/public/event-banners/" in event.banner_url:
+            filename = event.banner_url.split("/storage/v1/object/public/event-banners/")[-1]
+            delete_from_supabase(filename)
+        elif "static/events/" in event.banner_url:
+            filename = event.banner_url.split("static/events/")[-1]
+            local_path = f"static/events/{filename}"
+            if os.path.exists(local_path):
+                try:
+                    os.remove(local_path)
+                except Exception as e:
+                    print(f"[CLEANUP ERROR] Failed to delete banner file {local_path}: {e}")
+                
+    # Delete gallery images
+    try:
+        urls = json.loads(event.image_urls or "[]")
+        for url in urls:
+            if "/storage/v1/object/public/events/" in url:
+                filename = url.split("/storage/v1/object/public/events/")[-1]
+                delete_from_supabase(filename)
+            elif "static/events/" in url:
+                filename = url.split("static/events/")[-1]
+                local_path = f"static/events/{filename}"
+                if os.path.exists(local_path):
+                    try:
+                        os.remove(local_path)
+                    except Exception as e:
+                        print(f"[CLEANUP ERROR] Failed to delete image file {local_path}: {e}")
+    except Exception:
+        pass
+
+    db.delete(event)
+    db.commit()
+    return {"status": "success", "message": "Event deleted successfully"}
+
 @app.post("/bookings/", response_model=StallBookingResponse)
 def book_stall(
     request: Request,

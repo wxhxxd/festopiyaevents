@@ -28,7 +28,8 @@ import {
   Unlock,
   ExternalLink,
   Store,
-  UserCircle
+  UserCircle,
+  Trash2
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -1586,6 +1587,43 @@ export default function OrganizerDashboard() {
                         <span className="font-bold text-amber-400">₹{selectedEventForBookings.premium_price}</span>
                       </div>
                     </div>
+
+                    {/* Delete Event Button */}
+                    <button
+                      onClick={async () => {
+                        const confirmDelete = window.confirm(
+                          `Are you sure you want to delete "${selectedEventForBookings.name}"? This will cancel all bookings, pitches, and delete all associated chat messages. This action cannot be undone.`
+                        );
+                        if (!confirmDelete) return;
+                        
+                        try {
+                          const token = localStorage.getItem("token");
+                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEventForBookings.id}`, {
+                            method: "DELETE",
+                            headers: {
+                              "Authorization": `Bearer ${token}`
+                            }
+                          });
+                          
+                          if (res.ok) {
+                            alert("Event deleted successfully!");
+                            setSelectedEventForBookings(null);
+                            // Refresh events list
+                            fetchEvents();
+                          } else {
+                            const errData = await res.json().catch(() => null);
+                            alert(errData?.detail || "Failed to delete event.");
+                          }
+                        } catch (err) {
+                          console.error("Failed to delete event", err);
+                          alert("An error occurred while deleting the event.");
+                        }
+                      }}
+                      className="w-full mt-4 py-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 transition-all text-sm font-semibold flex items-center justify-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Event
+                    </button>
                   </div>
                 </div>
               </div>
