@@ -1598,7 +1598,9 @@ export default function OrganizerDashboard() {
                         
                         try {
                           const token = localStorage.getItem("token");
-                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEventForBookings.id}`, {
+                          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+                          const cleanApiUrl = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
+                          const res = await fetch(`${cleanApiUrl}/events/${selectedEventForBookings.id}`, {
                             method: "DELETE",
                             headers: {
                               "Authorization": `Bearer ${token}`
