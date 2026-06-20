@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { 
@@ -178,6 +178,7 @@ interface EventData {
   image_url?: string;
   image_urls?: string | string[];
   banner_url?: string;
+  maps_url?: string;
   standard_stall_size?: string;
   premium_stall_size?: string;
   standard_stall_location?: string;
@@ -487,6 +488,41 @@ export default function VendorDashboard() {
   
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatContext, setChatContext] = useState<ChatContext | null>(null);
+
+  // --- Gallery & Lightbox State & Refs ---
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const dragMoved = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!galleryRef.current) return;
+    setIsDragging(true);
+    dragMoved.current = false;
+    startX.current = e.pageX - galleryRef.current.offsetLeft;
+    scrollLeft.current = galleryRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !galleryRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - galleryRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5; // scroll speed multiplier
+    galleryRef.current.scrollLeft = scrollLeft.current - walk;
+    if (Math.abs(walk) > 5) {
+      dragMoved.current = true;
+    }
+  };
 
   // --- Settings State ---
   const [profileData, setProfileData] = useState({
@@ -1001,15 +1037,22 @@ export default function VendorDashboard() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                            className="group relative p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md overflow-hidden shadow-lg hover:shadow-rose-500/20 transition-all duration-300"
+                            className="group relative p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md overflow-hidden shadow-lg hover:shadow-rose-500/20 transition-all duration-300 cursor-pointer"
+                            onClick={() => {
+                              setSelectedEvent(event);
+                              setSelectedStall(null);
+                              setBookingError(null);
+                            }}
                           >
                             <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 via-rose-500/0 to-red-500/0 group-hover:from-pink-500/10 group-hover:via-rose-500/10 group-hover:to-red-500/5 transition-colors duration-500" />
                             <div className="relative z-10 flex flex-col h-full">
-                              <ImageCarousel
-                                urls={getImageUrls(event)}
+                              <SafeImage
+                                src={event.banner_url || (getImageUrls(event)[0])}
                                 alt={event.name}
                                 aspectRatio="aspect-video"
-                                roundedClass="rounded-2xl mb-6"
+                                maxWDesktop=""
+                                roundedClass="rounded-2xl mb-6 shadow-inner"
+                                fallbackIcon="store"
                               />
                               <div className="flex justify-between items-start mb-4">
                                 <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Exhibition</span>
@@ -1022,7 +1065,7 @@ export default function VendorDashboard() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <MapPin className="w-4 h-4 text-pink-400" />
-                                  <span className="font-medium">TBD</span>
+                                  <span className="font-medium">{event.standard_stall_location || "TBD"}</span>
                                 </div>
                               </div>
 
@@ -1844,7 +1887,29 @@ export default function VendorDashboard() {
                 <div className="absolute bottom-6 left-8 right-8 z-20">
                   <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 backdrop-blur-md uppercase tracking-wider mb-3 inline-block">Exhibition</span>
                   <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">{selectedEvent.name}</h2>
-                  <p className="text-white/70 text-sm mt-1">{selectedEvent.date}</p>
+                  <div className="flex flex-wrap items-center gap-4 mt-2 text-white/70 text-sm">
+                    <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
+                      <CalendarDays className="w-4 h-4 text-rose-400 animate-pulse" />
+                      <span className="font-semibold">{selectedEvent.date}</span>
+                    </div>
+                    {selectedEvent.maps_url ? (
+                      <a 
+                        href={selectedEvent.maps_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 px-3 py-1.5 rounded-xl backdrop-blur-sm transition-all duration-300 font-semibold"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MapPin className="w-4 h-4 text-rose-400" />
+                        <span>View on Maps</span>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
+                        <MapPin className="w-4 h-4 text-rose-400" />
+                        <span className="font-semibold">{selectedEvent.standard_stall_location || "TBD"}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1936,17 +2001,37 @@ export default function VendorDashboard() {
                       Browse photos from the venue organizer.
                     </p>
                     {getImageUrls(selectedEvent).length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      <div 
+                        ref={galleryRef}
+                        onMouseDown={handleMouseDown}
+                        onMouseLeave={handleMouseLeave}
+                        onMouseUp={handleMouseUp}
+                        onMouseMove={handleMouseMove}
+                        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none scrollbar-hide pb-2"
+                        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+                      >
                         {getImageUrls(selectedEvent).map((url: string, idx: number) => (
-                          <div key={url + idx} className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-white/5 group/gallery hover:border-rose-500/30 transition-all">
+                          <div 
+                            key={url + idx} 
+                            onClick={() => {
+                              if (!dragMoved.current) {
+                                setLightboxImage(url);
+                              }
+                            }}
+                            className="flex-none w-2/3 sm:w-1/2 md:w-1/3 aspect-video snap-start relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 group/gallery hover:border-rose-500/30 transition-all cursor-pointer"
+                          >
                             <SafeImage
                               src={url}
                               alt={`${selectedEvent.name} Gallery ${idx + 1}`}
                               aspectRatio="aspect-video"
                               maxWDesktop=""
-                              roundedClass="rounded-none"
+                              roundedClass="rounded-none pointer-events-none"
                               fallbackIcon="store"
                             />
+                            {/* Hover overlay hint */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/gallery:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
+                              <span className="text-white text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-500/80 shadow-md">Click to Expand</span>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -2103,6 +2188,40 @@ export default function VendorDashboard() {
         onClose={() => setIsChatOpen(false)} 
         initialContext={chatContext}
       />
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxImage(null)}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-zoom-out"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="relative max-w-full max-h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={lightboxImage} 
+                alt="Fullscreen Lightbox" 
+                className="max-w-[90vw] max-h-[90vh] object-contain rounded-2xl border border-white/10 shadow-2xl"
+              />
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/60 hover:bg-black/80 border border-white/10 text-white/70 hover:text-white transition-all shadow-lg hover:scale-110"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

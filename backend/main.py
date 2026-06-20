@@ -108,6 +108,7 @@ class Event(Base):
     premium_stall_ids = Column(String, default="[]")
     image_urls = Column(String, default="[]")
     banner_url = Column(String, nullable=True)
+    maps_url = Column(String, nullable=True)
     standard_stall_size = Column(String, default="10x10")
     premium_stall_size = Column(String, default="12x12")
     standard_stall_location = Column(String, default="Main Hall")
@@ -194,7 +195,7 @@ try:
     inspector = inspect(engine)
     if "events" in inspector.get_table_names():
         columns = [col["name"] for col in inspector.get_columns("events")]
-        if "image_urls" not in columns or "standard_stall_size" not in columns or "banner_url" not in columns:
+        if "image_urls" not in columns or "standard_stall_size" not in columns or "banner_url" not in columns or "maps_url" not in columns:
             print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema...")
             with engine.connect() as conn:
                 tables_to_drop = ["bookings", "stall_bookings", "pitches", "chat_messages", "follows", "media_likes", "vendor_media", "events", "users"]
@@ -383,6 +384,7 @@ class EventBase(BaseModel):
     premium_stall_ids: str = "[]"
     image_urls: str = "[]"
     banner_url: Optional[str] = None
+    maps_url: Optional[str] = None
     standard_stall_size: str = "10x10"
     premium_stall_size: str = "12x12"
     standard_stall_location: str = "Main Hall"
@@ -744,6 +746,7 @@ def create_event(
     premium_stall_size: str = Form("12x12"),
     standard_stall_location: str = Form("Main Hall"),
     premium_stall_location: str = Form("VIP Area"),
+    maps_url: Optional[str] = Form(None),
     banner: Optional[UploadFile] = File(default=None),
     images: List[UploadFile] = File(default=[]),
     current_user: User = Depends(get_current_user), 
@@ -760,7 +763,8 @@ def create_event(
         standard_stall_size=standard_stall_size,
         premium_stall_size=premium_stall_size,
         standard_stall_location=standard_stall_location,
-        premium_stall_location=premium_stall_location
+        premium_stall_location=premium_stall_location,
+        maps_url=maps_url
     )
     db.add(db_event)
     db.flush()  # Populate db_event.id for filenames before committing
@@ -875,6 +879,7 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
             "image_urls": urls,
             "image_url": urls[0] if urls else "",
             "banner_url": event.banner_url or "",
+            "maps_url": event.maps_url or "",
             "standard_stall_size": event.standard_stall_size or "10x10",
             "premium_stall_size": event.premium_stall_size or "12x12",
             "standard_stall_location": event.standard_stall_location or "Main Hall",
