@@ -381,11 +381,6 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                 </div>
 
                 <form onSubmit={handleSend} className="p-4 border-t border-white/10 bg-white/5 relative">
-                  {pitch && pitch.status === "Accepted" && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                      <span className="text-white/70 font-semibold text-sm">Chat locked - Deal Secured</span>
-                    </div>
-                  )}
                   <div className="relative flex items-center">
                     <input 
                       type="text"

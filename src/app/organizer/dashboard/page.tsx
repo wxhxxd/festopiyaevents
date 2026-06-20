@@ -170,6 +170,7 @@ interface EventData {
   total_stalls: number;
   image_url?: string;
   image_urls?: string | string[];
+  banner_url?: string;
   premium_stall_ids?: string;
   standard_price?: number;
   premium_price?: number;
@@ -194,7 +195,8 @@ interface PitchData {
 const isEventExpired = (eventDateStr: string) => {
   if (!eventDateStr) return false;
   try {
-    const parsedDate = Date.parse(eventDateStr);
+    const cleanStr = eventDateStr.replace(/^[A-Za-z]+,\s*/, "");
+    const parsedDate = Date.parse(cleanStr);
     if (isNaN(parsedDate)) return false;
     return parsedDate < Date.now();
   } catch (e) {
@@ -396,6 +398,7 @@ export default function OrganizerDashboard() {
   const [premiumPrice, setPremiumPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventImages, setEventImages] = useState<File[]>([]);
+  const [eventBanner, setEventBanner] = useState<File | null>(null);
   const [standardStallSize, setStandardStallSize] = useState("10x10");
   const [premiumStallSize, setPremiumStallSize] = useState("12x12");
   const [standardStallLocation, setStandardStallLocation] = useState("Main Hall");
@@ -706,6 +709,9 @@ export default function OrganizerDashboard() {
       formData.append('premium_stall_size', premiumStallSize);
       formData.append('standard_stall_location', standardStallLocation);
       formData.append('premium_stall_location', premiumStallLocation);
+      if (eventBanner) {
+        formData.append('banner', eventBanner);
+      }
       if (eventImages && eventImages.length > 0) {
         eventImages.forEach((img) => {
           formData.append('images', img);
@@ -733,6 +739,7 @@ export default function OrganizerDashboard() {
       setStandardPrice("");
       setPremiumPrice("");
       setEventImages([]);
+      setEventBanner(null);
       setPremiumStalls(new Set());
       setStandardStallSize("10x10");
       setPremiumStallSize("12x12");
@@ -1590,18 +1597,33 @@ export default function OrganizerDashboard() {
                     </div>
                   </div>
 
-                  <div className="space-y-2 mt-6">
-                    <label className="text-sm font-medium text-white/60 pl-1">Event Banner Images (Optional, Multiple)</label>
-                    <input 
-                      type="file" 
-                      multiple
-                      accept="image/*"
-                      onChange={(e) => {
-                        const files = e.target.files ? Array.from(e.target.files) : [];
-                        setEventImages(files);
-                      }}
-                      className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white/60 pl-1">Event Banner (Required)</label>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        required
+                        onChange={(e) => {
+                          const file = e.target.files ? e.target.files[0] : null;
+                          setEventBanner(file);
+                        }}
+                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white/60 pl-1">Gallery Images (Optional, Multiple)</label>
+                      <input 
+                        type="file" 
+                        multiple
+                        accept="image/*"
+                        onChange={(e) => {
+                          const files = e.target.files ? Array.from(e.target.files) : [];
+                          setEventImages(files);
+                        }}
+                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
+                      />
+                    </div>
                   </div>
                   
                   <div className="flex gap-4 mt-6">

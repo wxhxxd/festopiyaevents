@@ -107,6 +107,7 @@ class Event(Base):
     # JSON array string of stall numbers designated as Premium, e.g. "[1,3,5]"
     premium_stall_ids = Column(String, default="[]")
     image_urls = Column(String, default="[]")
+    banner_url = Column(String, nullable=True)
     standard_stall_size = Column(String, default="10x10")
     premium_stall_size = Column(String, default="12x12")
     standard_stall_location = Column(String, default="Main Hall")
@@ -193,7 +194,7 @@ try:
     inspector = inspect(engine)
     if "events" in inspector.get_table_names():
         columns = [col["name"] for col in inspector.get_columns("events")]
-        if "image_urls" not in columns or "standard_stall_size" not in columns:
+        if "image_urls" not in columns or "standard_stall_size" not in columns or "banner_url" not in columns:
             print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema...")
             with engine.connect() as conn:
                 tables_to_drop = ["bookings", "stall_bookings", "pitches", "chat_messages", "follows", "media_likes", "vendor_media", "events", "users"]
@@ -381,6 +382,7 @@ class EventBase(BaseModel):
     premium_price: float = 0.0
     premium_stall_ids: str = "[]"
     image_urls: str = "[]"
+    banner_url: Optional[str] = None
     standard_stall_size: str = "10x10"
     premium_stall_size: str = "12x12"
     standard_stall_location: str = "Main Hall"
@@ -742,6 +744,7 @@ def create_event(
     premium_stall_size: str = Form("12x12"),
     standard_stall_location: str = Form("Main Hall"),
     premium_stall_location: str = Form("VIP Area"),
+    banner: Optional[UploadFile] = File(default=None),
     images: List[UploadFile] = File(default=[]),
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
@@ -762,6 +765,37 @@ def create_event(
     db.add(db_event)
     db.flush()  # Populate db_event.id for filenames before committing
     
+    # Process Banner if uploaded
+    banner_url = None
+    if banner and banner.filename:
+        try:
+            file_extension = os.path.splitext(banner.filename)[1].lower()
+            unique_filename = f"event_banner_{db_event.id}_{int(datetime.utcnow().timestamp())}{file_extension}"
+            file_location = f"static/events/{unique_filename}"
+            
+            banner_content = banner.file.read()
+            
+            # Upload to Supabase if configured
+            supabase_banner_url = upload_to_supabase(
+                file_data=banner_content,
+                file_name=unique_filename,
+                content_type=banner.content_type or "image/png"
+            )
+            
+            if supabase_banner_url:
+                banner_url = supabase_banner_url
+            else:
+                # Fallback to local storage
+                os.makedirs("static/events", exist_ok=True)
+                with open(file_location, "wb+") as file_object:
+                    file_object.write(banner_content)
+                base_url = str(request.base_url).rstrip("/")
+                banner_url = f"{base_url}/static/events/{unique_filename}"
+        except Exception as e:
+            print(f"[EVENT CREATE] Failed to upload or save banner {banner.filename}: {e}")
+            
+    db_event.banner_url = banner_url
+
     uploaded_urls = []
     for image in images:
         if image and image.filename:
@@ -800,7 +834,10 @@ def create_event(
 
 @app.get("/events/")
 def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    events = db.query(Event).offset(skip).limit(limit).all()
+    if current_user.role == "Organizer":
+        events = db.query(Event).filter(Event.organizer_id == current_user.id).offset(skip).limit(limit).all()
+    else:
+        events = db.query(Event).offset(skip).limit(limit).all()
     result = []
     
     try:
@@ -837,6 +874,7 @@ def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Sessio
             "premium_stall_ids": event.premium_stall_ids or "[]",
             "image_urls": urls,
             "image_url": urls[0] if urls else "",
+            "banner_url": event.banner_url or "",
             "standard_stall_size": event.standard_stall_size or "10x10",
             "premium_stall_size": event.premium_stall_size or "12x12",
             "standard_stall_location": event.standard_stall_location or "Main Hall",
