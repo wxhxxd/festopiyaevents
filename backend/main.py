@@ -317,6 +317,15 @@ def run_migrations():
                     db.rollback()
                     print(f"[MIGRATION ERROR] Failed to add {col_name} to users: {e}")
 
+        # Create unique index for username to enforce uniqueness at database level
+        try:
+            db.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users (username)"))
+            db.commit()
+            print("[MIGRATION] Enforced unique index on users.username.")
+        except Exception as e:
+            db.rollback()
+            print(f"[MIGRATION ERROR] Failed to enforce unique index on users.username: {e}")
+
         # 2. events migrations
         for col_name, col_type in [
             ("standard_price", "FLOAT DEFAULT 0.0"),
@@ -732,11 +741,19 @@ def update_current_user_profile(
     if user_update.avatar_url is not None:
         current_user.avatar_url = user_update.avatar_url
     if user_update.username is not None:
+        username_val = user_update.username.strip().lower()
+        if not username_val:
+            raise HTTPException(status_code=400, detail="Username cannot be empty")
+        if not all(c.isalnum() or c in ('_', '-') for c in username_val):
+            raise HTTPException(
+                status_code=400, 
+                detail="Username can only contain letters, numbers, underscores, and hyphens"
+            )
         # Check if username is already taken by another user
-        check_user = db.query(User).filter(User.username == user_update.username.strip().lower(), User.id != current_user.id).first()
+        check_user = db.query(User).filter(User.username == username_val, User.id != current_user.id).first()
         if check_user:
             raise HTTPException(status_code=400, detail="Username is already taken")
-        current_user.username = user_update.username.strip().lower()
+        current_user.username = username_val
     if user_update.category is not None:
         current_user.category = user_update.category
     if user_update.display_name is not None:

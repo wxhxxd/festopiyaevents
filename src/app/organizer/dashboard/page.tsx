@@ -14,6 +14,7 @@ import {
   Loader2,
   X,
   CheckCircle2,
+  AlertCircle,
   MessageSquare,
   AtSign,
   Globe,
@@ -755,6 +756,7 @@ export default function OrganizerDashboard() {
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const settingsFetched = useRef(false);
 
   useEffect(() => {
@@ -970,6 +972,7 @@ export default function OrganizerDashboard() {
     if (!token) return;
     setIsSavingProfile(true);
     setSaveSuccess(false);
+    setSaveError(null);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         method: 'PUT',
@@ -979,11 +982,15 @@ export default function OrganizerDashboard() {
         },
         body: JSON.stringify(profileData),
       });
-      if (!res.ok) throw new Error('Save failed');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.detail || 'Save failed');
+      }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save profile', err);
+      setSaveError(err.message || 'Failed to save settings');
     } finally {
       setIsSavingProfile(false);
     }
@@ -1956,6 +1963,21 @@ export default function OrganizerDashboard() {
                     >
                       <CheckCircle2 className="w-5 h-5 shrink-0" />
                       Profile saved successfully!
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Error Toast */}
+                <AnimatePresence>
+                  {saveError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-300 text-sm font-medium"
+                    >
+                      <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
+                      {saveError}
                     </motion.div>
                   )}
                 </AnimatePresence>
