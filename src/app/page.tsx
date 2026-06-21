@@ -45,7 +45,7 @@ export default function LandingPage() {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Festopiya Logo" className="h-10 w-auto shrink-0 drop-shadow-2xl" />
-          <span className="text-2xl font-extrabold tracking-wide select-none bg-clip-text bg-gradient-to-r from-indigo-200 via-indigo-100 to-fuchsia-200 text-transparent">
+          <span className="text-2xl font-festopiya font-extrabold tracking-wide select-none bg-clip-text bg-gradient-to-r from-indigo-200 via-indigo-100 to-fuchsia-200 text-transparent">
             Festopiya
           </span>
         </div>
