@@ -6,3 +6,4 @@ python-jose
 python-multipart
 pydantic
 psycopg2-binary
+slowapi

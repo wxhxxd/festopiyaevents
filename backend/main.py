@@ -1,5 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, text, UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from pydantic import BaseModel, ConfigDict
@@ -545,7 +549,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 # ----------------- FastAPI App Setup -----------------
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
 app = FastAPI(title="Festopiya Backend API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 os.makedirs("static/events", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -557,6 +564,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SlowAPIMiddleware)
 
 # ----------------- Auth Endpoints -----------------
 # Email config — replace with real SMTP creds or use Gmail App Password
@@ -619,7 +627,8 @@ def dev_get_token(email: str, db: Session = Depends(get_db)):
     return {"email": email, "verification_link": link}
 
 @app.post("/signup", response_model=UserResponse)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -649,7 +658,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     return {"message": "Email verified successfully! You can now log in."}
 
 @app.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -734,6 +744,7 @@ def upload_user_avatar(
     return current_user
 
 @app.post("/events/", response_model=EventResponse)
+@limiter.limit("5/minute")
 def create_event(
     request: Request,
     name: str = Form(...),
@@ -948,6 +959,7 @@ def delete_event(
     return {"status": "success", "message": "Event deleted successfully"}
 
 @app.post("/bookings/", response_model=StallBookingResponse)
+@limiter.limit("5/minute")
 def book_stall(
     request: Request,
     event_id: str = Form(...),
