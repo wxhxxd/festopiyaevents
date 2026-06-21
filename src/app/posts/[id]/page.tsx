@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
 import { 
   Heart, 
   ArrowLeft, 
@@ -169,9 +170,7 @@ export default function PostDetailPage() {
         className="absolute top-6 left-6 z-20 flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity"
       >
         <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0 drop-shadow-md" />
-        <span className="text-xl font-festopiya font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 tracking-tight">
-          Festopiya
-        </span>
+        <FestopiyaBranding className="text-xl" />
       </div>
 
       {/* Background radial glow */}

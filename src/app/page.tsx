@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
 
 const yellowtail = { className: "font-yellowtail" };
 const caveat = { className: "font-caveat" };
@@ -45,9 +46,7 @@ export default function LandingPage() {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Festopiya Logo" className="h-10 w-auto shrink-0 drop-shadow-2xl" />
-          <span className="text-2xl font-festopiya font-extrabold tracking-wide select-none bg-clip-text bg-gradient-to-r from-sky-400 via-sky-200 to-cyan-300 text-transparent">
-            Festopiya
-          </span>
+          <FestopiyaBranding className="text-2xl tracking-wide" isLanding={true} />
         </div>
       </nav>
 

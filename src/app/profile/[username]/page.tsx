@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -156,9 +157,7 @@ export default function PublicProfilePage() {
 
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/")}>
           <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0" />
-          <span className="text-xl font-festopiya font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 tracking-tight">
-            Festopiya
-          </span>
+          <FestopiyaBranding className="text-xl" />
         </div>
       </div>
 

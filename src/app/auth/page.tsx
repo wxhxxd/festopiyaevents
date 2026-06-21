@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Building2, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -151,8 +152,8 @@ export default function AuthPage() {
         {/* Logo + heading */}
         <div className="flex flex-col items-center mb-8">
           <img src="/logo.png" alt="Festopiya Logo" className="w-16 h-auto mb-3 drop-shadow-xl" />
-          <h1 className="text-3xl font-festopiya font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 tracking-tight text-center">
-            Festopiya
+          <h1 className="text-center">
+            <FestopiyaBranding className="text-3xl" />
           </h1>
           <p className="text-white/60 text-sm mt-1">
             {isLogin ? "Welcome back" : `Signing up as a ${role}`}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
 import { 
   Search, 
   Store, 
@@ -900,9 +901,7 @@ export default function VendorDashboard() {
       <header className="fixed top-0 left-0 right-0 h-16 z-50 flex md:hidden items-center justify-between px-6 bg-black/65 backdrop-blur-xl border-b border-white/10">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0" />
-          <span className="text-xl font-festopiya font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 tracking-tight">
-            Festopiya
-          </span>
+          <FestopiyaBranding className="text-xl" />
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -944,9 +943,7 @@ export default function VendorDashboard() {
         <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/10 bg-black/60 md:bg-white/5 backdrop-blur-2xl md:backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] px-4 py-2 md:py-8 md:px-4 md:overflow-hidden">
           <div className="hidden md:flex items-center justify-center md:justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto mr-2 shrink-0" />
-            <span className="text-2xl font-festopiya font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 tracking-tight">
-              Festopiya
-            </span>
+            <FestopiyaBranding className="text-2xl" />
           </div>
 
           <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
