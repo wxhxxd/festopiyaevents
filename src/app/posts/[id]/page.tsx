@@ -163,6 +163,17 @@ export default function PostDetailPage() {
 
   return (
     <main className="relative min-h-screen w-full bg-black text-white p-4 md:p-8 flex items-center justify-center">
+      {/* Top Left Logo */}
+      <div 
+        onClick={() => router.push("/")} 
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity"
+      >
+        <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0 drop-shadow-md" />
+        <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 tracking-tight">
+          Festopiya
+        </span>
+      </div>
+
       {/* Background radial glow */}
       <div className="fixed inset-0 bg-radial-gradient from-indigo-500/10 via-black to-black pointer-events-none z-0" />
 

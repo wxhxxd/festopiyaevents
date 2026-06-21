@@ -43,9 +43,12 @@ export default function LandingPage() {
       {/* ── Navigation ──────────────────────────────────────── */}
       <nav className="relative z-10 flex items-center px-8 py-6 md:px-16">
         {/* Logo */}
-        <span className="text-white text-2xl font-bold tracking-wide select-none">
-          Festopiya
-        </span>
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Festopiya Logo" className="h-10 w-auto shrink-0 drop-shadow-2xl" />
+          <span className="text-2xl font-extrabold tracking-wide select-none bg-clip-text bg-gradient-to-r from-indigo-200 via-indigo-100 to-fuchsia-200 text-transparent">
+            Festopiya
+          </span>
+        </div>
       </nav>
 
       {/* ── Hero Section ────────────────────────────────────── */}
