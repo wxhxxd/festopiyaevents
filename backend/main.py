@@ -91,6 +91,10 @@ class User(Base):
     instagram_url = Column(String, nullable=True)
     website_url = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
+    username = Column(String, unique=True, index=True, nullable=True)
+    business_name = Column(String, nullable=True)
+    category = Column(String, nullable=True)
+    display_name = Column(String, nullable=True)
     
     # Relationships
     events = relationship("Event", back_populates="organizer")
@@ -295,7 +299,11 @@ def run_migrations():
             ("verification_token", "VARCHAR(200)"),
             ("bio", "VARCHAR(1000)"),
             ("instagram_url", "VARCHAR(200)"),
-            ("website_url", "VARCHAR(200)")
+            ("website_url", "VARCHAR(200)"),
+            ("username", "VARCHAR(200)"),
+            ("business_name", "VARCHAR(200)"),
+            ("category", "VARCHAR(200)"),
+            ("display_name", "VARCHAR(200)")
         ]:
             try:
                 db.execute(text(f"SELECT {col_name} FROM users LIMIT 1"))
@@ -364,6 +372,10 @@ class UserResponse(BaseModel):
     instagram_url: Optional[str] = None
     website_url: Optional[str] = None
     avatar_url: Optional[str] = None
+    username: Optional[str] = None
+    business_name: Optional[str] = None
+    category: Optional[str] = None
+    display_name: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):
@@ -372,6 +384,10 @@ class UserUpdate(BaseModel):
     instagram_url: Optional[str] = None
     website_url: Optional[str] = None
     avatar_url: Optional[str] = None
+    username: Optional[str] = None
+    business_name: Optional[str] = None
+    category: Optional[str] = None
+    display_name: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str
@@ -677,7 +693,22 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
 # ----------------- Protected API Endpoints -----------------
 
 @app.get("/users/me", response_model=UserResponse)
-def get_current_user_profile(current_user: User = Depends(get_current_user)):
+def get_current_user_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    updated = False
+    if not current_user.username:
+        base = current_user.email.split("@")[0] if current_user.email else "user"
+        sanitized = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower()
+        current_user.username = sanitized or f"user_{current_user.id[:8]}"
+        updated = True
+    if not current_user.business_name:
+        current_user.business_name = current_user.company_name
+        updated = True
+    if not current_user.display_name:
+        current_user.display_name = current_user.company_name or current_user.username
+        updated = True
+    if updated:
+        db.commit()
+        db.refresh(current_user)
     return current_user
 
 @app.put("/users/me", response_model=UserResponse)
@@ -688,6 +719,10 @@ def update_current_user_profile(
 ):
     if user_update.company_name is not None:
         current_user.company_name = user_update.company_name
+        current_user.business_name = user_update.company_name
+    if user_update.business_name is not None:
+        current_user.business_name = user_update.business_name
+        current_user.company_name = user_update.business_name
     if user_update.bio is not None:
         current_user.bio = user_update.bio
     if user_update.instagram_url is not None:
@@ -696,6 +731,16 @@ def update_current_user_profile(
         current_user.website_url = user_update.website_url
     if user_update.avatar_url is not None:
         current_user.avatar_url = user_update.avatar_url
+    if user_update.username is not None:
+        # Check if username is already taken by another user
+        check_user = db.query(User).filter(User.username == user_update.username.strip().lower(), User.id != current_user.id).first()
+        if check_user:
+            raise HTTPException(status_code=400, detail="Username is already taken")
+        current_user.username = user_update.username.strip().lower()
+    if user_update.category is not None:
+        current_user.category = user_update.category
+    if user_update.display_name is not None:
+        current_user.display_name = user_update.display_name
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -742,6 +787,166 @@ def upload_user_avatar(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+@app.get("/api/search/users")
+def search_users(
+    role: str,
+    query: Optional[str] = "",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    db_role = "Organizer" if role.lower() == "organizer" else "Vendor"
+    q = db.query(User).filter(User.role == db_role)
+    if query:
+        search_filter = f"%{query}%"
+        q = q.filter(
+            (User.username.ilike(search_filter)) |
+            (User.business_name.ilike(search_filter)) |
+            (User.company_name.ilike(search_filter)) |
+            (User.category.ilike(search_filter))
+        )
+    users = q.all()
+    results = []
+    for u in users:
+        username = u.username
+        if not username:
+            base = u.email.split("@")[0] if u.email else "user"
+            username = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{u.id[:8]}"
+        results.append({
+            "id": u.id,
+            "username": username,
+            "display_name": u.display_name or u.company_name or username,
+            "business_name": u.business_name or u.company_name or "",
+            "bio": u.bio or "",
+            "category": u.category or "",
+            "avatar_url": u.avatar_url or "",
+            "role": u.role
+        })
+    return results
+
+@app.get("/api/users/profile-by-id/{user_id}")
+def get_user_profile_by_id(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Self-healing default event creation for Organizers
+    if user.role == "Organizer" and not user.events:
+        default_event = Event(
+            name="General Connection",
+            date=(datetime.utcnow() + timedelta(days=365)).strftime("%Y-%m-%d"),
+            total_stalls=1,
+            organizer_id=user.id,
+            standard_price=0.0,
+            premium_price=0.0
+        )
+        db.add(default_event)
+        db.commit()
+        db.refresh(user)
+        
+    events_data = []
+    if user.role == "Organizer":
+        events_data = [
+            {"id": e.id, "name": e.name} for e in user.events
+        ]
+        
+    res_username = user.username
+    if not res_username:
+        base = user.email.split("@")[0] if user.email else "user"
+        res_username = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{user.id[:8]}"
+        
+    return {
+        "id": user.id,
+        "username": res_username,
+        "display_name": user.display_name or user.company_name or res_username,
+        "business_name": user.business_name or user.company_name or "",
+        "role": user.role,
+        "events": events_data
+    }
+
+@app.get("/api/users/profile/{username}")
+def get_user_profile_by_username(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    user = db.query(User).filter(User.username.ilike(username.strip())).first()
+    if not user:
+        # Fallback for older users
+        all_users = db.query(User).all()
+        for u in all_users:
+            base = u.email.split("@")[0] if u.email else "user"
+            sanitized = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{u.id[:8]}"
+            if sanitized == username.strip().lower():
+                user = u
+                break
+                
+    if not user:
+        raise HTTPException(status_code=404, detail="User profile not found")
+        
+    # Self-healing default event creation for Organizers
+    if user.role == "Organizer" and not user.events:
+        default_event = Event(
+            name="General Connection",
+            date=(datetime.utcnow() + timedelta(days=365)).strftime("%Y-%m-%d"),
+            total_stalls=1,
+            organizer_id=user.id,
+            standard_price=0.0,
+            premium_price=0.0
+        )
+        db.add(default_event)
+        db.commit()
+        db.refresh(user)
+        
+    # Get media items
+    media_items = db.query(VendorMedia).filter(VendorMedia.vendor_id == user.id).order_by(VendorMedia.created_at.desc()).all()
+    media_responses = []
+    for item in media_items:
+        like_count = db.query(MediaLike).filter(MediaLike.media_id == item.id).count()
+        is_liked_by_me = db.query(MediaLike).filter(
+            MediaLike.media_id == item.id,
+            MediaLike.user_id == current_user.id
+        ).first() is not None
+        
+        media_responses.append({
+            "id": item.id,
+            "media_url": item.media_url,
+            "media_type": item.media_type,
+            "created_at": item.created_at,
+            "like_count": like_count,
+            "is_liked_by_me": is_liked_by_me
+        })
+        
+    events_data = []
+    if user.role == "Organizer":
+        events_data = [
+            {"id": e.id, "name": e.name} for e in user.events
+        ]
+        
+    res_username = user.username
+    if not res_username:
+        base = user.email.split("@")[0] if user.email else "user"
+        res_username = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{user.id[:8]}"
+        
+    return {
+        "id": user.id,
+        "username": res_username,
+        "display_name": user.display_name or user.company_name or res_username,
+        "business_name": user.business_name or user.company_name or "",
+        "company_name": user.company_name or "",
+        "bio": user.bio or "",
+        "category": user.category or "",
+        "avatar_url": user.avatar_url or "",
+        "role": user.role,
+        "instagram_url": user.instagram_url or "",
+        "website_url": user.website_url or "",
+        "media": media_responses,
+        "events": events_data
+    }
 
 @app.post("/events/", response_model=EventResponse)
 @limiter.limit("5/minute")

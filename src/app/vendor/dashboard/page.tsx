@@ -33,7 +33,8 @@ import {
   Lock,
   Unlock,
   ExternalLink,
-  Trash2
+  Trash2,
+  Users
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -306,7 +307,7 @@ export default function VendorDashboard() {
   const [loading, setLoading] = useState(true);
   const [eventFilter, setEventFilter] = useState<'active' | 'past'>('active');
 
-  const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "profile" | "settings">("find_events");
+  const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "organizers" | "profile" | "settings">("find_events");
   const [myUserId, setMyUserId] = useState<number | null>(null);
   const [vendorProfile, setVendorProfile] = useState<any>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -315,6 +316,34 @@ export default function VendorDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState("");
+
+  // --- Organizer Hub Search States ---
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearchOrganizers = async (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search/users?role=Organizer&query=${encodeURIComponent(query)}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data);
+      }
+    } catch (err) {
+      console.error("Failed to search organizers", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const fetchMyProfile = async (userId: number) => {
     setIsProfileLoading(true);
@@ -527,6 +556,8 @@ export default function VendorDashboard() {
   // --- Settings State ---
   const [profileData, setProfileData] = useState({
     company_name: '',
+    username: '',
+    category: '',
     bio: '',
     instagram_url: '',
     website_url: '',
@@ -610,6 +641,76 @@ export default function VendorDashboard() {
     }
   }, []);
 
+  // Auto-initialize chat if redirected from profile page with query parameters
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const chatUserId = params.get("chatUserId");
+      const chatUserName = params.get("chatUserName");
+      if (chatUserId && chatUserName) {
+        const token = localStorage.getItem("token");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile-by-id/${chatUserId}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        })
+          .then(r => r.json())
+          .then(profile => {
+            let eventId = 0;
+            if (profile.role === "Organizer" && profile.events && profile.events.length > 0) {
+              eventId = profile.events[0].id;
+            } else {
+              // Current user is Vendor. Let's fetch the events.
+              fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, {
+                headers: { "Authorization": `Bearer ${token}` }
+              })
+                .then(r2 => r2.json())
+                .then(eventsData => {
+                  const userEvents = Array.isArray(eventsData) ? eventsData : (eventsData.events || []);
+                  if (userEvents.length > 0) {
+                    eventId = userEvents[0].id;
+                  }
+                  setChatContext({
+                    eventId,
+                    vendorId: myUserId ? Number(myUserId) : undefined,
+                    receiverId: Number(chatUserId),
+                    title: chatUserName
+                  });
+                  setIsChatOpen(true);
+                })
+                .catch(() => {
+                  setChatContext({
+                    eventId: 0,
+                    vendorId: myUserId ? Number(myUserId) : undefined,
+                    receiverId: Number(chatUserId),
+                    title: chatUserName
+                  });
+                  setIsChatOpen(true);
+                });
+              return;
+            }
+            setChatContext({
+              eventId,
+              vendorId: myUserId ? Number(myUserId) : undefined,
+              receiverId: Number(chatUserId),
+              title: chatUserName
+            });
+            setIsChatOpen(true);
+          })
+          .catch(err => {
+            console.error("Failed to auto-open chat", err);
+            setChatContext({
+              eventId: 0,
+              receiverId: Number(chatUserId),
+              title: chatUserName
+            });
+            setIsChatOpen(true);
+          });
+
+        const newUrl = window.location.pathname;
+        router.replace(newUrl);
+      }
+    }
+  }, [router, myUserId]);
+
   // Re-fetch pitches whenever My Pitches tab is opened
   useEffect(() => {
     if (activeTab === 'my_pitches') fetchMyPitches();
@@ -634,6 +735,8 @@ export default function VendorDashboard() {
       .then(data => {
         setProfileData({
           company_name: data.company_name || '',
+          username: data.username || '',
+          category: data.category || '',
           bio: data.bio || '',
           instagram_url: data.instagram_url || '',
           website_url: data.website_url || '',
@@ -845,6 +948,7 @@ export default function VendorDashboard() {
               { icon: Search, label: "Find Events", tab: "find_events" },
               { icon: Store, label: "My Stalls", tab: "my_stalls" },
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches" },
+              { icon: Users, label: "Organizer Hub", tab: "organizers" },
               { icon: UserCircle, label: "My Profile", tab: "profile", hideMobile: true },
               { icon: Settings, label: "Settings", tab: "settings" },
             ].map((item, i) => {
@@ -1371,6 +1475,94 @@ export default function VendorDashboard() {
             </div>
           )}
 
+          {activeTab === "organizers" && (
+            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-rose-500/20 border border-rose-500/20">
+                    <Users className="w-7 h-7 text-rose-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Organizer Hub</h2>
+                    <p className="text-white/50 mt-0.5">Search for event hosts, planners, and discover partnership opportunities.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Search Input */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchOrganizers(e.target.value)}
+                    placeholder="Search organizers by username, host name, or specialization..."
+                    className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-md text-base"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                      <Loader2 className="w-5 h-5 text-rose-400 animate-spin" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Search Results */}
+                {searchResults.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
+                    <Users className="w-12 h-12 text-white/10 mb-4" />
+                    <h3 className="text-xl font-medium text-white/60 mb-1">
+                      {searchQuery ? "No Results Found" : "Find Top Hosts"}
+                    </h3>
+                    <p className="text-white/40 text-sm max-w-sm text-center">
+                      {searchQuery 
+                        ? "We couldn't find any organizers matching your query." 
+                        : "Type in a name or specialization category to find event hosts."}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {searchResults.map((org) => (
+                      <div 
+                        key={org.id} 
+                        onClick={() => router.push(`/profile/${org.username}`)}
+                        className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/50 hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-pink-500 to-rose-500 p-[2px] shrink-0">
+                            {org.avatar_url ? (
+                              <img 
+                                src={getFullImageUrl(org.avatar_url)} 
+                                alt={org.display_name} 
+                                className="w-full h-full rounded-full object-cover border border-black/20"
+                              />
+                            ) : (
+                              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-extrabold text-xl">
+                                {org.display_name?.charAt(0) || "O"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="overflow-hidden">
+                            <h4 className="font-extrabold text-white text-lg tracking-tight group-hover:text-rose-300 transition-colors truncate">{org.display_name}</h4>
+                            <p className="text-white/40 text-xs truncate">@{org.username}</p>
+                            {org.category && (
+                              <span className="mt-2 inline-block px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-wider border border-rose-500/20">
+                                {org.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <p className="text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
+                          {org.bio || "No biography added yet."}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ── Instagram-Style Creator Profile Tab ─────────────────── */}
           {activeTab === "profile" && (
             <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8">
@@ -1658,11 +1850,11 @@ export default function VendorDashboard() {
 
               <form onSubmit={handleSaveSettings} className="max-w-2xl space-y-6">
 
-                {/* Company Name */}
+                {/* Shop/Business Name */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
                     <Building2 className="w-4 h-4 text-rose-400" />
-                    Company Name
+                    Shop/Business Name
                   </label>
                   <input
                     id="vendor-company-name"
@@ -1671,6 +1863,38 @@ export default function VendorDashboard() {
                     onChange={e => setProfileData({ ...profileData, company_name: e.target.value })}
                     className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
                     placeholder="Your company or brand name"
+                  />
+                </div>
+
+                {/* Username */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                    <UserCircle className="w-4 h-4 text-rose-400" />
+                    Username
+                  </label>
+                  <input
+                    id="vendor-username"
+                    type="text"
+                    value={profileData.username}
+                    onChange={e => setProfileData({ ...profileData, username: e.target.value })}
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    placeholder="e.g. shop_jane"
+                  />
+                </div>
+
+                {/* Specialization / Category */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                    <Sparkles className="w-4 h-4 text-rose-400" />
+                    Specialization / Category
+                  </label>
+                  <input
+                    id="vendor-category"
+                    type="text"
+                    value={profileData.category}
+                    onChange={e => setProfileData({ ...profileData, category: e.target.value })}
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    placeholder="e.g. Gourmet Food, Handmade Crafts, Face Painting"
                   />
                 </div>
 

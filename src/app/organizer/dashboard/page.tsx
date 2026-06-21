@@ -29,7 +29,8 @@ import {
   ExternalLink,
   Store,
   UserCircle,
-  Trash2
+  Trash2,
+  UploadCloud
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -453,7 +454,201 @@ export default function OrganizerDashboard() {
   };
   const [eventBookings, setEventBookings] = useState<any[]>([]);
   const [isBookingsLoading, setIsBookingsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'events' | 'vendors' | 'settings'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'vendors' | 'settings' | 'profile'>('events');
+
+  // --- Profile / Settings State ---
+  const [myUserId, setMyUserId] = useState<number | null>(null);
+  const [organizerProfile, setOrganizerProfile] = useState<any>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<any>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
+
+  const fetchMyProfile = async (userId: number) => {
+    setIsProfileLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/profile`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrganizerProfile(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  const handleMediaUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+
+    setIsUploading(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseAnonKey) {
+        const cleanUrl = supabaseUrl.replace(/\/$/, "");
+        const uniqueFilename = `${myUserId || 'organizer'}_${Date.now()}_${uploadFile.name}`;
+        const uploadUrl = `${cleanUrl}/storage/v1/object/vendor-media/${uniqueFilename}`;
+
+        const uploadRes = await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${supabaseAnonKey}`,
+            "apikey": supabaseAnonKey,
+            "Content-Type": uploadFile.type
+          },
+          body: uploadFile
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => null);
+          throw new Error(errData?.message || "Failed to upload to Supabase");
+        }
+
+        const publicUrl = `${cleanUrl}/storage/v1/object/public/vendor-media/${uniqueFilename}`;
+        const fileExtension = uploadFile.name.split('.').pop()?.toLowerCase();
+        const mediaType = ["mp4", "webm", "avi", "mov"].includes(fileExtension || "") ? "video" : "image";
+
+        const registerRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/media/link`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            media_url: publicUrl,
+            media_type: mediaType
+          })
+        });
+
+        if (!registerRes.ok) {
+          throw new Error("Failed to register Supabase link in backend");
+        }
+      } else {
+        const formData = new FormData();
+        formData.append("file", uploadFile);
+
+        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/media`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => null);
+          throw new Error(errData?.detail || "Failed to upload media locally");
+        }
+      }
+
+      setUploadFile(null);
+      if (myUserId) fetchMyProfile(myUserId);
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/avatar`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        if (myUserId) fetchMyProfile(myUserId);
+      } else {
+        const errData = await res.json().catch(() => null);
+        alert(errData?.detail || "Failed to upload profile picture");
+      }
+    } catch (err) {
+      console.error("Failed to upload avatar", err);
+    }
+  };
+
+  const handleLikeMedia = async (mediaId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}/like`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        if (myUserId) fetchMyProfile(myUserId);
+      }
+    } catch (err) {
+      console.error("Failed to like media", err);
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: number) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media/${mediaId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSelectedMedia(null);
+        if (myUserId) fetchMyProfile(myUserId);
+      }
+    } catch (err) {
+      console.error("Failed to delete media", err);
+    }
+  };
+
+  // --- Vendor Hub Search States ---
+  const [vendorHubSubTab, setVendorHubSubTab] = useState<'pitches' | 'search'>('pitches');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearchVendors = async (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search/users?role=Vendor&query=${encodeURIComponent(query)}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data);
+      }
+    } catch (err) {
+      console.error("Failed to search vendors", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   // --- Creator Profile States ---
   const [selectedVendorForProfile, setSelectedVendorForProfile] = useState<number | null>(null);
@@ -552,6 +747,8 @@ export default function OrganizerDashboard() {
   // --- Settings State ---
   const [profileData, setProfileData] = useState({
     company_name: '',
+    username: '',
+    category: '',
     bio: '',
     instagram_url: '',
     website_url: '',
@@ -649,7 +846,96 @@ export default function OrganizerDashboard() {
 
   useEffect(() => {
     fetchEvents();
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          setMyUserId(data.id);
+          fetchMyProfile(data.id);
+        })
+        .catch(err => console.error("Failed to fetch user me", err));
+    }
   }, []);
+
+  // Auto-initialize chat if redirected from profile page with query parameters
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const chatUserId = params.get("chatUserId");
+      const chatUserName = params.get("chatUserName");
+      if (chatUserId && chatUserName) {
+        const token = localStorage.getItem("token");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile-by-id/${chatUserId}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        })
+          .then(r => r.json())
+          .then(profile => {
+            let eventId = 0;
+            if (profile.role === "Organizer" && profile.events && profile.events.length > 0) {
+              eventId = profile.events[0].id;
+            } else {
+              // Current user is Organizer. Let's use first event.
+              fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/`, {
+                headers: { "Authorization": `Bearer ${token}` }
+              })
+                .then(r2 => r2.json())
+                .then(eventsData => {
+                  const userEvents = Array.isArray(eventsData) ? eventsData : (eventsData.events || []);
+                  if (userEvents.length > 0) {
+                    eventId = userEvents[0].id;
+                  }
+                  setChatContext({
+                    eventId,
+                    vendorId: Number(chatUserId),
+                    receiverId: Number(chatUserId),
+                    title: chatUserName
+                  });
+                  setIsChatOpen(true);
+                })
+                .catch(() => {
+                  setChatContext({
+                    eventId: 0,
+                    vendorId: Number(chatUserId),
+                    receiverId: Number(chatUserId),
+                    title: chatUserName
+                  });
+                  setIsChatOpen(true);
+                });
+              return;
+            }
+            setChatContext({
+              eventId,
+              vendorId: undefined, // target is organizer, so we don't pass vendorId
+              receiverId: Number(chatUserId),
+              title: chatUserName
+            });
+            setIsChatOpen(true);
+          })
+          .catch(err => {
+            console.error("Failed to auto-open chat", err);
+            setChatContext({
+              eventId: 0,
+              receiverId: Number(chatUserId),
+              title: chatUserName
+            });
+            setIsChatOpen(true);
+          });
+
+        const newUrl = window.location.pathname;
+        router.replace(newUrl);
+      }
+    }
+  }, [router]);
+
+  // Re-fetch profile when profile tab is opened
+  useEffect(() => {
+    if (activeTab === 'profile' && myUserId) {
+      fetchMyProfile(myUserId);
+    }
+  }, [activeTab, myUserId]);
 
   // Fetch pitches whenever the vendors tab is opened
   useEffect(() => {
@@ -668,6 +954,8 @@ export default function OrganizerDashboard() {
       .then(data => {
         setProfileData({
           company_name: data.company_name || '',
+          username: data.username || '',
+          category: data.category || '',
           bio: data.bio || '',
           instagram_url: data.instagram_url || '',
           website_url: data.website_url || '',
@@ -831,17 +1119,37 @@ export default function OrganizerDashboard() {
             Festopiya
           </span>
         </div>
-        <button 
-          onClick={() => { 
-            localStorage.removeItem("token"); 
-            localStorage.removeItem("company_name"); 
-            localStorage.removeItem("role"); 
-            router.push("/auth"); 
-          }}
-          className="p-2 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setActiveTab("profile")}
+            className={`relative w-9 h-9 rounded-full overflow-hidden border transition-all ${
+              activeTab === "profile" 
+                ? "border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" 
+                : "border-white/10 hover:border-white/30"
+            }`}
+          >
+            {organizerProfile?.avatar_url ? (
+              <img 
+                src={getFullImageUrl(organizerProfile.avatar_url)} 
+                alt="Profile" 
+                className="object-cover w-full h-full rounded-full"
+              />
+            ) : (
+              <UserCircle className="w-full h-full text-white/50" />
+            )}
+          </button>
+          <button 
+            onClick={() => { 
+              localStorage.removeItem("token"); 
+              localStorage.removeItem("company_name"); 
+              localStorage.removeItem("role"); 
+              router.push("/auth"); 
+            }}
+            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
       </header>
 
       {/* Sidebar - Glassmorphism */}
@@ -855,23 +1163,43 @@ export default function OrganizerDashboard() {
           </div>
 
           <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
-            {([
+            {[
               { icon: CalendarDays, label: "Events", tab: "events" },
               { icon: Users, label: "Vendor Hub", tab: "vendors" },
+              { icon: UserCircle, label: "My Profile", tab: "profile", hideMobile: true },
               { icon: Settings, label: "Settings", tab: "settings" },
-            ] as { icon: React.ElementType; label: string; tab: 'events' | 'vendors' | 'settings' }[]).map((item, i) => (
-              <button 
-                key={i} 
-                onClick={() => setActiveTab(item.tab)}
-                className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
-                  activeTab === item.tab 
-                    ? "bg-white/10 text-white shadow-inner border border-white/10" 
-                    : "text-white/50 hover:bg-white/10 hover:text-white"
-              }`}>
-                <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-indigo-400' : 'group-hover:text-fuchsia-400 transition-colors'}`} />
-                <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
-              </button>
-            ))}
+            ].map((item, i) => {
+              if (item.hideMobile) {
+                return (
+                  <button 
+                    key={i} 
+                    onClick={() => setActiveTab(item.tab as any)}
+                    className={`hidden md:flex w-full items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                      activeTab === item.tab 
+                        ? "bg-white/10 text-white shadow-inner border border-white/10" 
+                        : "text-white/50 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-indigo-400' : 'group-hover:text-fuchsia-400 transition-colors'}`} />
+                    <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
+                  </button>
+                );
+              }
+              return (
+                <button 
+                  key={i} 
+                  onClick={() => setActiveTab(item.tab as any)}
+                  className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
+                    activeTab === item.tab 
+                      ? "bg-white/10 text-white shadow-inner border border-white/10" 
+                      : "text-white/50 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-indigo-400' : 'group-hover:text-fuchsia-400 transition-colors'}`} />
+                  <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
+                </button>
+              );
+            })}
             
             <button 
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
@@ -1046,23 +1374,52 @@ export default function OrganizerDashboard() {
 
           {activeTab === 'vendors' && (
             <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/20">
                     <Users className="w-7 h-7 text-fuchsia-400" />
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold text-white">Vendor Hub</h2>
-                    <p className="text-white/50 mt-0.5">Review incoming stall pitches and negotiate deals.</p>
+                    <p className="text-white/50 mt-0.5">Review incoming stall pitches and find top creators.</p>
                   </div>
                 </div>
+                {vendorHubSubTab === 'pitches' && (
+                  <button
+                    onClick={fetchPitches}
+                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <Clock className="w-4 h-4" /> Refresh
+                  </button>
+                )}
+              </div>
+
+              {/* Sub Navigation */}
+              <div className="flex border-b border-white/10 mb-8 gap-6">
                 <button
-                  onClick={fetchPitches}
-                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-medium transition-all flex items-center gap-2"
+                  onClick={() => setVendorHubSubTab('pitches')}
+                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
+                    vendorHubSubTab === 'pitches' 
+                      ? 'border-fuchsia-500 text-fuchsia-400' 
+                      : 'border-transparent text-white/40 hover:text-white'
+                  }`}
                 >
-                  <Clock className="w-4 h-4" /> Refresh
+                  Incoming Pitches
+                </button>
+                <button
+                  onClick={() => setVendorHubSubTab('search')}
+                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
+                    vendorHubSubTab === 'search' 
+                      ? 'border-fuchsia-500 text-fuchsia-400' 
+                      : 'border-transparent text-white/40 hover:text-white'
+                  }`}
+                >
+                  Search Vendors
                 </button>
               </div>
+
+              {vendorHubSubTab === 'pitches' && (
+                <>
 
               {isPitchesLoading ? (
                 <div className="flex flex-col items-center justify-center py-20">
@@ -1182,9 +1539,295 @@ export default function OrganizerDashboard() {
                   })}
                 </div>
               )}
+                </>
+              )}
+
+              {vendorHubSubTab === 'search' && (
+                <div className="space-y-6">
+                  {/* Search Input */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => handleSearchVendors(e.target.value)}
+                      placeholder="Search vendors by username, brand name, or category..."
+                      className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-md text-base"
+                    />
+                    {isSearching && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <Loader2 className="w-5 h-5 text-fuchsia-400 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Search Results */}
+                  {searchResults.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
+                      <Users className="w-12 h-12 text-white/10 mb-4" />
+                      <h3 className="text-xl font-medium text-white/60 mb-1">
+                        {searchQuery ? "No Results Found" : "Find Top Creators"}
+                      </h3>
+                      <p className="text-white/40 text-sm max-w-sm text-center">
+                        {searchQuery 
+                          ? "We couldn't find any vendors matching your query." 
+                          : "Type in a name or specialization category to find creators for your events."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                      {searchResults.map((v) => (
+                        <div 
+                          key={v.id} 
+                          onClick={() => router.push(`/profile/${v.username}`)}
+                          className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-fuchsia-500/50 hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px] shrink-0">
+                              {v.avatar_url ? (
+                                <img 
+                                  src={getFullImageUrl(v.avatar_url)} 
+                                  alt={v.display_name} 
+                                  className="w-full h-full rounded-full object-cover border border-black/20"
+                                />
+                              ) : (
+                                <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white font-extrabold text-xl">
+                                  {v.display_name?.charAt(0) || "V"}
+                                </div>
+                              )}
+                            </div>
+                            <div className="overflow-hidden">
+                              <h4 className="font-extrabold text-white text-lg tracking-tight group-hover:text-fuchsia-300 transition-colors truncate">{v.display_name}</h4>
+                              <p className="text-white/40 text-xs truncate">@{v.username}</p>
+                              {v.category && (
+                                <span className="mt-2 inline-block px-2.5 py-1 rounded-lg bg-fuchsia-500/10 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider border border-fuchsia-500/20">
+                                  {v.category}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <p className="text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
+                            {v.bio || "No biography added yet."}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
+
+          {activeTab === 'profile' && (
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8">
+              {isProfileLoading && !organizerProfile ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mb-4" />
+                  <p className="text-white/60">Loading Profile...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Profile Header */}
+                  <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/10">
+                    <div className="relative shrink-0 group/avatar">
+                      <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] relative overflow-hidden">
+                        {organizerProfile?.avatar_url ? (
+                          <img 
+                            src={getFullImageUrl(organizerProfile.avatar_url)} 
+                            alt={organizerProfile.display_name} 
+                            className="w-full h-full rounded-full object-cover border border-black/40 shadow-inner"
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black shadow-inner border border-black/40">
+                            {organizerProfile?.display_name?.charAt(0) || "O"}
+                          </div>
+                        )}
+                        
+                        {/* Change DP Camera/Upload Overlay */}
+                        <label className="absolute inset-0 rounded-full bg-black/75 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-black uppercase tracking-wider gap-1.5 backdrop-blur-[1px]">
+                          <UploadCloud className="w-5 h-5 text-indigo-400 animate-pulse" />
+                          <span>Change DP</span>
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      <span className="absolute bottom-1 right-1 px-2.5 py-0.5 text-[10px] font-black uppercase rounded-full bg-indigo-500 text-white border-2 border-black tracking-wide shadow-md pointer-events-none">
+                        Organizer
+                      </span>
+                    </div>
+
+                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
+                      <div>
+                        <div className="flex flex-col md:flex-row items-center gap-3">
+                          {isEditingName ? (
+                            <form 
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (!editNameValue.trim()) return;
+                                try {
+                                  const token = localStorage.getItem("token");
+                                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+                                    method: "PUT",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      "Authorization": `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ company_name: editNameValue })
+                                  });
+                                  if (res.ok) {
+                                    setIsEditingName(false);
+                                    if (myUserId) fetchMyProfile(myUserId);
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to save organization name", err);
+                                }
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <input 
+                                type="text"
+                                value={editNameValue}
+                                onChange={(e) => setEditNameValue(e.target.value)}
+                                className="px-3 py-1.5 rounded-xl bg-white/5 border border-indigo-500/40 text-white outline-none focus:ring-2 focus:ring-indigo-500/20 text-lg font-bold"
+                                autoFocus
+                              />
+                              <button type="submit" className="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold hover:bg-indigo-500/30 transition-all">Save</button>
+                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-white/5 text-white/50 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Cancel</button>
+                            </form>
+                          ) : (
+                            <>
+                              <h2 className="text-3xl font-extrabold text-white tracking-tight">{organizerProfile?.display_name || "Organizer Name"}</h2>
+                              <button 
+                                onClick={() => {
+                                  setEditNameValue(organizerProfile?.display_name || "");
+                                  setIsEditingName(true);
+                                }}
+                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+                              >
+                                Edit Name
+                              </button>
+                            </>
+                          )}
+                          <div className="flex gap-2">
+                            {organizerProfile?.instagram_url && (
+                              <a 
+                                href={organizerProfile.instagram_url.startsWith("http") ? organizerProfile.instagram_url : `https://instagram.com/${organizerProfile.instagram_url}`} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="p-2 rounded-full bg-white/5 hover:bg-pink-500/10 text-white/60 hover:text-pink-400 border border-white/10 hover:border-pink-500/30 transition-all"
+                              >
+                                <AtSign className="w-4 h-4" />
+                              </a>
+                            )}
+                            {organizerProfile?.website_url && (
+                              <a 
+                                href={organizerProfile.website_url.startsWith("http") ? organizerProfile.website_url : `https://${organizerProfile.website_url}`} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="p-2 rounded-full bg-white/5 hover:bg-indigo-500/10 text-white/60 hover:text-indigo-400 border border-white/10 hover:border-indigo-500/30 transition-all"
+                              >
+                                <Globe className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
+                          {organizerProfile?.bio || "No biography added yet. Optimize your profile details inside the settings tab!"}
+                        </p>
+                      </div>
+
+                      {/* Stats Section / Events created */}
+                      <div className="flex gap-6 mt-2">
+                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">
+                            {organizerProfile?.events?.length || 0}
+                          </p>
+                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Events Created</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media Feed Gallery Grid / Media Upload */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-4">
+                    {/* Drag-and-Drop Media Upload Zone */}
+                    <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
+                      <div className="p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                        <UploadCloud className="w-8 h-8 animate-bounce" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white">Add Showcase Images</h4>
+                        <p className="text-xs text-white/40 mt-1">Upload pictures or setup views of your events</p>
+                      </div>
+                      
+                      <div className="w-full max-w-xs relative">
+                        <input 
+                          type="file" 
+                          id="organizer-media-file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              setUploadFile(e.target.files[0]);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                        <label 
+                          htmlFor="organizer-media-file"
+                          className="w-full py-3 px-4 rounded-xl border border-white/10 hover:border-indigo-500/30 bg-black/40 hover:bg-black/60 text-white/60 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
+                        >
+                          {uploadFile ? uploadFile.name : "Select Image File"}
+                        </label>
+                      </div>
+
+                      {uploadFile && (
+                        <button
+                          type="submit"
+                          disabled={isUploading}
+                          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white text-xs font-bold flex items-center gap-2 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                        >
+                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload to Gallery"}
+                        </button>
+                      )}
+                    </form>
+
+                    {/* 3-Column Instagram-Style Media Feed Grid */}
+                    <div className="space-y-4">
+                      <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Gallery Showcase Feed</p>
+                      
+                      {organizerProfile?.media?.length === 0 ? (
+                        <div className="py-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01] flex flex-col items-center justify-center text-center">
+                          <Store className="w-10 h-10 text-white/15 mb-3" />
+                          <p className="text-white/30 text-xs">No media uploaded yet. Start sharing event setups!</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                          {organizerProfile?.media?.map((post: any) => (
+                            <div 
+                              key={post.id} 
+                              onClick={() => setSelectedMedia(post)}
+                              className="aspect-square rounded-xl overflow-hidden border border-white/10 bg-black relative group cursor-pointer hover:border-indigo-500/50 transition-all"
+                            >
+                              <img 
+                                src={getFullImageUrl(post.media_url)} 
+                                alt="Showcase" 
+                                className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-all duration-300"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {activeTab === 'settings' && (
             <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10">
@@ -1203,11 +1846,11 @@ export default function OrganizerDashboard() {
 
               <form onSubmit={handleSaveSettings} className="max-w-2xl space-y-6">
 
-                {/* Company Name */}
+                {/* Organization / Host Name */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
                     <Building2 className="w-4 h-4 text-indigo-400" />
-                    Company Name
+                    Organization / Host Name
                   </label>
                   <input
                     id="organizer-company-name"
@@ -1215,7 +1858,39 @@ export default function OrganizerDashboard() {
                     value={profileData.company_name}
                     onChange={e => setProfileData({ ...profileData, company_name: e.target.value })}
                     className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
-                    placeholder="Your company or brand name"
+                    placeholder="Your organization or host name"
+                  />
+                </div>
+
+                {/* Username */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                    <UserCircle className="w-4 h-4 text-indigo-400" />
+                    Username
+                  </label>
+                  <input
+                    id="organizer-username"
+                    type="text"
+                    value={profileData.username}
+                    onChange={e => setProfileData({ ...profileData, username: e.target.value })}
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    placeholder="e.g. host_john"
+                  />
+                </div>
+
+                {/* Event Type / Specialization */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                    Event Type / Specialization
+                  </label>
+                  <input
+                    id="organizer-category"
+                    type="text"
+                    value={profileData.category}
+                    onChange={e => setProfileData({ ...profileData, category: e.target.value })}
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    placeholder="e.g. Music Festivals, Corporate Events, Weddings"
                   />
                 </div>
 
