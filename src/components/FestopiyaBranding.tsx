@@ -6,36 +6,69 @@ interface FestopiyaBrandingProps {
 }
 
 export default function FestopiyaBranding({ className = "", isLanding = false }: FestopiyaBrandingProps) {
-  // Use a slightly lighter gradient for the landing page to match the hero background contrast
-  const skyGradientClass = isLanding
-    ? "text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-200 to-cyan-300"
-    : "text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300";
+  const gradientId = isLanding ? "fe-grad-landing" : "fe-grad-normal";
 
   return (
-    <span className={`font-festopiya font-extrabold tracking-tight select-none ${className}`}>
-      {/* Festop */}
-      <span className={skyGradientClass}>Festop</span>
-      
-      {/* Custom styled letter 'i' */}
-      <span className="relative inline-block select-none align-baseline">
-        {/* Stem of the 'i' (Clipped to show only the bottom part) */}
-        <span
-          className={`inline-block ${skyGradientClass}`}
-          style={{ clipPath: "inset(28% 0 0 0)" }}
+    <span className="inline-flex items-center align-middle">
+      <svg
+        className={`select-none overflow-visible ${className}`}
+        style={{
+          height: "1.1em",
+          width: "5.5em",
+          display: "inline-block",
+          verticalAlign: "middle",
+        }}
+        viewBox="0 0 180 32"
+      >
+        <defs>
+          {isLanding ? (
+            <linearGradient id="fe-grad-landing" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#38bdf8" /> {/* sky-400 */}
+              <stop offset="50%" stopColor="#bae6fd" /> {/* sky-200 */}
+              <stop offset="100%" stopColor="#67e8f9" /> {/* cyan-300 */}
+            </linearGradient>
+          ) : (
+            <linearGradient id="fe-grad-normal" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#38bdf8" /> {/* sky-400 */}
+              <stop offset="100%" stopColor="#67e8f9" /> {/* cyan-300 */}
+            </linearGradient>
+          )}
+        </defs>
+        <text
+          x="0"
+          y="25"
+          className="font-festopiya font-extrabold select-none"
+          style={{
+            fontSize: "26px",
+            letterSpacing: "-0.03em",
+          }}
         >
-          i
-        </span>
-        {/* Dot of the 'i' (Clipped to show only the top part, colored pink) */}
-        <span
-          className="absolute inset-0 inline-block text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400"
-          style={{ clipPath: "inset(0 0 72% 0)" }}
-        >
-          i
-        </span>
-      </span>
-      
-      {/* ya */}
-      <span className={skyGradientClass}>ya</span>
+          <tspan
+            className="dash"
+            style={{
+              fill: "rgba(56, 189, 248, 0.08)",
+              stroke: `url(#${gradientId})`,
+              strokeWidth: "1.5px",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+            }}
+          >
+            Fe
+          </tspan>
+          <tspan
+            className="dash"
+            style={{
+              fill: "rgba(255, 255, 255, 0.08)",
+              stroke: "#ffffff",
+              strokeWidth: "1.5px",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+            }}
+          >
+            stopiya
+          </tspan>
+        </text>
+      </svg>
     </span>
   );
 }
