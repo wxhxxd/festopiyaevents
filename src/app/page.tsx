@@ -45,7 +45,7 @@ export default function LandingPage() {
       <nav className="relative z-10 flex items-center px-8 py-6 md:px-16">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Festopiya Logo" className="h-10 w-auto shrink-0 drop-shadow-2xl" />
+          <img src="/logo.png" alt="Festopiya Logo" className="h-7 w-auto shrink-0 drop-shadow-2xl" />
           <FestopiyaBranding className="text-2xl tracking-wide" isLanding={true} />
         </div>
       </nav>

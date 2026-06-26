@@ -57,7 +57,7 @@ function VerifyEmailContent() {
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-fuchsia-500/20 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
           <div className="relative z-10 flex flex-col items-center">
-            <img src="/logo.png" alt="Festopiya" className="w-16 h-auto mb-6" />
+            <img src="/logo.png" alt="Festopiya" className="w-11 h-auto mb-6" />
 
             {status === "loading" && (
               <>

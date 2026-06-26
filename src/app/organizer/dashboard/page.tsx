@@ -1122,7 +1122,7 @@ export default function OrganizerDashboard() {
       {/* Mobile Top Header */}
       <header className="fixed top-0 left-0 right-0 h-16 z-50 flex md:hidden items-center justify-between px-6 bg-black/65 backdrop-blur-xl border-b border-white/10">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0" />
+          <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto shrink-0" />
           <FestopiyaBranding className="text-xl" />
         </div>
         <div className="flex items-center gap-3">
@@ -1162,7 +1162,7 @@ export default function OrganizerDashboard() {
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
         <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/10 bg-black/60 md:bg-white/5 backdrop-blur-2xl md:backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] px-4 py-2 md:py-8 md:px-4 md:overflow-hidden">
           <div className="hidden md:flex items-center justify-start gap-3 px-2 mb-10">
-            <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto mr-2 shrink-0" />
+            <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
           </div>
 

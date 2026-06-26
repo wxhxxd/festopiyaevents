@@ -150,8 +150,8 @@ export default function AuthPage() {
         className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl relative z-10"
       >
         {/* Logo + heading */}
-        <div className="flex flex-col items-center mb-8">
-          <img src="/logo.png" alt="Festopiya Logo" className="w-16 h-auto mb-3 drop-shadow-xl" />
+        <div className="flex flex-col items-center justify-center mb-8">
+          <img src="/logo.png" alt="Festopiya Logo" className="w-11 h-auto mb-3 drop-shadow-xl" />
           <h1 className="text-center">
             <FestopiyaBranding className="text-3xl" />
           </h1>

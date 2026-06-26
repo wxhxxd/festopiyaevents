@@ -156,7 +156,7 @@ export default function PublicProfilePage() {
         </button>
 
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/")}>
-          <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0" />
+          <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto shrink-0" />
           <FestopiyaBranding className="text-xl" />
         </div>
       </div>

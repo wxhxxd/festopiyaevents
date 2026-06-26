@@ -116,6 +116,36 @@ body {
     dashOffset 2s linear infinite;
 }
 
+.dash-f {
+  animation: dashArray 2s ease-in-out infinite,
+    dashOffset 2s linear infinite;
+  fill: none;
+  stroke: #f472b6; /* baby pink */
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dash-e {
+  animation: dashArray 2s ease-in-out infinite,
+    dashOffset 2s linear infinite;
+  fill: none;
+  stroke: #38bdf8; /* sky blue */
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dash-stopiya {
+  animation: dashArray 2s ease-in-out infinite,
+    dashOffset 2s linear infinite;
+  fill: none;
+  stroke: #ffffff; /* solid white */
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .spin {
   animation: spinDashArray 2s ease-in-out infinite,
     spin 8s ease-in-out infinite,

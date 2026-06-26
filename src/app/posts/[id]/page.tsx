@@ -169,7 +169,7 @@ export default function PostDetailPage() {
         onClick={() => router.push("/")} 
         className="absolute top-6 left-6 z-20 flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity"
       >
-        <img src="/logo.png" alt="Festopiya Logo" className="h-8 w-auto shrink-0 drop-shadow-md" />
+        <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto shrink-0 drop-shadow-md" />
         <FestopiyaBranding className="text-xl" />
       </div>
 
