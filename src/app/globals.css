@@ -119,8 +119,8 @@ body {
 .dash-f {
   animation: dashArray 2s ease-in-out infinite,
     dashOffset 2s linear infinite;
-  fill: none;
-  stroke: #f472b6; /* baby pink */
+  fill: #f472b6; /* baby pink fill */
+  stroke: #f472b6; /* baby pink stroke */
   stroke-width: 1.6px;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -129,8 +129,8 @@ body {
 .dash-e {
   animation: dashArray 2s ease-in-out infinite,
     dashOffset 2s linear infinite;
-  fill: none;
-  stroke: #38bdf8; /* sky blue */
+  fill: #38bdf8; /* sky blue fill */
+  stroke: #38bdf8; /* sky blue stroke */
   stroke-width: 1.6px;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -139,8 +139,8 @@ body {
 .dash-stopiya {
   animation: dashArray 2s ease-in-out infinite,
     dashOffset 2s linear infinite;
-  fill: none;
-  stroke: #ffffff; /* solid white */
+  fill: #ffffff; /* solid white fill */
+  stroke: #ffffff; /* solid white stroke */
   stroke-width: 1.6px;
   stroke-linecap: round;
   stroke-linejoin: round;
