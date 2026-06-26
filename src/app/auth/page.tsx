@@ -153,7 +153,7 @@ export default function AuthPage() {
         <div className="flex flex-col items-center justify-center mb-8">
           <img src="/logo.png" alt="Festopiya Logo" className="w-11 h-auto mb-3 drop-shadow-xl" />
           <h1 className="text-center">
-            <FestopiyaBranding className="text-3xl" />
+            <FestopiyaBranding className="text-3xl" center={true} />
           </h1>
           <p className="text-white/60 text-sm mt-1">
             {isLogin ? "Welcome back" : `Signing up as a ${role}`}

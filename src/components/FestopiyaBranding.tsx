@@ -3,16 +3,17 @@ import React from "react";
 interface FestopiyaBrandingProps {
   className?: string;
   isLanding?: boolean;
+  center?: boolean;
 }
 
-export default function FestopiyaBranding({ className = "", isLanding = false }: FestopiyaBrandingProps) {
+export default function FestopiyaBranding({ className = "", isLanding = false, center = false }: FestopiyaBrandingProps) {
   return (
     <span className="inline-flex items-center align-middle">
       <svg
         className={`select-none overflow-visible ${className}`}
         style={{
           height: "1.1em",
-          width: "6.2em",
+          width: center ? "6.2em" : "5.5em",
           display: "inline-block",
           verticalAlign: "middle",
         }}
@@ -78,9 +79,9 @@ export default function FestopiyaBranding({ className = "", isLanding = false }:
           </linearGradient>
         </defs>
         <text
-          x="50%"
+          x={center ? "50%" : "0"}
           y="25"
-          textAnchor="middle"
+          textAnchor={center ? "middle" : "start"}
           className="select-none"
           style={{
             fontFamily: "'Outfit', sans-serif",
