@@ -117,8 +117,9 @@ body {
 }
 
 .dash-f {
-  animation: dashArray 2s ease-in-out infinite,
-    dashOffset 2s linear infinite;
+  animation: dashArray 2.5s ease-in-out infinite,
+    dashOffset 2.5s linear infinite,
+    revealFade 2.5s ease-in-out infinite;
   fill: #f472b6; /* baby pink fill */
   stroke: #f472b6; /* baby pink stroke */
   stroke-width: 1.6px;
@@ -127,8 +128,9 @@ body {
 }
 
 .dash-e {
-  animation: dashArray 2s ease-in-out infinite,
-    dashOffset 2s linear infinite;
+  animation: dashArray 2.5s ease-in-out infinite,
+    dashOffset 2.5s linear infinite,
+    revealFade 2.5s ease-in-out infinite;
   fill: #38bdf8; /* sky blue fill */
   stroke: #38bdf8; /* sky blue stroke */
   stroke-width: 1.6px;
@@ -137,8 +139,9 @@ body {
 }
 
 .dash-stopiya {
-  animation: dashArray 2s ease-in-out infinite,
-    dashOffset 2s linear infinite;
+  animation: dashArray 2.5s ease-in-out infinite,
+    dashOffset 2.5s linear infinite,
+    revealFade 2.5s ease-in-out infinite;
   fill: #ffffff; /* solid white fill */
   stroke: #ffffff; /* solid white stroke */
   stroke-width: 1.6px;
@@ -214,5 +217,24 @@ body {
   87.5%,
   100% {
     rotate: 1080deg;
+  }
+}
+
+@keyframes revealFade {
+  0%, 5% {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+  }
+  15% {
+    fill-opacity: 0;
+    stroke-opacity: 1;
+  }
+  45%, 80% {
+    fill-opacity: 1;
+    stroke-opacity: 1;
+  }
+  95%, 100% {
+    fill-opacity: 0;
+    stroke-opacity: 0;
   }
 }
