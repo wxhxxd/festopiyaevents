@@ -1034,6 +1034,9 @@ export default function VendorDashboard() {
                   <source src="/vendor-video.mp4" type="video/mp4" />
                   <source src="/vendor video.mp4" type="video/mp4" />
                   <source src="/vendor_video.mp4" type="video/mp4" />
+                  <source src="/vendor-video.mp4.mp4" type="video/mp4" />
+                  <source src="/vendor video.mp4.mp4" type="video/mp4" />
+                  <source src="/vendor_video.mp4.mp4" type="video/mp4" />
                 </video>
 
                 {/* Content Wrapper */}
