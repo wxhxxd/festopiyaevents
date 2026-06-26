@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Building2, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { Mail, Lock, Building2, ArrowRight, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 
@@ -262,7 +262,12 @@ export default function AuthPage() {
           >
             <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin relative z-10" />
+              <div className="newtons-cradle" style={{ "--uib-size": "24px" } as React.CSSProperties}>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+              </div>
             ) : (
               <span className="relative z-10 flex items-center gap-2">
                 {isLogin ? "Sign In" : "Create Account"}
