@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
+import UiverseLoader from "@/components/UiverseLoader";
 import { 
   Search, 
   Store, 
@@ -1126,8 +1127,8 @@ export default function VendorDashboard() {
 
                     {loading ? (
                       <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-4" />
-                        <p className="text-white/60 font-medium text-lg">Loading events from database...</p>
+                        <UiverseLoader />
+                        <p className="text-white/60 font-medium text-lg mt-4">Loading events from database...</p>
                       </div>
                     ) : filteredEvents.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
@@ -1245,8 +1246,8 @@ export default function VendorDashboard() {
               
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-12 h-12 text-purple-400 animate-spin mb-4" />
-                  <p className="text-white/60 font-medium text-lg">Loading bookings...</p>
+                  <UiverseLoader />
+                  <p className="text-white/60 font-medium text-lg mt-4">Loading bookings...</p>
                 </div>
               ) : bookings.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/5">
@@ -1361,8 +1362,8 @@ export default function VendorDashboard() {
 
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-12 h-12 text-rose-400 animate-spin mb-4" />
-                  <p className="text-white/60">Loading pitches...</p>
+                  <UiverseLoader />
+                  <p className="text-white/60 mt-4">Loading pitches...</p>
                 </div>
               ) : myPitches.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
@@ -1571,8 +1572,8 @@ export default function VendorDashboard() {
             <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8">
               {isProfileLoading && !vendorProfile ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-12 h-12 text-pink-500 animate-spin mb-4" />
-                  <p className="text-white/60">Loading Creator Profile...</p>
+                  <UiverseLoader />
+                  <p className="text-white/60 mt-4">Loading Creator Profile...</p>
                 </div>
               ) : (
                 <>

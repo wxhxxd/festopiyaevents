@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
+import UiverseLoader from "@/components/UiverseLoader";
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -116,8 +117,8 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mb-4" />
-        <p className="text-white/60">Loading Profile...</p>
+        <UiverseLoader />
+        <p className="text-white/60 mt-4">Loading Profile...</p>
       </div>
     );
   }

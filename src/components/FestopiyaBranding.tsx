@@ -21,9 +21,10 @@ export default function FestopiyaBranding({ className = "", isLanding = false }:
         <text
           x="0"
           y="25"
-          className="select-none font-bold"
+          className="select-none"
           style={{
-            fontFamily: "var(--font-melfina), sans-serif",
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: 900,
             fontSize: "26px",
             letterSpacing: "-0.03em",
           }}

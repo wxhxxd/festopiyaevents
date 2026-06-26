@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import UiverseLoader from "@/components/UiverseLoader";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -61,7 +62,7 @@ function VerifyEmailContent() {
 
             {status === "loading" && (
               <>
-                <Loader2 className="w-16 h-16 text-indigo-400 animate-spin mb-6" />
+                <div className="mb-6"><UiverseLoader /></div>
                 <h1 className="text-2xl font-bold text-white mb-2">Verifying your email…</h1>
                 <p className="text-white/50 text-sm">Please wait a moment.</p>
               </>
@@ -117,7 +118,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <main className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-indigo-400 animate-spin" />
+        <UiverseLoader />
       </main>
     }>
       <VerifyEmailContent />
