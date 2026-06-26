@@ -1021,77 +1021,90 @@ export default function VendorDashboard() {
            {activeTab === "find_events" && (
             <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem]">
 
-              {/* ── Hero 2-col grid ──────────────────────────────── */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
+              {/* ── Hero container with background video ──────────────────── */}
+              <div className="relative rounded-3xl overflow-hidden p-6 md:p-12 mb-10 bg-black/45 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-md max-w-7xl mx-auto w-full">
+                {/* Background Video */}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+                >
+                  <source src="/vendor-video.mp4" type="video/mp4" />
+                  <source src="/vendor video.mp4" type="video/mp4" />
+                  <source src="/vendor_video.mp4" type="video/mp4" />
+                </video>
 
-                {/* Left — Welcome & headline */}
-                <div>
-                  {/* Badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8">
-                    <Sparkles className="w-4 h-4 text-pink-400" />
-                    <span className="text-xs font-semibold tracking-wider text-gray-300 uppercase">Vendor Command Center</span>
+                {/* Content Wrapper */}
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  {/* Left — Welcome & headline */}
+                  <div>
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8">
+                      <Sparkles className="w-4 h-4 text-pink-400" />
+                      <span className="text-xs font-semibold tracking-wider text-gray-300 uppercase">Vendor Command Center</span>
+                    </div>
+
+                    {/* Headline */}
+                    <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-white">
+                      Discover <br />
+                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                        the best festivals
+                      </span><br />
+                      and secure your spot.
+                    </h1>
+
+                    {/* Subtext */}
+                    <p className="text-lg text-gray-400 mt-6 max-w-md leading-relaxed">
+                      Your central hub to find high-traffic events, pitch your stall to organizers, and secure the bag.
+                    </p>
                   </div>
 
-                  {/* Headline */}
-                  <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-white">
-                    Discover <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
-                      the best festivals
-                    </span><br />
-                    and secure your spot.
-                  </h1>
-
-                  {/* Subtext */}
-                  <p className="text-lg text-gray-400 mt-6 max-w-md leading-relaxed">
-                    Your central hub to find high-traffic events, pitch your stall to organizers, and secure the bag.
-                  </p>
-                </div>
-
-                {/* Right — Action cards */}
-                <div className="flex flex-col gap-6">
-
-                  {/* Card 1 — Browse Events (smooth scroll) */}
-                  <div
-                    onClick={() => document.getElementById('discover-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
-                  >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
-                      <Compass className="w-6 h-6 text-pink-400" />
+                  {/* Right — Action cards */}
+                  <div className="flex flex-col gap-6">
+                    {/* Card 1 — Browse Events (smooth scroll) */}
+                    <div
+                      onClick={() => document.getElementById('discover-events-section')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
+                    >
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                        <Compass className="w-6 h-6 text-pink-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-lg mb-1">Browse Events</p>
+                        <p className="text-gray-400 text-sm leading-relaxed">Find upcoming festivals and drop your pitch to the organizer.</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white font-semibold text-lg mb-1">Browse Events</p>
-                      <p className="text-gray-400 text-sm leading-relaxed">Find upcoming festivals and drop your pitch to the organizer.</p>
-                    </div>
-                  </div>
 
-                  {/* Card 2 — Active Pitches (open messages) */}
-                  <div
-                    onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
-                  >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
-                      <Send className="w-6 h-6 text-cyan-400" />
+                    {/* Card 2 — Active Pitches (open messages) */}
+                    <div
+                      onClick={() => { setChatContext(null); setIsChatOpen(true); }}
+                      className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
+                    >
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                        <Send className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-lg mb-1">Active Pitches</p>
+                        <p className="text-gray-400 text-sm leading-relaxed">Track your stall requests and negotiate prices with organizers.</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white font-semibold text-lg mb-1">Active Pitches</p>
-                      <p className="text-gray-400 text-sm leading-relaxed">Track your stall requests and negotiate prices with organizers.</p>
-                    </div>
-                  </div>
 
-                  {/* Card 3 — Optimize Profile (settings tab) */}
-                  <div
-                    onClick={() => setActiveTab('settings')}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
-                  >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
-                      <UserCircle className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-lg mb-1">Optimize Profile</p>
-                      <p className="text-gray-400 text-sm leading-relaxed">Update your brand bio and social links to stand out.</p>
+                    {/* Card 3 — Optimize Profile (settings tab) */}
+                    <div
+                      onClick={() => setActiveTab('settings')}
+                      className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
+                    >
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                        <UserCircle className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-lg mb-1">Optimize Profile</p>
+                        <p className="text-gray-400 text-sm leading-relaxed">Update your brand bio and social links to stand out.</p>
+                      </div>
                     </div>
                   </div>
-
                 </div>
               </div>
 
