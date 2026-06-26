@@ -93,98 +93,90 @@ body {
 .animate-fade-rise-delay   { animation: fade-rise 0.8s ease-out 0.2s both; }
 .animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }
 
-/* ── Uiverse.io Loader Animations by SelfMadeSystem ──────────────── */
-.absolute {
-  position: absolute;
-}
-
-.inline-block {
-  display: inline-block;
-}
-
-.loader {
+/* ── Newton's Cradle Loader by dovatgabriel (Festopiya Custom Colors) ── */
+.newtons-cradle {
+  --uib-size: 50px;
+  --uib-speed: 1.2s;
+  position: relative;
   display: flex;
-  margin: 0.25em 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--uib-size);
+  height: var(--uib-size);
 }
 
-.w-2 {
-  width: 0.5em;
+.newtons-cradle__dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 25%;
+  transform-origin: center top;
 }
 
-.dash {
-  animation: dashArray 2s ease-in-out infinite,
-    dashOffset 2s linear infinite;
+.newtons-cradle__dot::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 25%;
+  border-radius: 50%;
 }
 
-
-
-.spin {
-  animation: spinDashArray 2s ease-in-out infinite,
-    spin 8s ease-in-out infinite,
-    dashOffset 2s linear infinite;
-  transform-origin: center;
+/* Individual branded dot colors with glowing effect */
+.newtons-cradle__dot:nth-child(1)::after {
+  background-color: #f472b6; /* baby pink */
+  box-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
 }
 
-@keyframes dashArray {
+.newtons-cradle__dot:nth-child(2)::after,
+.newtons-cradle__dot:nth-child(3)::after {
+  background-color: #ffffff; /* solid white */
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.newtons-cradle__dot:nth-child(4)::after {
+  background-color: #38bdf8; /* sky blue */
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.newtons-cradle__dot:first-child {
+  animation: swing var(--uib-speed) linear infinite;
+}
+
+.newtons-cradle__dot:last-child {
+  animation: swing2 var(--uib-speed) linear infinite;
+}
+
+@keyframes swing {
   0% {
-    stroke-dasharray: 0 1 359 0;
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
   }
 
-  50% {
-    stroke-dasharray: 0 359 1 0;
-  }
-
-  100% {
-    stroke-dasharray: 359 1 0 0;
-  }
-}
-
-@keyframes spinDashArray {
-  0% {
-    stroke-dasharray: 270 90;
-  }
-
-  50% {
-    stroke-dasharray: 0 360;
-  }
-
-  100% {
-    stroke-dasharray: 270 90;
-  }
-}
-
-@keyframes dashOffset {
-  0% {
-    stroke-dashoffset: 365;
-  }
-
-  100% {
-    stroke-dashoffset: 5;
-  }
-}
-
-@keyframes spin {
-  0% {
-    rotate: 0deg;
-  }
-
-  12.5%,
   25% {
-    rotate: 270deg;
+    transform: rotate(70deg);
+    animation-timing-function: ease-in;
   }
 
-  37.5%,
   50% {
-    rotate: 540deg;
+    transform: rotate(0deg);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes swing2 {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: linear;
   }
 
-  62.5%,
+  50% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+
   75% {
-    rotate: 810deg;
-  }
-
-  87.5%,
-  100% {
-    rotate: 1080deg;
+    transform: rotate(-70deg);
+    animation-timing-function: ease-in;
   }
 }
