@@ -1161,7 +1161,7 @@ export default function OrganizerDashboard() {
 
       {/* Sidebar - Glassmorphism */}
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
-        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/10 bg-black/60 md:bg-white/5 backdrop-blur-2xl md:backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] px-4 py-2 md:py-8 md:px-4 md:overflow-hidden">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/20 bg-white/10 md:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 md:overflow-hidden">
           <div className="hidden md:flex items-center justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
@@ -1181,7 +1181,7 @@ export default function OrganizerDashboard() {
                     onClick={() => setActiveTab(item.tab as any)}
                     className={`hidden md:flex w-full items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
                       activeTab === item.tab 
-                        ? "bg-white/10 text-white shadow-inner border border-white/10" 
+                        ? "bg-white/20 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/25" 
                         : "text-white/50 hover:bg-white/10 hover:text-white"
                     }`}
                   >
@@ -1196,7 +1196,7 @@ export default function OrganizerDashboard() {
                   onClick={() => setActiveTab(item.tab as any)}
                   className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
                     activeTab === item.tab 
-                      ? "bg-white/10 text-white shadow-inner border border-white/10" 
+                      ? "bg-white/20 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/25" 
                       : "text-white/50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
@@ -1245,7 +1245,7 @@ export default function OrganizerDashboard() {
                 {/* Left — Welcome & headline */}
                 <div>
                   {/* Badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_6px_-1px_rgba(0,0,0,0.3)] mb-8">
                     <Sparkles className="w-4 h-4 text-pink-400" />
                     <span className="text-xs font-semibold tracking-wider text-gray-300 uppercase">Organizer Command Center</span>
                   </div>
@@ -1272,9 +1272,10 @@ export default function OrganizerDashboard() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group text-left"
+                    className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group text-left"
                   >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
+                      {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-calendar.png" className="w-10 h-10 object-contain" alt="Calendar" />) */}
                       <CalendarPlus className="w-6 h-6 text-pink-400" />
                     </div>
                     <div>
@@ -1286,9 +1287,10 @@ export default function OrganizerDashboard() {
                   {/* Card 2 — Review Pitches */}
                   <div
                     onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
+                    className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                   >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
+                      {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-message.png" className="w-10 h-10 object-contain" alt="Message" />) */}
                       <MessageSquare className="w-6 h-6 text-cyan-400" />
                     </div>
                     <div>
@@ -1300,9 +1302,10 @@ export default function OrganizerDashboard() {
                   {/* Card 3 — My Live Events */}
                   <div
                     onClick={() => document.getElementById('current-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="p-6 rounded-3xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-start gap-5 transition-all duration-300 shadow-xl cursor-pointer group"
+                    className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                   >
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
+                      {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-grid.png" className="w-10 h-10 object-contain" alt="Grid" />) */}
                       <LayoutGrid className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
