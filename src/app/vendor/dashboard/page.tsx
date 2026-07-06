@@ -949,12 +949,12 @@ export default function VendorDashboard() {
 
           <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
             {[
-              { icon: Search, label: "Find Events", tab: "find_events" },
+              { icon: Search, label: "Find Events", tab: "find_events", icon3d: "/calender3d.png" },
               { icon: Store, label: "My Stalls", tab: "my_stalls" },
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches" },
-              { icon: Users, label: "Organizer Hub", tab: "organizers" },
-              { icon: UserCircle, label: "My Profile", tab: "profile", hideMobile: true },
-              { icon: Settings, label: "Settings", tab: "settings" },
+              { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/profile3d.png" },
+              { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png", hideMobile: true },
+              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d.png" },
             ].map((item, i) => {
               if (item.hideMobile) {
                 return (
@@ -967,7 +967,19 @@ export default function VendorDashboard() {
                         : "text-white/50 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-rose-400' : 'group-hover:text-pink-400 transition-colors'}`} />
+                    {item.icon3d ? (
+                      <img 
+                        src={item.icon3d} 
+                        className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                          activeTab === item.tab 
+                            ? 'scale-110 opacity-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
+                            : 'opacity-60 group-hover:opacity-100 group-hover:scale-105'
+                        }`} 
+                        alt={item.label}
+                      />
+                    ) : (
+                      <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-rose-400' : 'group-hover:text-pink-400 transition-colors'}`} />
+                    )}
                     <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
                   </button>
                 );
@@ -982,7 +994,19 @@ export default function VendorDashboard() {
                       : "text-white/50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-rose-400' : 'group-hover:text-pink-400 transition-colors'}`} />
+                  {item.icon3d ? (
+                    <img 
+                      src={item.icon3d} 
+                      className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                        activeTab === item.tab 
+                          ? 'scale-110 opacity-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
+                          : 'opacity-60 group-hover:opacity-100 group-hover:scale-105'
+                      }`} 
+                      alt={item.label}
+                    />
+                  ) : (
+                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-rose-400' : 'group-hover:text-pink-400 transition-colors'}`} />
+                  )}
                   <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
                 </button>
               );
@@ -992,7 +1016,11 @@ export default function VendorDashboard() {
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
               className="flex items-center justify-center md:justify-start gap-3 px-3.5 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group text-white/50 hover:bg-white/10 hover:text-white"
             >
-              <MessageSquare className="w-6 h-6 md:w-5 md:h-5 group-hover:text-pink-400 transition-colors" />
+              <img 
+                src="/chat3d.png" 
+                className="w-7 h-7 md:w-6 md:h-6 object-contain opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" 
+                alt="Messages"
+              />
               <span className="hidden md:block font-medium tracking-wide">Messages</span>
             </button>
           </nav>
@@ -1072,8 +1100,7 @@ export default function VendorDashboard() {
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-compass.png" className="w-10 h-10 object-contain" alt="Compass" />) */}
-                        <Compass className="w-6 h-6 text-pink-400" />
+                        <img src="/calender3d.png" className="w-10 h-10 object-contain" alt="Compass" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Browse Events</p>
@@ -1087,8 +1114,7 @@ export default function VendorDashboard() {
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-send.png" className="w-10 h-10 object-contain" alt="Send" />) */}
-                        <Send className="w-6 h-6 text-cyan-400" />
+                        <img src="/chat3d.png" className="w-10 h-10 object-contain" alt="Send" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Active Pitches</p>
@@ -1102,8 +1128,7 @@ export default function VendorDashboard() {
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        {/* ICON WRAPPER: Swap Lucide icon below with a 3D PNG image when ready (e.g. <img src="/icons/3d-profile.png" className="w-10 h-10 object-contain" alt="Profile" />) */}
-                        <UserCircle className="w-6 h-6 text-purple-400" />
+                        <img src="/profile3d.png" className="w-10 h-10 object-contain" alt="Profile" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Optimize Profile</p>
