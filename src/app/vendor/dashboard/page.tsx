@@ -1121,13 +1121,13 @@ export default function VendorDashboard() {
                       </div>
                     </div>
 
-                    {/* Card 3 — Optimize Profile (settings tab) */}
+                     {/* Card 3 — Optimize Profile (settings tab) */}
                     <div
                       onClick={() => setActiveTab('settings')}
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        <img src="/profile3d.png" className="w-10 h-10 object-contain" alt="Profile" />
+                        <img src="/gear3d.png" className="w-10 h-10 object-contain" alt="Settings" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Optimize Profile</p>
