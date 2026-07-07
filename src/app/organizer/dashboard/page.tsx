@@ -1235,7 +1235,7 @@ export default function OrganizerDashboard() {
               }`}
             >
               <img 
-                src="/chat3d.png" 
+                src="/message3d2.png" 
                 className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
                     ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
@@ -1319,7 +1319,7 @@ export default function OrganizerDashboard() {
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
-                        src="/chat3d.png" 
+                        src="/message3d2.png" 
                         className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Message" 
                       />

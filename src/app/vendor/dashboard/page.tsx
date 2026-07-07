@@ -939,8 +939,8 @@ export default function VendorDashboard() {
           <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
             {[
               { icon: Search, label: "Find Events", tab: "find_events", icon3d: "/calender3d.png" },
-              { icon: Store, label: "My Stalls", tab: "my_stalls" },
-              { icon: ClipboardList, label: "My Pitches", tab: "my_pitches" },
+              { icon: Store, label: "My Stalls", tab: "my_stalls", icon3d: "/home3d.png" },
+              { icon: ClipboardList, label: "My Pitches", tab: "my_pitches", icon3d: "/pitch3d.png" },
               { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/profile3d.png" },
               { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png", hideMobile: true },
               { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d.png" },
@@ -1018,7 +1018,7 @@ export default function VendorDashboard() {
               }`}
             >
               <img 
-                src="/chat3d.png" 
+                src="/message3d2.png" 
                 className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
                     ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
@@ -1113,7 +1113,7 @@ export default function VendorDashboard() {
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        <img src="/chat3d.png" className="w-10 h-10 object-contain" alt="Send" />
+                        <img src="/message3d2.png" className="w-10 h-10 object-contain" alt="Send" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Active Pitches</p>
