@@ -883,26 +883,15 @@ export default function VendorDashboard() {
   };
 
   return (
-    <main className="relative min-h-screen w-full overflow-x-hidden bg-black font-sans flex flex-col md:flex-row">
-      {/* Cinematic 3D Video Background */}
-      <div className="fixed inset-0 z-0">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
-          className="object-cover w-full h-full opacity-40"
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-purple-and-blue-abstract-particles-22545-large.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-indigo-950/40 to-black/90 mix-blend-overlay backdrop-blur-[2px]"></div>
-      </div>
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white font-sans flex flex-col md:flex-row transition-colors duration-300">
+      {/* Top Purple/Indigo Glow Gradient */}
+      <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-[#f3efff] to-transparent dark:from-[#1e1035] dark:to-transparent pointer-events-none z-0" />
 
       {/* Mobile Top Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 z-50 flex md:hidden items-center justify-between px-6 bg-black/65 backdrop-blur-xl border-b border-white/10">
+      <header className="relative w-full z-10 flex md:hidden items-center justify-between px-6 pt-6 pb-2 bg-transparent">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto shrink-0" />
-          <FestopiyaBranding className="text-xl" />
+          <FestopiyaBranding className="text-xl text-gray-900 dark:text-white" />
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -910,7 +899,7 @@ export default function VendorDashboard() {
             className={`relative w-9 h-9 rounded-full overflow-hidden border transition-all ${
               activeTab === "profile" 
                 ? "border-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" 
-                : "border-white/10 hover:border-white/30"
+                : "border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30"
             }`}
           >
             {vendorProfile?.avatar_url ? (
@@ -922,7 +911,7 @@ export default function VendorDashboard() {
                 className="object-cover"
               />
             ) : (
-              <UserCircle className="w-full h-full text-white/50" />
+              <UserCircle className="w-full h-full text-gray-400 dark:text-white/50" />
             )}
           </button>
           <button 
@@ -932,7 +921,7 @@ export default function VendorDashboard() {
               localStorage.removeItem("role"); 
               router.push("/auth"); 
             }}
-            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
+            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-500/10 dark:hover:bg-red-500/15 text-gray-500 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 hover:border-red-200 dark:hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -1059,11 +1048,11 @@ export default function VendorDashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <section className="relative z-10 w-full flex-1 md:h-screen md:overflow-y-auto scrollbar-hide p-4 pt-20 pb-28 md:p-6 md:pt-6 md:pl-0">
+      <section className="relative z-10 w-full flex-1 md:h-screen md:overflow-y-auto scrollbar-hide p-4 pt-2 pb-28 md:p-6 md:pt-6 md:pl-0">
         <div className="max-w-7xl mx-auto space-y-8 h-full flex flex-col">
           
            {activeTab === "find_events" && (
-            <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem]">
+            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
 
               {/* ── Hero container with background video ──────────────────── */}
               <div className="relative rounded-3xl overflow-hidden p-6 md:p-12 mb-10 bg-black/45 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-md max-w-7xl mx-auto w-full">
@@ -1296,7 +1285,7 @@ export default function VendorDashboard() {
           )}
 
           {activeTab === "my_stalls" && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 text-gray-900 dark:text-white relative z-10">
               <div className="flex items-center justify-between mb-8 px-2">
                 <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
                   <Store className="text-purple-400 w-8 h-8 animate-pulse" />
@@ -1401,7 +1390,7 @@ export default function VendorDashboard() {
           )}
 
           {activeTab === "my_pitches" && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 text-gray-900 dark:text-white relative z-10">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-rose-500/20 border border-rose-500/20">
@@ -1540,7 +1529,7 @@ export default function VendorDashboard() {
           )}
 
           {activeTab === "organizers" && (
-            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10">
+            <div className="flex-1 rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10 text-gray-900 dark:text-white relative z-10">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-rose-500/20 border border-rose-500/20">
@@ -1629,7 +1618,7 @@ export default function VendorDashboard() {
 
           {/* ── Instagram-Style Creator Profile Tab ─────────────────── */}
           {activeTab === "profile" && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8 text-gray-900 dark:text-white relative z-10">
               {isProfileLoading && !vendorProfile ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <UiverseLoader />
@@ -1898,7 +1887,7 @@ export default function VendorDashboard() {
           )}
 
           {activeTab === "settings" && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 text-gray-900 dark:text-white relative z-10">
               {/* Settings Header */}
               <div className="mb-10">
                 <div className="flex items-center gap-4 mb-2">

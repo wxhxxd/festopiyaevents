@@ -1104,27 +1104,15 @@ export default function OrganizerDashboard() {
   };
 
   return (
-    <main className="relative min-h-screen w-full overflow-x-hidden bg-black font-sans flex flex-col md:flex-row">
-      {/* Cinematic 3D Video Background */}
-      <div className="fixed inset-0 z-0">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
-          className="object-cover w-full h-full opacity-40"
-        >
-          {/* Same dark abstract particle background to maintain theme consistency */}
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-purple-and-blue-abstract-particles-22545-large.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-indigo-950/50 to-black/90 mix-blend-overlay backdrop-blur-[2px]"></div>
-      </div>
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white font-sans flex flex-col md:flex-row transition-colors duration-300">
+      {/* Top Purple/Indigo Glow Gradient */}
+      <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-[#f3efff] to-transparent dark:from-[#1e1035] dark:to-transparent pointer-events-none z-0" />
 
       {/* Mobile Top Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 z-50 flex md:hidden items-center justify-between px-6 bg-black/65 backdrop-blur-xl border-b border-white/10">
+      <header className="relative w-full z-10 flex md:hidden items-center justify-between px-6 pt-6 pb-2 bg-transparent">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto shrink-0" />
-          <FestopiyaBranding className="text-xl" />
+          <FestopiyaBranding className="text-xl text-gray-900 dark:text-white" />
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -1132,7 +1120,7 @@ export default function OrganizerDashboard() {
             className={`relative w-9 h-9 rounded-full overflow-hidden border transition-all ${
               activeTab === "profile" 
                 ? "border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" 
-                : "border-white/10 hover:border-white/30"
+                : "border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30"
             }`}
           >
             {organizerProfile?.avatar_url ? (
@@ -1142,7 +1130,7 @@ export default function OrganizerDashboard() {
                 className="object-cover w-full h-full rounded-full"
               />
             ) : (
-              <UserCircle className="w-full h-full text-white/50" />
+              <UserCircle className="w-full h-full text-gray-400 dark:text-white/50" />
             )}
           </button>
           <button 
@@ -1152,7 +1140,7 @@ export default function OrganizerDashboard() {
               localStorage.removeItem("role"); 
               router.push("/auth"); 
             }}
-            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
+            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-500/10 dark:hover:bg-red-500/15 text-gray-500 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 hover:border-red-200 dark:hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
           </button>
@@ -1277,11 +1265,11 @@ export default function OrganizerDashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <section className="relative z-10 w-full flex-1 md:h-screen md:overflow-y-auto scrollbar-hide p-4 pt-20 pb-28 md:p-6 md:pt-6 md:pl-0">
+      <section className="relative z-10 w-full flex-1 md:h-screen md:overflow-y-auto scrollbar-hide p-4 pt-2 pb-28 md:p-6 md:pt-6 md:pl-0">
         <div className="max-w-7xl mx-auto h-full flex flex-col">
           
           {activeTab === 'events' && (
-            <div className="bg-gradient-to-br from-purple-900 via-[#1a0b2e] to-black min-h-screen text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem]">
+            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
 
               {/* ── Hero 2-col grid ──────────────────────────────── */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
@@ -1289,22 +1277,22 @@ export default function OrganizerDashboard() {
                 {/* Left — Welcome & headline */}
                 <div>
                   {/* Badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_6px_-1px_rgba(0,0,0,0.3)] mb-8">
-                    <Sparkles className="w-4 h-4 text-pink-400" />
-                    <span className="text-xs font-semibold tracking-wider text-gray-300 uppercase">Organizer Command Center</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 dark:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.1),0_4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_6px_-1px_rgba(0,0,0,0.3)] mb-8">
+                    <Sparkles className="w-4 h-4 text-pink-500 dark:text-pink-400" />
+                    <span className="text-xs font-semibold tracking-wider text-gray-600 dark:text-gray-300 uppercase">Organizer Command Center</span>
                   </div>
 
                   {/* Headline */}
-                  <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-white">
+                  <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
                     Manage <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
                       your festivals
                     </span><br />
                     like a pro.
                   </h1>
 
                   {/* Subtext */}
-                  <p className="text-lg text-gray-400 mt-6 max-w-md leading-relaxed">
+                  <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
                     Your central hub to launch new events, review vendor pitches, and lock in deals.
                   </p>
                 </div>
@@ -1316,16 +1304,16 @@ export default function OrganizerDashboard() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/calender3d.png" 
-                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Calendar" 
                       />
                     </div>
-                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
                       Create New Event
                     </p>
                   </button>
@@ -1333,16 +1321,16 @@ export default function OrganizerDashboard() {
                   {/* Card 2 — Review Pitches */}
                   <div
                     onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/chat3d.png" 
-                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Message" 
                       />
                     </div>
-                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
                       Review Pitches
                     </p>
                   </div>
@@ -1350,16 +1338,16 @@ export default function OrganizerDashboard() {
                   {/* Card 3 — My Live Events */}
                   <div
                     onClick={() => document.getElementById('current-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/event3d.png" 
-                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Events" 
                       />
                     </div>
-                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
                       My Live Events
                     </p>
                   </div>
@@ -1431,15 +1419,15 @@ export default function OrganizerDashboard() {
           )}
 
           {activeTab === 'vendors' && (
-            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10">
+            <div className="flex-1 rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-8 pb-10 text-gray-900 dark:text-white relative z-10">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/20">
-                    <Users className="w-7 h-7 text-fuchsia-400" />
+                    <Users className="w-7 h-7 text-fuchsia-400 animate-pulse" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-white">Vendor Hub</h2>
-                    <p className="text-white/50 mt-0.5">Review incoming stall pitches and find top creators.</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Vendor Hub</h2>
+                    <p className="text-gray-500 dark:text-white/50 mt-0.5">Review incoming stall pitches and find top creators.</p>
                   </div>
                 </div>
                 {vendorHubSubTab === 'pitches' && (
@@ -1678,7 +1666,7 @@ export default function OrganizerDashboard() {
 
 
           {activeTab === 'profile' && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8 text-gray-900 dark:text-white relative z-10">
               {isProfileLoading && !organizerProfile ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <UiverseLoader />
@@ -1888,16 +1876,16 @@ export default function OrganizerDashboard() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10">
+            <div className="flex-1 rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10 text-gray-900 dark:text-white relative z-10">
               {/* Settings Header */}
               <div className="mb-10">
                 <div className="flex items-center gap-4 mb-2">
                   <div className="p-3 rounded-2xl bg-indigo-500/20 border border-indigo-500/20">
-                    <Settings className="w-7 h-7 text-indigo-400" />
+                    <Settings className="w-7 h-7 text-indigo-400 animate-spin-slow" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-white">Profile Settings</h2>
-                    <p className="text-white/50 mt-0.5">Update your public organizer profile information.</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h2>
+                    <p className="text-gray-500 dark:text-white/50 mt-0.5">Update your public organizer profile information.</p>
                   </div>
                 </div>
               </div>
