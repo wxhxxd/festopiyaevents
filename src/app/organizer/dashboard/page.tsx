@@ -1294,73 +1294,58 @@ export default function OrganizerDashboard() {
                 </div>
 
                 {/* Right — Action cards */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-16 pt-12">
+                <div className="grid grid-cols-3 gap-3 md:gap-4 pt-10">
 
                   {/* Card 1 — Create Event */}
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="relative w-full flex flex-col items-center pt-16 pb-5 px-4 min-h-[175px] rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_15px_30px_-10px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_20px_40px_-10px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/calender3d.png" 
-                        className="w-20 h-20 object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-2" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Calendar" 
                       />
                     </div>
-                    <div className="mt-auto w-full flex flex-col items-center justify-end">
-                      <p className="text-white font-bold text-sm md:text-base text-center tracking-wide group-hover:text-pink-300 transition-colors">
-                        Create New Event
-                      </p>
-                      <p className="text-gray-400 text-[11px] md:text-xs text-center mt-1 leading-normal max-w-[130px] mx-auto font-medium">
-                        Draft a new festival, set stall prices, and open the floor to vendors.
-                      </p>
-                    </div>
+                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                      Create New Event
+                    </p>
                   </button>
 
                   {/* Card 2 — Review Pitches */}
                   <div
                     onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="relative w-full flex flex-col items-center pt-16 pb-5 px-4 min-h-[175px] rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_15px_30px_-10px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_20px_40px_-10px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/chat3d.png" 
-                        className="w-20 h-20 object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-2" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Message" 
                       />
                     </div>
-                    <div className="mt-auto w-full flex flex-col items-center justify-end">
-                      <p className="text-white font-bold text-sm md:text-base text-center tracking-wide group-hover:text-pink-300 transition-colors">
-                        Review Pitches
-                      </p>
-                      <p className="text-gray-400 text-[11px] md:text-xs text-center mt-1 leading-normal max-w-[130px] mx-auto font-medium">
-                        Check incoming vendor requests and counter-offer.
-                      </p>
-                    </div>
+                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                      Review Pitches
+                    </p>
                   </div>
 
                   {/* Card 3 — My Live Events */}
                   <div
                     onClick={() => document.getElementById('current-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="relative w-full col-span-2 flex flex-col items-center pt-16 pb-5 px-4 min-h-[160px] rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_15px_30px_-10px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_20px_40px_-10px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
                         src="/grid3d.png" 
-                        className="w-20 h-20 object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-2" 
+                        className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Grid" 
                       />
                     </div>
-                    <div className="mt-auto w-full flex flex-col items-center justify-end">
-                      <p className="text-white font-bold text-sm md:text-base text-center tracking-wide group-hover:text-pink-300 transition-colors">
-                        My Live Events
-                      </p>
-                      <p className="text-gray-400 text-[11px] md:text-xs text-center mt-1 leading-normal max-w-[280px] mx-auto font-medium">
-                        Manage your currently active roster.
-                      </p>
-                    </div>
+                    <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
+                      My Live Events
+                    </p>
                   </div>
 
                 </div>
