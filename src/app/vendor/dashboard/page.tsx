@@ -1076,23 +1076,17 @@ export default function VendorDashboard() {
                 <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
                   {/* Left — Welcome & headline */}
                   <div>
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_4px_6px_-1px_rgba(0,0,0,0.3)] mb-8">
-                      <Sparkles className="w-4 h-4 text-pink-400" />
-                      <span className="text-xs font-semibold tracking-wider text-gray-300 uppercase">Vendor Command Center</span>
-                    </div>
-
                     {/* Headline */}
-                    <h1 className="text-4xl md:text-7xl font-bold tracking-tight leading-tight text-white">
+                    <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
                       Discover <br />
-                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
                         the best festivals
                       </span><br />
                       and secure your spot.
                     </h1>
 
                     {/* Subtext */}
-                    <p className="text-lg text-gray-400 mt-6 max-w-md leading-relaxed">
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
                       Your central hub to find high-traffic events, pitch your stall to organizers, and secure the bag.
                     </p>
                   </div>
