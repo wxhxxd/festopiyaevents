@@ -1149,7 +1149,7 @@ export default function OrganizerDashboard() {
 
       {/* Sidebar - Glassmorphism */}
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
-        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/20 bg-white/10 md:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
           <div className="hidden md:flex items-center justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
@@ -1160,7 +1160,7 @@ export default function OrganizerDashboard() {
               { icon: CalendarDays, label: "Events", tab: "events", icon3d: "/calender3d.png" },
               { icon: Users, label: "Vendor Hub", tab: "vendors", icon3d: "/profile3d.png" },
               { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png", hideMobile: true },
-              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d.png" },
+              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png" },
             ].map((item, i) => {
               if (item.hideMobile) {
                 return (
@@ -1169,8 +1169,8 @@ export default function OrganizerDashboard() {
                     onClick={() => setActiveTab(item.tab as any)}
                     className={`hidden md:flex w-full items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
                       activeTab === item.tab 
-                        ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                        : "text-white/60 hover:bg-white/10 hover:text-white"
+                        ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                        : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                     }`}
                   >
                     {item.icon3d ? (
@@ -1178,16 +1178,16 @@ export default function OrganizerDashboard() {
                         src={item.icon3d} 
                         className={`w-8 h-8 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                           activeTab === item.tab 
-                            ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
-                            : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
+                            ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
+                            : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
                         }`} 
                         alt={item.label}
                       />
                     ) : (
                       <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'text-indigo-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
-                          : 'text-white/60 stroke-[2] group-hover:text-fuchsia-400 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                          ? 'text-indigo-500 dark:text-indigo-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
+                          : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-400 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                       }`} />
                     )}
                     <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
@@ -1200,8 +1200,8 @@ export default function OrganizerDashboard() {
                   onClick={() => setActiveTab(item.tab as any)}
                   className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
                     activeTab === item.tab 
-                      ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                      : "text-white/60 hover:bg-white/10 hover:text-white"
+                      ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                      : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                   }`}
                 >
                   {item.icon3d ? (
@@ -1209,16 +1209,16 @@ export default function OrganizerDashboard() {
                       src={item.icon3d} 
                       className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
+                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
                       }`} 
                       alt={item.label}
                     />
                   ) : (
                     <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
                       activeTab === item.tab 
-                        ? 'text-indigo-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
-                        : 'text-white/60 stroke-[2] group-hover:text-fuchsia-400 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                        ? 'text-indigo-500 dark:text-indigo-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
+                        : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-400 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     }`} />
                   )}
                   <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
@@ -1230,16 +1230,16 @@ export default function OrganizerDashboard() {
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
               className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
                 isChatOpen 
-                  ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                  : "text-white/60 hover:bg-white/10 hover:text-white"
+                  ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                  : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <img 
                 src="/message3d2.png" 
                 className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
-                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
+                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
                 }`} 
                 alt="Messages"
               />
@@ -1247,7 +1247,7 @@ export default function OrganizerDashboard() {
             </button>
           </nav>
 
-          <div className="hidden md:block mt-auto pt-6 border-t border-white/10">
+          <div className="hidden md:block mt-auto pt-6 border-t border-gray-200 dark:border-white/10">
             <button 
               onClick={() => { 
                 localStorage.removeItem("token"); 
@@ -1255,7 +1255,7 @@ export default function OrganizerDashboard() {
                 localStorage.removeItem("role"); 
                 router.push("/auth"); 
               }}
-              className="w-full flex items-center gap-4 px-3 md:px-4 py-3 rounded-2xl text-white/50 hover:bg-red-500/10 hover:text-red-400 transition-colors group"
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all duration-300 group cursor-pointer"
             >
               <LogOut className="w-6 h-6 md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden md:block font-medium tracking-wide">Log out</span>

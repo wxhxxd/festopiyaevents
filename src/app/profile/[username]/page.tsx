@@ -116,23 +116,23 @@ export default function PublicProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center text-gray-900 dark:text-white">
         <UiverseLoader />
-        <p className="text-white/60 mt-4">Loading Profile...</p>
+        <p className="text-gray-500 dark:text-white/60 mt-4">Loading Profile...</p>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6">
-        <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 max-w-md w-full text-center">
-          <Store className="w-16 h-16 text-white/20 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Profile Not Found</h2>
-          <p className="text-white/50 mb-6">{error || "The requested profile could not be loaded."}</p>
+      <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center text-gray-900 dark:text-white p-6">
+        <div className="p-8 rounded-[2.5rem] bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 max-w-md w-full text-center">
+          <Store className="w-16 h-16 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Profile Not Found</h2>
+          <p className="text-gray-500 dark:text-white/50 mb-6">{error || "The requested profile could not be loaded."}</p>
           <button 
             onClick={() => router.back()}
-            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-all inline-flex items-center gap-2 cursor-pointer"
+            className="px-6 py-3 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm font-medium transition-all inline-flex items-center gap-2 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" /> Go Back
           </button>
@@ -142,15 +142,15 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <main className="relative min-h-screen w-full bg-black text-white p-4 md:p-8 flex flex-col items-center">
+    <main className="relative min-h-screen w-full bg-white dark:bg-black text-gray-900 dark:text-white p-4 md:p-8 flex flex-col items-center">
       {/* Background radial glow */}
-      <div className="fixed inset-0 bg-radial-gradient from-indigo-500/10 via-black to-black pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-radial-gradient from-indigo-500/5 via-transparent to-transparent dark:from-indigo-500/10 dark:via-black dark:to-black pointer-events-none z-0" />
 
       {/* Top Header */}
-      <div className="relative z-10 w-full max-w-5xl flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+      <div className="relative z-10 w-full max-w-5xl flex items-center justify-between pb-6 mb-6 border-b border-gray-200 dark:border-white/10">
         <button 
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors cursor-pointer group"
+          className="flex items-center gap-2 text-sm text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back
@@ -163,10 +163,10 @@ export default function PublicProfilePage() {
       </div>
 
       {/* Main Glassmorphic Profile Card */}
-      <div className="relative z-10 w-full max-w-5xl bg-white/5 border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl mb-8">
+      <div className="relative z-10 w-full max-w-5xl bg-gray-50/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl mb-8">
         
         {/* Profile Header Details */}
-        <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/10">
+        <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-gray-200 dark:border-white/10">
           <div className="relative shrink-0">
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] overflow-hidden">
               {profile.avatar_url ? (
@@ -190,20 +190,20 @@ export default function PublicProfilePage() {
 
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
             <div>
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">{profile.display_name || "User Profile"}</h2>
-              <p className="text-white/40 text-sm mt-0.5">@{profile.username}</p>
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{profile.display_name || "User Profile"}</h2>
+              <p className="text-gray-500 dark:text-white/40 text-sm mt-0.5">@{profile.username}</p>
             </div>
 
             {/* Tags / Info */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
               {profile.business_name && (
-                <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold flex items-center gap-1.5 text-white/80">
+                <span className="px-3.5 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold flex items-center gap-1.5 text-gray-700 dark:text-white/80">
                   <Building2 className="w-3.5 h-3.5 text-indigo-400" />
                   {profile.business_name}
                 </span>
               )}
               {profile.category && (
-                <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold flex items-center gap-1.5 text-white/80">
+                <span className="px-3.5 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold flex items-center gap-1.5 text-gray-700 dark:text-white/80">
                   <Tag className="w-3.5 h-3.5 text-fuchsia-400" />
                   {profile.category}
                 </span>
@@ -217,7 +217,7 @@ export default function PublicProfilePage() {
                   href={profile.instagram_url.startsWith("http") ? profile.instagram_url : `https://instagram.com/${profile.instagram_url}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-pink-500/10 border border-white/10 hover:border-pink-500/30 text-white/60 hover:text-pink-400 flex items-center justify-center transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-pink-500/10 border border-gray-200 dark:border-white/10 hover:border-pink-500/30 text-gray-500 dark:text-white/60 hover:text-pink-600 dark:hover:text-pink-400 flex items-center justify-center transition-all cursor-pointer"
                 >
                   <Instagram className="w-4 h-4" />
                 </a>
@@ -227,7 +227,7 @@ export default function PublicProfilePage() {
                   href={profile.website_url.startsWith("http") ? profile.website_url : `https://${profile.website_url}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-white/60 hover:text-emerald-400 flex items-center justify-center transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-emerald-500/10 border border-gray-200 dark:border-white/10 hover:border-emerald-500/30 text-gray-500 dark:text-white/60 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center justify-center transition-all cursor-pointer"
                 >
                   <Globe className="w-4 h-4" />
                 </a>
@@ -239,18 +239,18 @@ export default function PublicProfilePage() {
           <div className="shrink-0 flex items-center justify-center pt-4 md:pt-0">
             <button
               onClick={handleMessageUser}
-              className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-2xl font-bold text-base flex items-center gap-2.5 transition-all active:scale-95 shadow-lg shadow-black/30 cursor-pointer"
+              className="bg-black/5 dark:bg-white/10 backdrop-blur-md border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white/20 px-8 py-4 rounded-2xl font-bold text-base flex items-center gap-2.5 transition-all active:scale-95 shadow-lg shadow-black/10 dark:shadow-black/30 cursor-pointer"
             >
-              <MessageSquare className="w-5 h-5 text-indigo-300" />
+              <MessageSquare className="w-5 h-5 text-indigo-500 dark:text-indigo-300" />
               Message
             </button>
           </div>
         </div>
 
         {/* Bio Section */}
-        <div className="py-8 border-b border-white/10">
-          <h3 className="text-lg font-bold text-white mb-3">About</h3>
-          <p className="text-white/60 text-sm leading-relaxed max-w-3xl">
+        <div className="py-8 border-b border-gray-200 dark:border-white/10">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">About</h3>
+          <p className="text-gray-650 dark:text-white/60 text-sm leading-relaxed max-w-3xl">
             {profile.bio || "No biography details shared yet."}
           </p>
         </div>
@@ -258,14 +258,14 @@ export default function PublicProfilePage() {
         {/* Media Showcase / Visual Setup Section */}
         <div className="pt-8">
           <div className="flex items-center gap-2.5 mb-6">
-            <Sparkles className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-lg font-bold text-white">Visual Showcase</h3>
+            <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Visual Showcase</h3>
           </div>
 
           {profile.media?.length === 0 ? (
-            <div className="py-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01] flex flex-col items-center justify-center text-center">
-              <Store className="w-12 h-12 text-white/20 mb-3" />
-              <p className="text-white/40 text-sm">No showcase visuals uploaded yet.</p>
+            <div className="py-12 border border-dashed border-gray-200 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01] flex flex-col items-center justify-center text-center">
+              <Store className="w-12 h-12 text-gray-300 dark:text-white/20 mb-3" />
+              <p className="text-gray-500 dark:text-white/40 text-sm">No showcase visuals uploaded yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -273,7 +273,7 @@ export default function PublicProfilePage() {
                 <div 
                   key={post.id} 
                   onClick={() => setSelectedMedia(post)}
-                  className="aspect-square rounded-2xl overflow-hidden border border-white/10 bg-black relative group cursor-pointer hover:border-indigo-500/50 transition-all"
+                  className="aspect-square rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black relative group cursor-pointer hover:border-indigo-500/50 transition-all"
                 >
                   {post.media_type === "video" ? (
                     <>
@@ -284,7 +284,7 @@ export default function PublicProfilePage() {
                         playsInline
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-black/20 dark:bg-white/20 backdrop-blur-md border border-gray-200 dark:border-white/30 flex items-center justify-center">
                           <Play className="w-4 h-4 text-white fill-white ml-0.5" />
                         </div>
                       </div>
@@ -320,7 +320,7 @@ export default function PublicProfilePage() {
             <X className="w-6 h-6" />
           </button>
           
-          <div className="w-full max-w-4xl h-[80vh] flex flex-col md:flex-row rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden">
+          <div className="w-full max-w-4xl h-[80vh] flex flex-col md:flex-row rounded-3xl border border-gray-200/50 dark:border-white/10 bg-white dark:bg-[#0A0A0A] overflow-hidden">
             {/* Media viewer */}
             <div className="flex-1 bg-black flex items-center justify-center relative">
               {selectedMedia.media_type === "video" ? (
@@ -341,10 +341,10 @@ export default function PublicProfilePage() {
             </div>
             
             {/* Media sidebar details */}
-            <div className="w-full md:w-[320px] p-6 bg-white/[0.01] border-t md:border-t-0 md:border-l border-white/10 flex flex-col justify-between">
+            <div className="w-full md:w-[320px] p-6 bg-black/[0.01] dark:bg-white/[0.01] border-t md:border-t-0 md:border-l border-gray-200 dark:border-white/10 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Showcase Setup</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Showcase Setup</span>
                 </div>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px] overflow-hidden">
@@ -355,20 +355,20 @@ export default function PublicProfilePage() {
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm">{profile.display_name}</h4>
-                    <p className="text-white/40 text-xs">@{profile.username}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-sm">{profile.display_name}</h4>
+                    <p className="text-gray-500 dark:text-white/40 text-xs">@{profile.username}</p>
                   </div>
                 </div>
-                <p className="text-white/60 text-xs">
+                <p className="text-gray-600 dark:text-white/60 text-xs">
                   Uploaded on {new Date(selectedMedia.created_at).toLocaleDateString(undefined, { dateStyle: "long" })}
                 </p>
               </div>
 
-              <div className="pt-6 border-t border-white/10 flex items-center gap-3">
+              <div className="pt-6 border-t border-gray-200 dark:border-white/10 flex items-center gap-3">
                 <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
                 <div>
-                  <p className="text-lg font-black text-white leading-none">{selectedMedia.like_count}</p>
-                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1">Total Likes</p>
+                  <p className="text-lg font-black text-gray-900 dark:text-white leading-none">{selectedMedia.like_count}</p>
+                  <p className="text-[9px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-wider mt-1">Total Likes</p>
                 </div>
               </div>
             </div>

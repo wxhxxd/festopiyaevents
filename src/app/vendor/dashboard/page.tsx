@@ -930,7 +930,7 @@ export default function VendorDashboard() {
 
       {/* Sidebar - Glassmorphism */}
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
-        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-white/20 bg-white/10 md:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
           <div className="hidden md:flex items-center justify-center md:justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
@@ -943,7 +943,7 @@ export default function VendorDashboard() {
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches", icon3d: "/pitch3d.png" },
               { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/profile3d.png" },
               { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png", hideMobile: true },
-              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d.png" },
+              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png" },
             ].map((item, i) => {
               if (item.hideMobile) {
                 return (
@@ -952,8 +952,8 @@ export default function VendorDashboard() {
                     onClick={() => setActiveTab(item.tab as any)}
                     className={`hidden md:flex w-full items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
                       activeTab === item.tab 
-                        ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                        : "text-white/60 hover:bg-white/10 hover:text-white"
+                        ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                        : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                     }`}
                   >
                     {item.icon3d ? (
@@ -961,16 +961,16 @@ export default function VendorDashboard() {
                         src={item.icon3d} 
                         className={`w-8 h-8 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                           activeTab === item.tab 
-                            ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
-                            : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
+                            ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
+                            : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
                         }`} 
                         alt={item.label}
                       />
                     ) : (
                       <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'text-rose-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
-                          : 'text-white/60 stroke-[2] group-hover:text-pink-300 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                          ? 'text-rose-500 dark:text-rose-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
+                          : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-pink-500 dark:group-hover:text-pink-300 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                       }`} />
                     )}
                     <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
@@ -983,8 +983,8 @@ export default function VendorDashboard() {
                   onClick={() => setActiveTab(item.tab as any)}
                   className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
                     activeTab === item.tab 
-                      ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                      : "text-white/60 hover:bg-white/10 hover:text-white"
+                      ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                      : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                   }`}
                 >
                   {item.icon3d ? (
@@ -992,16 +992,16 @@ export default function VendorDashboard() {
                       src={item.icon3d} 
                       className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
+                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
                       }`} 
                       alt={item.label}
                     />
                   ) : (
                     <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
                       activeTab === item.tab 
-                        ? 'text-rose-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
-                        : 'text-white/60 stroke-[2] group-hover:text-pink-300 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                        ? 'text-rose-500 dark:text-rose-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
+                        : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-pink-500 dark:group-hover:text-pink-300 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     }`} />
                   )}
                   <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
@@ -1013,16 +1013,16 @@ export default function VendorDashboard() {
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
               className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
                 isChatOpen 
-                  ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
-                  : "text-white/60 hover:bg-white/10 hover:text-white"
+                  ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
+                  : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <img 
                 src="/message3d2.png" 
                 className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
-                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
+                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
                 }`} 
                 alt="Messages"
               />
@@ -1030,7 +1030,7 @@ export default function VendorDashboard() {
             </button>
           </nav>
 
-          <div className="hidden md:block mt-auto pt-6 border-t border-white/10">
+          <div className="hidden md:block mt-auto pt-6 border-t border-gray-200 dark:border-white/10">
             <button 
               onClick={() => { 
                 localStorage.removeItem("token"); 
@@ -1038,7 +1038,7 @@ export default function VendorDashboard() {
                 localStorage.removeItem("role"); 
                 router.push("/auth"); 
               }}
-              className="w-full flex items-center gap-4 px-3 md:px-4 py-3 rounded-2xl text-white/50 hover:bg-red-500/10 hover:text-red-400 transition-colors group"
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all duration-300 group cursor-pointer"
             >
               <LogOut className="w-6 h-6 md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
               <span className="hidden md:block font-medium tracking-wide">Log out</span>
@@ -1127,7 +1127,7 @@ export default function VendorDashboard() {
                       className="p-6 rounded-3xl bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/20 flex items-start gap-5 transition-all duration-300 shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer group"
                     >
                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform shrink-0 flex items-center justify-center">
-                        <img src="/gear3d.png" className="w-10 h-10 object-contain" alt="Settings" />
+                        <img src="/gear3d2.png" className="w-10 h-10 object-contain" alt="Settings" />
                       </div>
                       <div>
                         <p className="text-white font-semibold text-lg mb-1">Optimize Profile</p>
@@ -1687,21 +1687,21 @@ export default function VendorDashboard() {
                                 type="text"
                                 value={editNameValue}
                                 onChange={(e) => setEditNameValue(e.target.value)}
-                                className="px-3 py-1.5 rounded-xl bg-white/5 border border-rose-500/40 text-white outline-none focus:ring-2 focus:ring-rose-500/20 text-lg font-bold"
+                                className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-rose-500/40 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/20 text-lg font-bold"
                                 autoFocus
                               />
-                              <button type="submit" className="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/30 transition-all">Save</button>
-                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-white/5 text-white/50 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Cancel</button>
+                              <button type="submit" className="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/30 transition-all">Save</button>
+                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/50 border border-gray-200 dark:border-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/10 transition-all">Cancel</button>
                             </form>
                           ) : (
                             <>
-                              <h2 className="text-3xl font-extrabold text-white tracking-tight">{vendorProfile?.company_name || "Vendor Name"}</h2>
+                              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{vendorProfile?.company_name || "Vendor Name"}</h2>
                               <button 
                                 onClick={() => {
                                   setEditNameValue(vendorProfile?.company_name || "");
                                   setIsEditingName(true);
                                 }}
-                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
                               >
                                 Edit Name
                               </button>
@@ -1713,7 +1713,7 @@ export default function VendorDashboard() {
                                 href={vendorProfile.instagram_url.startsWith("http") ? vendorProfile.instagram_url : `https://instagram.com/${vendorProfile.instagram_url}`} 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="p-2 rounded-full bg-white/5 hover:bg-pink-500/10 text-white/60 hover:text-pink-400 border border-white/10 hover:border-pink-500/30 transition-all"
+                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-pink-500/10 text-gray-500 dark:text-white/60 hover:text-pink-600 dark:hover:text-pink-400 border border-gray-200 dark:border-white/10 hover:border-pink-500/30 transition-all"
                               >
                                 <Instagram className="w-4 h-4" />
                               </a>
@@ -1723,31 +1723,31 @@ export default function VendorDashboard() {
                                 href={vendorProfile.website_url.startsWith("http") ? vendorProfile.website_url : `https://${vendorProfile.website_url}`} 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="p-2 rounded-full bg-white/5 hover:bg-indigo-500/10 text-white/60 hover:text-indigo-400 border border-white/10 hover:border-indigo-500/30 transition-all"
+                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-indigo-500/10 text-gray-500 dark:text-white/60 hover:text-indigo-600 dark:hover:text-indigo-400 border border-gray-200 dark:border-white/10 hover:border-indigo-500/30 transition-all"
                               >
                                 <ExternalLink className="w-4 h-4" />
                               </a>
                             )}
                           </div>
                         </div>
-                        <p className="text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
+                        <p className="text-gray-600 dark:text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
                           {vendorProfile?.bio || "No biography added yet. Optimize your profile details inside the settings tab!"}
                         </p>
                       </div>
 
                       {/* Stats Section / Follower count */}
                       <div className="flex gap-6 mt-2">
-                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
-                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">
+                        <div className="px-5 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md text-center">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 dark:from-pink-400 dark:to-rose-400">
                             {vendorProfile?.follower_count || 0}
                           </p>
-                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Hype Score (Followers)</p>
+                          <p className="text-[10px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-widest mt-0.5">Hype Score (Followers)</p>
                         </div>
-                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
-                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                        <div className="px-5 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md text-center">
+                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600 dark:from-indigo-400 dark:to-cyan-400">
                             {vendorProfile?.total_likes || 0}
                           </p>
-                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Total Hype (Likes)</p>
+                          <p className="text-[10px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-widest mt-0.5">Total Hype (Likes)</p>
                         </div>
                       </div>
                     </div>
@@ -1755,33 +1755,33 @@ export default function VendorDashboard() {
 
                   {/* Trust Badge System */}
                   <div className="flex flex-col gap-3">
-                    <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Unlocked Trust Badges</p>
+                    <p className="text-xs font-black text-gray-500 dark:text-white/40 uppercase tracking-widest pl-1">Unlocked Trust Badges</p>
                     <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2">
                       {vendorProfile?.badges?.map((badge: any) => {
                         const iconColor = badge.is_unlocked 
-                          ? badge.id === "beginner" ? "text-emerald-400 bg-emerald-400/20 border-emerald-500/30"
-                            : badge.id === "most_lovable" ? "text-amber-400 bg-amber-400/20 border-amber-500/30"
-                            : "text-rose-400 bg-rose-400/20 border-rose-500/30"
-                          : "text-white/20 bg-white/5 border-white/5";
+                          ? badge.id === "beginner" ? "text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/20 border-emerald-500/30"
+                            : badge.id === "most_lovable" ? "text-amber-500 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-400/20 border-amber-500/30"
+                            : "text-rose-500 dark:text-rose-400 bg-rose-500/10 dark:bg-rose-400/20 border-rose-500/30"
+                          : "text-gray-400 dark:text-white/20 bg-black/5 dark:bg-white/5 border-gray-200 dark:border-white/5";
                         
                         return (
                           <div 
                             key={badge.id}
                             className={`flex items-center gap-3 px-5 py-3 rounded-2xl border backdrop-blur-md shrink-0 transition-all ${
                               badge.is_unlocked 
-                                ? "bg-white/10 border-white/10 shadow-lg shadow-black/20" 
-                                : "opacity-40 border-dashed border-white/5"
+                                ? "bg-black/5 dark:bg-white/10 border-gray-200 dark:border-white/10 shadow-lg shadow-black/10 dark:shadow-black/20" 
+                                : "opacity-40 border-dashed border-gray-300 dark:border-white/5"
                             }`}
                           >
                             <div className={`p-2 rounded-xl border ${iconColor}`}>
                               {badge.is_unlocked ? <Unlock className="w-4 h-4 animate-pulse" /> : <Lock className="w-4 h-4" />}
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-white flex items-center gap-1.5">
+                              <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                                 {badge.name}
-                                {badge.is_unlocked && <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />}
+                                {badge.is_unlocked && <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />}
                               </p>
-                              <p className="text-[10px] text-white/50 max-w-[200px] mt-0.5 leading-tight">{badge.description}</p>
+                              <p className="text-[10px] text-gray-500 dark:text-white/50 max-w-[200px] mt-0.5 leading-tight">{badge.description}</p>
                             </div>
                           </div>
                         );
@@ -1790,21 +1790,21 @@ export default function VendorDashboard() {
                   </div>
 
                   {/* Drag-and-Drop Media Upload Zone */}
-                  <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
-                    <div className="p-4 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all cursor-pointer relative group">
+                  <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02] border border-gray-200 dark:border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
+                    <div className="p-4 rounded-full bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer relative group">
                       <input 
                         type="file" 
                         accept="image/*,video/*"
                         onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <UploadCloud className="w-8 h-8 text-pink-400 group-hover:scale-110 transition-transform" />
+                      <UploadCloud className="w-8 h-8 text-pink-500 dark:text-pink-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-white font-semibold">
+                      <p className="text-gray-900 dark:text-white font-semibold">
                         {uploadFile ? uploadFile.name : "Select past stall photo or video"}
                       </p>
-                      <p className="text-white/40 text-xs mt-1">Supports PNG, JPG, JPEG, and MP4 (Max 15MB)</p>
+                      <p className="text-gray-500 dark:text-white/40 text-xs mt-1">Supports PNG, JPG, JPEG, and MP4 (Max 15MB)</p>
                     </div>
                     {uploadFile && (
                       <button
@@ -1825,12 +1825,12 @@ export default function VendorDashboard() {
 
                   {/* 3-Column Instagram-Style Media Feed Grid */}
                   <div className="flex flex-col gap-3">
-                    <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Past Stall Gallery</p>
+                    <p className="text-xs font-black text-gray-500 dark:text-white/40 uppercase tracking-widest pl-1">Past Stall Gallery</p>
                     {vendorProfile?.media?.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-16 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
-                        <Instagram className="w-12 h-12 text-white/10 mb-3" />
-                        <p className="text-white/50 font-medium">Your feed is empty.</p>
-                        <p className="text-white/30 text-xs mt-1">Upload files above to showcase your stall setups, crowd pulls, and dishes!</p>
+                      <div className="flex flex-col items-center justify-center py-16 border border-dashed border-gray-200 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01]">
+                        <Instagram className="w-12 h-12 text-gray-300 dark:text-white/10 mb-3" />
+                        <p className="text-gray-650 dark:text-white/50 font-medium">Your feed is empty.</p>
+                        <p className="text-gray-400 dark:text-white/30 text-xs mt-1">Upload files above to showcase your stall setups, crowd pulls, and dishes!</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-3 gap-2 md:gap-4">
@@ -1838,7 +1838,7 @@ export default function VendorDashboard() {
                           <Link 
                             key={post.id}
                             href={`/posts/${post.id}`}
-                            className="aspect-square relative rounded-2xl overflow-hidden border border-white/10 cursor-pointer group shadow-md block"
+                            className="aspect-square relative rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 cursor-pointer group shadow-md block"
                           >
                             {post.media_type === "video" ? (
                               <video 
