@@ -1338,9 +1338,9 @@ export default function OrganizerDashboard() {
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
                       <img 
-                        src="/grid3d.png" 
+                        src="/event3d.png" 
                         className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
-                        alt="Grid" 
+                        alt="Events" 
                       />
                     </div>
                     <p className="mt-auto text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-300 transition-colors">
