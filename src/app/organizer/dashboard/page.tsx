@@ -1181,22 +1181,26 @@ export default function OrganizerDashboard() {
                     onClick={() => setActiveTab(item.tab as any)}
                     className={`hidden md:flex w-full items-center gap-4 px-3 md:px-4 py-3 rounded-2xl transition-all duration-300 group ${
                       activeTab === item.tab 
-                        ? "bg-white/20 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/25" 
-                        : "text-white/50 hover:bg-white/10 hover:text-white"
+                        ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
+                        : "text-white/60 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     {item.icon3d ? (
                       <img 
                         src={item.icon3d} 
-                        className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                        className={`w-8 h-8 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                           activeTab === item.tab 
-                            ? 'scale-110 opacity-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
-                            : 'opacity-60 group-hover:opacity-100 group-hover:scale-105'
+                            ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
+                            : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
                         }`} 
                         alt={item.label}
                       />
                     ) : (
-                      <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-indigo-400' : 'group-hover:text-fuchsia-400 transition-colors'}`} />
+                      <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
+                        activeTab === item.tab 
+                          ? 'text-indigo-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
+                          : 'text-white/60 stroke-[2] group-hover:text-fuchsia-400 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                      }`} />
                     )}
                     <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
                   </button>
@@ -1208,22 +1212,26 @@ export default function OrganizerDashboard() {
                   onClick={() => setActiveTab(item.tab as any)}
                   className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
                     activeTab === item.tab 
-                      ? "bg-white/20 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/25" 
-                      : "text-white/50 hover:bg-white/10 hover:text-white"
+                      ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
+                      : "text-white/60 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {item.icon3d ? (
                     <img 
                       src={item.icon3d} 
-                      className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                      className={`w-8 h-8 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'scale-110 opacity-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
-                          : 'opacity-60 group-hover:opacity-100 group-hover:scale-105'
+                          ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
+                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
                       }`} 
                       alt={item.label}
                     />
                   ) : (
-                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 ${activeTab === item.tab ? 'text-indigo-400' : 'group-hover:text-fuchsia-400 transition-colors'}`} />
+                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
+                      activeTab === item.tab 
+                        ? 'text-indigo-400 stroke-[2.25] scale-110 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
+                        : 'text-white/60 stroke-[2] group-hover:text-fuchsia-400 group-hover:scale-110 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                    }`} />
                   )}
                   <span className="hidden md:block font-medium tracking-wide">{item.label}</span>
                 </button>
@@ -1232,11 +1240,19 @@ export default function OrganizerDashboard() {
             
             <button 
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-              className="flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group text-white/50 hover:bg-white/10 hover:text-white"
+              className={`flex items-center justify-center md:justify-start gap-3 px-4 py-2.5 md:py-3 rounded-2xl transition-all duration-300 group ${
+                isChatOpen 
+                  ? "bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/20 text-white" 
+                  : "text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
             >
               <img 
                 src="/chat3d.png" 
-                className="w-7 h-7 md:w-6 md:h-6 object-contain opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" 
+                className={`w-8 h-8 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                  isChatOpen 
+                    ? 'scale-120 opacity-100 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.55)] drop-shadow-[0_0_8px_rgba(255,255,255,0.25)] -translate-y-0.5' 
+                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-0.5'
+                }`} 
                 alt="Messages"
               />
               <span className="hidden md:block font-medium tracking-wide">Messages</span>
