@@ -1356,23 +1356,23 @@ export default function OrganizerDashboard() {
                 const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
                 return (
                   <div id="current-events-section" className="max-w-7xl mx-auto mt-16">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-white/10 pb-4">
-                      <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-black/10 dark:border-white/10 pb-4">
+                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <Clock className="text-pink-400 w-7 h-7" />
                         {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
                       </h2>
-                      <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
+                      <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0">
                         <button
                           type="button"
                           onClick={() => setEventFilter('active')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-550 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
                         >
                           Active ({activeEvents.length})
                         </button>
                         <button
                           type="button"
                           onClick={() => setEventFilter('past')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-white/60 hover:text-white'}`}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-550 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
                         >
                           Past ({pastEvents.length})
                         </button>
@@ -1382,12 +1382,12 @@ export default function OrganizerDashboard() {
                     {loading ? (
                       <div className="flex flex-col items-center justify-center py-20">
                         <UiverseLoader />
-                        <p className="text-white/60 font-medium text-lg mt-4">Loading events from database...</p>
+                        <p className="text-gray-500 dark:text-white/60 font-medium text-lg mt-4">Loading events from database...</p>
                       </div>
                     ) : filteredEvents.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02]">
-                        <CalendarDays className="w-12 h-12 text-white/20 mb-4" />
-                        <p className="text-white/60 font-medium text-lg">
+                        <CalendarDays className="w-12 h-12 text-gray-400 dark:text-white/20 mb-4" />
+                        <p className="text-gray-550 dark:text-white/60 font-medium text-lg">
                           {eventFilter === 'active' ? 'No active events found. Create your first one!' : 'No past events found.'}
                         </p>
                       </div>
@@ -1591,7 +1591,7 @@ export default function OrganizerDashboard() {
                       value={searchQuery}
                       onChange={(e) => handleSearchVendors(e.target.value)}
                       placeholder="Search vendors by username, brand name, or category..."
-                      className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-md text-base"
+                      className="w-full px-6 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-md text-base"
                     />
                     {isSearching && (
                       <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -1602,12 +1602,12 @@ export default function OrganizerDashboard() {
 
                   {/* Search Results */}
                   {searchResults.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
-                      <Users className="w-12 h-12 text-white/10 mb-4" />
-                      <h3 className="text-xl font-medium text-white/60 mb-1">
+                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01]">
+                      <Users className="w-12 h-12 text-gray-300 dark:text-white/20 mb-4" />
+                      <h3 className="text-xl font-medium text-gray-900 dark:text-white/60 mb-1">
                         {searchQuery ? "No Results Found" : "Find Top Creators"}
                       </h3>
-                      <p className="text-white/40 text-sm max-w-sm text-center">
+                      <p className="text-gray-500 dark:text-white/40 text-sm max-w-sm text-center">
                         {searchQuery 
                           ? "We couldn't find any vendors matching your query." 
                           : "Type in a name or specialization category to find creators for your events."}
@@ -1619,7 +1619,7 @@ export default function OrganizerDashboard() {
                         <div 
                           key={v.id} 
                           onClick={() => router.push(`/profile/${v.username}`)}
-                          className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-fuchsia-500/50 hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
+                          className="p-6 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-fuchsia-500/50 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
                         >
                           <div className="flex items-start gap-4">
                             <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-fuchsia-500 p-[2px] shrink-0">
@@ -1636,8 +1636,8 @@ export default function OrganizerDashboard() {
                               )}
                             </div>
                             <div className="overflow-hidden">
-                              <h4 className="font-extrabold text-white text-lg tracking-tight group-hover:text-fuchsia-300 transition-colors truncate">{v.display_name}</h4>
-                              <p className="text-white/40 text-xs truncate">@{v.username}</p>
+                              <h4 className="font-extrabold text-gray-900 dark:text-white text-lg tracking-tight group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-300 transition-colors truncate">{v.display_name}</h4>
+                              <p className="text-gray-500 dark:text-white/40 text-xs truncate">@{v.username}</p>
                               {v.category && (
                                 <span className="mt-2 inline-block px-2.5 py-1 rounded-lg bg-fuchsia-500/10 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider border border-fuchsia-500/20">
                                   {v.category}
@@ -1646,7 +1646,7 @@ export default function OrganizerDashboard() {
                             </div>
                           </div>
                           
-                          <p className="text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
+                          <p className="text-gray-600 dark:text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
                             {v.bio || "No biography added yet."}
                           </p>
                         </div>
