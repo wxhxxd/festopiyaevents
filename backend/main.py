@@ -358,6 +358,15 @@ def run_migrations():
                 db.rollback()
                 print(f"[MIGRATION ERROR] Failed to add image_url to stall_bookings: {e}")
 
+        # Delete any existing events named 'General Connection'
+        try:
+            db.execute(text("DELETE FROM events WHERE name = 'General Connection'"))
+            db.commit()
+            print("[MIGRATION] Cleaned up any default 'General Connection' events.")
+        except Exception as e:
+            db.rollback()
+            print(f"[MIGRATION ERROR] Failed to delete 'General Connection' events: {e}")
+
     finally:
         db.close()
 
@@ -851,20 +860,6 @@ def get_user_profile_by_id(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
-    # Self-healing default event creation for Organizers
-    if user.role == "Organizer" and not user.events:
-        default_event = Event(
-            name="General Connection",
-            date=(datetime.utcnow() + timedelta(days=365)).strftime("%Y-%m-%d"),
-            total_stalls=1,
-            organizer_id=user.id,
-            standard_price=0.0,
-            premium_price=0.0
-        )
-        db.add(default_event)
-        db.commit()
-        db.refresh(user)
-        
     events_data = []
     if user.role == "Organizer":
         events_data = [
@@ -904,20 +899,6 @@ def get_user_profile_by_username(
                 
     if not user:
         raise HTTPException(status_code=404, detail="User profile not found")
-        
-    # Self-healing default event creation for Organizers
-    if user.role == "Organizer" and not user.events:
-        default_event = Event(
-            name="General Connection",
-            date=(datetime.utcnow() + timedelta(days=365)).strftime("%Y-%m-%d"),
-            total_stalls=1,
-            organizer_id=user.id,
-            standard_price=0.0,
-            premium_price=0.0
-        )
-        db.add(default_event)
-        db.commit()
-        db.refresh(user)
         
     # Get media items
     media_items = db.query(VendorMedia).filter(VendorMedia.vendor_id == user.id).order_by(VendorMedia.created_at.desc()).all()
