@@ -1889,8 +1889,8 @@ export default function VendorDashboard() {
                     <Settings className="w-7 h-7 text-rose-400" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-white">Profile Settings</h2>
-                    <p className="text-white/50 mt-0.5">Update your public vendor profile information.</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h2>
+                    <p className="text-gray-500 dark:text-white/50 mt-0.5">Update your public vendor profile information.</p>
                   </div>
                 </div>
               </div>
@@ -1899,7 +1899,7 @@ export default function VendorDashboard() {
 
                 {/* Shop/Business Name */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <Building2 className="w-4 h-4 text-rose-400" />
                     Shop/Business Name
                   </label>
@@ -1908,14 +1908,14 @@ export default function VendorDashboard() {
                     type="text"
                     value={profileData.company_name}
                     onChange={e => setProfileData({ ...profileData, company_name: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
                     placeholder="Your company or brand name"
                   />
                 </div>
 
                 {/* Username */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <UserCircle className="w-4 h-4 text-rose-400" />
                     Username
                   </label>
@@ -1924,14 +1924,14 @@ export default function VendorDashboard() {
                     type="text"
                     value={profileData.username}
                     onChange={e => setProfileData({ ...profileData, username: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
                     placeholder="e.g. shop_jane"
                   />
                 </div>
 
                 {/* Specialization / Category */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <Sparkles className="w-4 h-4 text-rose-400" />
                     Specialization / Category
                   </label>
@@ -1940,14 +1940,14 @@ export default function VendorDashboard() {
                     type="text"
                     value={profileData.category}
                     onChange={e => setProfileData({ ...profileData, category: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner backdrop-blur-sm"
                     placeholder="e.g. Gourmet Food, Handmade Crafts, Face Painting"
                   />
                 </div>
 
                 {/* Bio */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <FileText className="w-4 h-4 text-pink-400" />
                     Bio
                   </label>
@@ -1956,25 +1956,25 @@ export default function VendorDashboard() {
                     rows={4}
                     value={profileData.bio}
                     onChange={e => setProfileData({ ...profileData, bio: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-pink-500/60 focus:ring-2 focus:ring-pink-500/20 transition-all shadow-inner backdrop-blur-sm resize-none"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-pink-500/60 focus:ring-2 focus:ring-pink-500/20 transition-all shadow-inner backdrop-blur-sm resize-none"
                     placeholder="Tell organizers about your brand and products..."
                   />
                 </div>
 
                 {/* Instagram URL */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <AtSign className="w-4 h-4 text-pink-400" />
                     Instagram URL
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">instagram.com/</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-white/30 text-sm pointer-events-none">instagram.com/</span>
                     <input
                       id="vendor-instagram"
                       type="url"
                       value={profileData.instagram_url}
                       onChange={e => setProfileData({ ...profileData, instagram_url: e.target.value })}
-                      className="w-full pl-[7.5rem] pr-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-pink-500/60 focus:ring-2 focus:ring-pink-500/20 transition-all shadow-inner backdrop-blur-sm"
+                      className="w-full pl-[7.5rem] pr-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-pink-500/60 focus:ring-2 focus:ring-pink-500/20 transition-all shadow-inner backdrop-blur-sm"
                       placeholder="https://instagram.com/yourhandle"
                     />
                   </div>
@@ -1982,7 +1982,7 @@ export default function VendorDashboard() {
 
                 {/* Website URL */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <Globe className="w-4 h-4 text-emerald-400" />
                     Website URL
                   </label>
@@ -1991,7 +1991,7 @@ export default function VendorDashboard() {
                     type="url"
                     value={profileData.website_url}
                     onChange={e => setProfileData({ ...profileData, website_url: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner backdrop-blur-sm"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
