@@ -1385,7 +1385,7 @@ export default function OrganizerDashboard() {
                         <p className="text-white/60 font-medium text-lg mt-4">Loading events from database...</p>
                       </div>
                     ) : filteredEvents.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02]">
                         <CalendarDays className="w-12 h-12 text-white/20 mb-4" />
                         <p className="text-white/60 font-medium text-lg">
                           {eventFilter === 'active' ? 'No active events found. Create your first one!' : 'No past events found.'}
@@ -1427,7 +1427,7 @@ export default function OrganizerDashboard() {
                 {vendorHubSubTab === 'pitches' && (
                   <button
                     onClick={fetchPitches}
-                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-gray-655 dark:text-white/60 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Clock className="w-4 h-4" /> Refresh
                   </button>
@@ -1435,13 +1435,13 @@ export default function OrganizerDashboard() {
               </div>
 
               {/* Sub Navigation */}
-              <div className="flex border-b border-white/10 mb-8 gap-6">
+              <div className="flex border-b border-black/10 dark:border-white/10 mb-8 gap-6">
                 <button
                   onClick={() => setVendorHubSubTab('pitches')}
                   className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
                     vendorHubSubTab === 'pitches' 
-                      ? 'border-fuchsia-500 text-fuchsia-400' 
-                      : 'border-transparent text-white/40 hover:text-white'
+                      ? 'border-fuchsia-500 text-fuchsia-500 dark:text-fuchsia-400' 
+                      : 'border-transparent text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   Incoming Pitches
@@ -1450,8 +1450,8 @@ export default function OrganizerDashboard() {
                   onClick={() => setVendorHubSubTab('search')}
                   className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
                     vendorHubSubTab === 'search' 
-                      ? 'border-fuchsia-500 text-fuchsia-400' 
-                      : 'border-transparent text-white/40 hover:text-white'
+                      ? 'border-fuchsia-500 text-fuchsia-500 dark:text-fuchsia-400' 
+                      : 'border-transparent text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   Search Vendors
@@ -1464,35 +1464,35 @@ export default function OrganizerDashboard() {
               {isPitchesLoading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <UiverseLoader />
-                  <p className="text-white/60 mt-4">Loading pitches...</p>
+                  <p className="text-gray-550 dark:text-white/60 mt-4">Loading pitches...</p>
                 </div>
               ) : pitches.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-                  <MessageSquare className="w-12 h-12 text-white/20 mb-4" />
-                  <h3 className="text-xl font-medium text-white mb-2">No Pitches Yet</h3>
-                  <p className="text-white/50 text-center max-w-sm">Vendor pitches for your events will appear here. Share your events so vendors can apply!</p>
+                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02]">
+                  <MessageSquare className="w-12 h-12 text-gray-400 dark:text-white/20 mb-4" />
+                  <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No Pitches Yet</h3>
+                  <p className="text-gray-550 dark:text-white/50 text-center max-w-sm">Vendor pitches for your events will appear here. Share your events so vendors can apply!</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                   {pitches.map((pitch) => {
                     const statusColor =
-                      pitch.status === 'Accepted' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                      : pitch.status === 'Counter_Offered' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                      : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+                      pitch.status === 'Accepted' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/30'
+                      : pitch.status === 'Counter_Offered' ? 'bg-blue-500/20 text-blue-650 dark:text-blue-300 border-blue-500/30'
+                      : 'bg-amber-500/20 text-amber-605 dark:text-amber-300 border-amber-500/30';
                     return (
-                      <div key={pitch.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-4">
+                      <div key={pitch.id} className="p-5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex flex-col gap-4">
                         {/* Header */}
                         <div className="flex items-start justify-between">
                           <div 
                             className="flex items-center gap-3 cursor-pointer group/vendor"
                             onClick={() => handleOpenVendorProfile(pitch.vendor_id)}
                           >
-                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-lg border border-indigo-500/20 group-hover/vendor:border-fuchsia-500/50 group-hover/vendor:bg-fuchsia-500/10 group-hover/vendor:text-fuchsia-300 transition-all">
+                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-650 dark:text-indigo-300 flex items-center justify-center font-bold text-lg border border-indigo-500/20 group-hover/vendor:border-fuchsia-500/50 group-hover/vendor:bg-fuchsia-500/10 group-hover/vendor:text-fuchsia-300 transition-all">
                               {(pitch.vendor_name || 'V').charAt(0)}
                             </div>
                             <div>
-                              <p className="text-white font-semibold leading-tight group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-indigo-300 group-hover/vendor:to-fuchsia-300 transition-all">{pitch.vendor_name || `Vendor #${pitch.vendor_id}`}</p>
-                              <p className="text-white/40 text-xs">{pitch.event_name || `Event #${pitch.event_id}`}</p>
+                              <p className="text-gray-900 dark:text-white font-semibold leading-tight group-hover/vendor:text-transparent group-hover/vendor:bg-clip-text group-hover/vendor:bg-gradient-to-r group-hover/vendor:from-indigo-600 group-hover/vendor:to-fuchsia-600 dark:group-hover/vendor:from-indigo-300 dark:group-hover/vendor:to-fuchsia-300 transition-all">{pitch.vendor_name || `Vendor #${pitch.vendor_id}`}</p>
+                              <p className="text-gray-400 dark:text-white/40 text-xs">{pitch.event_name || `Event #${pitch.event_id}`}</p>
                             </div>
                           </div>
                           <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${statusColor}`}>
@@ -1504,14 +1504,14 @@ export default function OrganizerDashboard() {
                         <div className="flex items-end justify-between">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${pitch.stall_type === 'Premium' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${pitch.stall_type === 'Premium' ? 'bg-amber-500/20 text-amber-605 dark:text-amber-300' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300'}`}>
                                 {pitch.stall_type}
                               </span>
                               {pitch.stall_number && (
-                                <span className="text-white/40 text-xs font-medium">Stall #{pitch.stall_number}</span>
+                                <span className="text-gray-400 dark:text-white/40 text-xs font-medium">Stall #{pitch.stall_number}</span>
                               )}
                             </div>
-                            <p className="text-2xl font-black text-white">₹{pitch.offered_price}</p>
+                            <p className="text-2xl font-black text-gray-900 dark:text-white">₹{pitch.offered_price}</p>
                           </div>
                           <button
                             onClick={() => {
@@ -1523,10 +1523,10 @@ export default function OrganizerDashboard() {
                               });
                               setIsChatOpen(true);
                             }}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                            className="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                             title="Message Vendor"
                           >
-                            <MessageSquare className="w-4 h-4 text-indigo-400" />
+                            <MessageSquare className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                           </button>
                         </div>
 
@@ -1539,12 +1539,12 @@ export default function OrganizerDashboard() {
                                 placeholder="Counter ₹"
                                 value={counterInputs[pitch.id] || ''}
                                 onChange={e => setCounterInputs(prev => ({ ...prev, [pitch.id]: e.target.value }))}
-                                className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/25 text-sm outline-none focus:border-indigo-500/50 transition-all"
+                                className="flex-1 px-3 py-2 rounded-xl bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 text-sm outline-none focus:border-indigo-500/50 transition-all"
                               />
                               <button
                                 disabled={!counterInputs[pitch.id]}
                                 onClick={() => handleUpdatePitch(pitch.id, 'Counter_Offered', parseFloat(counterInputs[pitch.id]))}
-                                className="px-3 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-sm font-semibold border border-blue-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                className="px-3 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-600 dark:text-blue-300 text-sm font-semibold border border-blue-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                               >
                                 Counter
                               </button>
@@ -1552,13 +1552,13 @@ export default function OrganizerDashboard() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleUpdatePitch(pitch.id, 'Accepted')}
-                                className="flex-1 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-sm font-bold border border-emerald-500/30 transition-all"
+                                className="flex-1 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-sm font-bold border border-emerald-500/30 transition-all"
                               >
                                 ✓ Accept
                               </button>
                               <button
                                 onClick={() => handleUpdatePitch(pitch.id, 'Rejected')}
-                                className="flex-1 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-bold border border-red-500/20 transition-all"
+                                className="flex-1 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-400 text-sm font-bold border border-red-500/20 transition-all"
                               >
                                 ✗ Reject
                               </button>
@@ -2123,7 +2123,7 @@ export default function OrganizerDashboard() {
                       <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
                         <Users className="w-8 h-8 text-white/20" />
                       </div>
-                      <h3 className="text-xl font-medium text-white mb-2">No Bookings Yet</h3>
+                      <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No Bookings Yet</h3>
                       <p className="text-white/50 max-w-md text-sm">There are currently no stalls booked for this event. Check back later as vendors reserve their spaces.</p>
                     </div>
                   ) : (
