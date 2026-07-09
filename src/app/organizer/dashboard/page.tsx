@@ -825,6 +825,7 @@ export default function OrganizerDashboard() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/?all_events=true`, { headers })
       .then((res) => res.json())
       .then((data) => {
+        console.log("Raw Explore/All Events API Response:", data);
         setAllEvents(Array.isArray(data) ? data : (data.events || []));
       })
       .catch((err) => {

@@ -1051,7 +1051,7 @@ def create_event(
     return db_event
 
 @app.get("/events/")
-def get_all_events(request: Request, all_events: bool = False, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_all_events(request: Request, all_events: Optional[str] = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Safely clean up any residual 'General Connection' events
     try:
         db.query(Event).filter(Event.name == "General Connection").delete(synchronize_session=False)
@@ -1060,7 +1060,13 @@ def get_all_events(request: Request, all_events: bool = False, skip: int = 0, li
         db.rollback()
         print(f"[CLEANUP ERROR] Failed to clean 'General Connection' events: {e}")
 
-    if current_user.role == "Organizer" and not all_events:
+    show_all = False
+    if all_events is not None:
+        show_all = all_events.lower() in ("true", "1", "yes", "all")
+
+    print(f"[DEBUG EVENTS] get_all_events: raw_all_events={all_events}, show_all={show_all}, role={current_user.role}, user_id={current_user.id}")
+
+    if current_user.role == "Organizer" and not show_all:
         events = db.query(Event).filter(Event.organizer_id == current_user.id).offset(skip).limit(limit).all()
     else:
         events = db.query(Event).offset(skip).limit(limit).all()
