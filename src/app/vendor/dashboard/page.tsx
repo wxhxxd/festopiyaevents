@@ -323,6 +323,7 @@ export default function VendorDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [eventSearchQuery, setEventSearchQuery] = useState("");
 
   const handleSearchOrganizers = async (query: string) => {
     setSearchQuery(query);
@@ -1138,33 +1139,53 @@ export default function VendorDashboard() {
                 </div>
               </div>
 
-              {/* ── Event Grid (preserved) ────────────────────────────── */}
+              {/* ── Event Grid ────────────────────────────── */}
               {(() => {
-                const activeEvents = events.filter(e => !isEventExpired(e.date));
-                const pastEvents = events.filter(e => isEventExpired(e.date));
+                const searchLower = eventSearchQuery.toLowerCase().trim();
+                const searchedEvents = events.filter(e => 
+                  e.name.toLowerCase().includes(searchLower) || 
+                  (e.standard_stall_location && e.standard_stall_location.toLowerCase().includes(searchLower)) ||
+                  (e.premium_stall_location && e.premium_stall_location.toLowerCase().includes(searchLower))
+                );
+
+                const activeEvents = searchedEvents.filter(e => !isEventExpired(e.date));
+                const pastEvents = searchedEvents.filter(e => isEventExpired(e.date));
                 const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
                 return (
                   <div id="discover-events-section" className="max-w-7xl mx-auto mt-16">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-black/10 dark:border-white/10 pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 border-b border-black/10 dark:border-white/10 pb-6">
                       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <Ticket className="text-pink-400 w-7 h-7" />
                         {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
                       </h2>
-                      <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setEventFilter('active')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
-                        >
-                          Active ({activeEvents.length})
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEventFilter('past')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
-                        >
-                          Past ({pastEvents.length})
-                        </button>
+                      
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        <div className="relative w-full sm:w-64">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="text"
+                            placeholder="Search events..."
+                            value={eventSearchQuery}
+                            onChange={(e) => setEventSearchQuery(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-rose-500"
+                          />
+                        </div>
+                        <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => setEventFilter('active')}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Active ({activeEvents.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEventFilter('past')}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Past ({pastEvents.length})
+                          </button>
+                        </div>
                       </div>
                     </div>
 

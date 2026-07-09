@@ -33,7 +33,8 @@ import {
   Store,
   UserCircle,
   Trash2,
-  UploadCloud
+  UploadCloud,
+  Search
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -184,6 +185,7 @@ interface EventData {
   premium_stall_size?: string;
   standard_stall_location?: string;
   premium_stall_location?: string;
+  organizer_id?: number;
 }
 
 interface PitchData {
@@ -292,7 +294,7 @@ function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass =
   );
 }
 
-function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings: (event: EventData, e: any) => void }) {
+function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (event: EventData, e: any) => void, isMine: boolean }) {
   // 3D Hover Effect setup
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -322,7 +324,7 @@ function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings
       <motion.div
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        onClick={(e) => onViewBookings(event, e)}
+        onClick={(e) => onAction(event, e)}
         style={{
           rotateY: mouseX,
           rotateX: useMotionTemplate`calc(${mouseY} * -1)`,
@@ -380,10 +382,10 @@ function EventCard({ event, onViewBookings }: { event: EventData, onViewBookings
           
           <div className="mt-6 pt-4 border-t border-white/10">
             <button
-              onClick={(e) => onViewBookings(event, e)}
+              onClick={(e) => onAction(event, e)}
               className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-all flex items-center justify-center gap-2 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
             >
-              View Bookings
+              {isMine ? "View Bookings" : "View Details"}
             </button>
           </div>
         </div>
@@ -414,6 +416,10 @@ export default function OrganizerDashboard() {
   const [premiumStallLocation, setPremiumStallLocation] = useState("VIP Area");
   const [mapsUrl, setMapsUrl] = useState("");
   const [eventFilter, setEventFilter] = useState<'active' | 'past'>('active');
+  const [allEvents, setAllEvents] = useState<EventData[]>([]);
+  const [activeEventTab, setActiveEventTab] = useState<'mine' | 'explore'>('mine');
+  const [eventSearchQuery, setEventSearchQuery] = useState("");
+  const [selectedEventDetails, setSelectedEventDetails] = useState<EventData | null>(null);
   const [successMsg, setSuccessMsg] = useState(false);
   const [premiumStalls, setPremiumStalls] = useState<Set<number>>(new Set());
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -813,6 +819,29 @@ export default function OrganizerDashboard() {
       });
   };
 
+  const fetchAllEvents = () => {
+    const headers = getHeaders();
+    if (!headers) return;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/?all_events=true`, { headers })
+      .then((res) => res.json())
+      .then((data) => {
+        setAllEvents(Array.isArray(data) ? data : (data.events || []));
+      })
+      .catch((err) => {
+        console.error("Failed to fetch all events", err);
+      });
+  };
+
+  const handleEventAction = (event: EventData, e: any) => {
+    const isMine = event.organizer_id === myUserId;
+    if (isMine) {
+      handleViewBookings(event, e);
+    } else {
+      e.stopPropagation();
+      setSelectedEventDetails(event);
+    }
+  };
+
   const fetchPitches = async () => {
     setIsPitchesLoading(true);
     try {
@@ -850,6 +879,7 @@ export default function OrganizerDashboard() {
 
   useEffect(() => {
     fetchEvents();
+    fetchAllEvents();
     const token = localStorage.getItem("token");
     if (token) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
@@ -1345,37 +1375,77 @@ export default function OrganizerDashboard() {
                       My Live Events
                     </p>
                   </div>
-
                 </div>
               </div>
 
-              {/* ── Event Grid (preserved) ────────────────────────────── */}
-              {(() => {
-                const activeEvents = events.filter(e => !isEventExpired(e.date));
-                const pastEvents = events.filter(e => isEventExpired(e.date));
+            {/* ── Event Grid ────────────────────────────── */}
+            {(() => {
+                const currentEventsList = activeEventTab === 'mine' ? events : allEvents;
+                const searchLower = eventSearchQuery.toLowerCase().trim();
+                const searchedEvents = currentEventsList.filter(e => 
+                  e.name.toLowerCase().includes(searchLower) || 
+                  (e.standard_stall_location && e.standard_stall_location.toLowerCase().includes(searchLower)) ||
+                  (e.premium_stall_location && e.premium_stall_location.toLowerCase().includes(searchLower))
+                );
+
+                const activeEvents = searchedEvents.filter(e => !isEventExpired(e.date));
+                const pastEvents = searchedEvents.filter(e => isEventExpired(e.date));
                 const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
                 return (
                   <div id="current-events-section" className="max-w-7xl mx-auto mt-16">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-black/10 dark:border-white/10 pb-4">
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                        <Clock className="text-pink-400 w-7 h-7" />
-                        {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
-                      </h2>
-                      <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setEventFilter('active')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-550 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
-                        >
-                          Active ({activeEvents.length})
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEventFilter('past')}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-550 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
-                        >
-                          Past ({pastEvents.length})
-                        </button>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-black/10 dark:border-white/10 pb-6">
+                      <div className="space-y-4">
+                        <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 max-w-sm shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => { setActiveEventTab('mine'); setEventSearchQuery(""); }}
+                            className={`flex-1 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeEventTab === 'mine' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Your Events
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setActiveEventTab('explore'); fetchAllEvents(); setEventSearchQuery(""); }}
+                            className={`flex-1 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeEventTab === 'explore' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Explore Live Events
+                          </button>
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                          <Clock className="text-pink-400 w-7 h-7" />
+                          {eventFilter === 'active' ? 'Active Events' : 'Past Events'}
+                        </h2>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        {activeEventTab === 'explore' && (
+                          <div className="relative w-full sm:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <input
+                              type="text"
+                              placeholder="Search events..."
+                              value={eventSearchQuery}
+                              onChange={(e) => setEventSearchQuery(e.target.value)}
+                              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-indigo-500/50"
+                            />
+                          </div>
+                        )}
+                        <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => setEventFilter('active')}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Active ({activeEvents.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEventFilter('past')}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-indigo-500 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                          >
+                            Past ({pastEvents.length})
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -1388,7 +1458,10 @@ export default function OrganizerDashboard() {
                       <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02]">
                         <CalendarDays className="w-12 h-12 text-gray-400 dark:text-white/20 mb-4" />
                         <p className="text-gray-550 dark:text-white/60 font-medium text-lg">
-                          {eventFilter === 'active' ? 'No active events found. Create your first one!' : 'No past events found.'}
+                          {eventFilter === 'active' 
+                            ? (activeEventTab === 'mine' ? 'No active events found. Create your first one!' : 'No active explore events found.')
+                            : 'No past events found.'
+                          }
                         </p>
                       </div>
                     ) : (
@@ -1400,7 +1473,7 @@ export default function OrganizerDashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
                           >
-                            <EventCard event={event} onViewBookings={handleViewBookings} />
+                            <EventCard event={event} onAction={handleEventAction} isMine={event.organizer_id === myUserId} />
                           </motion.div>
                         ))}
                       </div>
@@ -3001,6 +3074,91 @@ export default function OrganizerDashboard() {
                 <X className="w-6 h-6" />
               </button>
             </motion.div>
+          </motion.div>
+        )}
+
+        {/* Read-Only Event Details Modal */}
+        {selectedEventDetails && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          >
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] text-gray-900 dark:text-white">
+              <button 
+                onClick={() => setSelectedEventDetails(null)}
+                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="space-y-6">
+                <div>
+                  <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-500 dark:text-indigo-300 border-indigo-500/30">
+                    Live Event Info
+                  </span>
+                  <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mt-4">{selectedEventDetails.name}</h2>
+                  <p className="text-gray-500 dark:text-white/40 text-sm mt-1">Uploaded by other organizer</p>
+                </div>
+
+                <SafeImage
+                  src={selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0])}
+                  alt={selectedEventDetails.name}
+                  aspectRatio="aspect-video"
+                  maxWDesktop=""
+                  roundedClass="rounded-2xl shadow-inner"
+                  fallbackIcon="store"
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                  <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                    <p className="text-xs text-gray-500 dark:text-white/40 uppercase tracking-wider font-bold">Standard Stall</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">Price: ₹{selectedEventDetails.standard_price || "0"}</p>
+                    <p className="text-sm text-gray-600 dark:text-white/60 mt-1">Size: {selectedEventDetails.standard_stall_size || "10x10"}</p>
+                    <p className="text-sm text-gray-600 dark:text-white/60 mt-0.5">Loc: {selectedEventDetails.standard_stall_location || "Main Hall"}</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+                    <p className="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-bold">★ Premium Stall</p>
+                    <p className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">Price: ₹{selectedEventDetails.premium_price || "0"}</p>
+                    <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1">Size: {selectedEventDetails.premium_stall_size || "12x12"}</p>
+                    <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-0.5">Loc: {selectedEventDetails.premium_stall_location || "VIP Area"}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-gray-250 dark:border-white/10 text-sm">
+                  <div className="flex items-center gap-3">
+                    <CalendarDays className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+                    <span className="font-semibold">Date &amp; Time:</span> <span>{selectedEventDetails.date}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-fuchsia-500 dark:text-fuchsia-400" />
+                    <span className="font-semibold">Total Stalls:</span> <span>{selectedEventDetails.total_stalls} stalls</span>
+                  </div>
+                  {selectedEventDetails.maps_url && (
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                      <a 
+                        href={selectedEventDetails.maps_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-indigo-500 hover:underline inline-flex items-center gap-1 font-semibold"
+                      >
+                        View on Google Maps <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setSelectedEventDetails(null)}
+                  className="w-full py-4 mt-4 rounded-xl font-bold text-lg text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
+                >
+                  Close Details
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
