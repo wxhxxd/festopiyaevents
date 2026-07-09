@@ -2373,10 +2373,10 @@ export default function OrganizerDashboard() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           >
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-white/10 bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.6)]">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.6)]">
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -2384,11 +2384,11 @@ export default function OrganizerDashboard() {
               {successMsg ? (
                 <div className="flex flex-col items-center justify-center py-10">
                   <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4" />
-                  <h3 className="text-2xl font-bold text-white">Event Created!</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Event Created!</h3>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3 mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3 mb-8">
                     <button 
                       type="submit"
                       title="Submit Event"
@@ -2401,53 +2401,53 @@ export default function OrganizerDashboard() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Event Name</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Event Name</label>
                       <input 
                         type="text" 
                         required
                         value={eventName}
                         onChange={e => setEventName(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                         placeholder="e.g. Neo Tokyo Expo"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Date &amp; Time</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Date &amp; Time</label>
                       <input 
                         type="datetime-local" 
                         required
                         value={rawEventDate}
                         onChange={e => handleDateChange(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner [color-scheme:dark]"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner dark:[color-scheme:dark]"
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/60 pl-1">Total Stalls Available</label>
+                    <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Total Stalls Available</label>
                     <input 
                       type="number" 
                       required
                       min="1"
                       value={totalStalls}
                       onChange={e => { setTotalStalls(e.target.value); setPremiumStalls(new Set()); }}
-                      className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                      className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                       placeholder="e.g. 100"
                     />
                   </div>
 
                   {/* ── Interactive per-stall Premium designator ── */}
                   {parseInt(totalStalls) > 0 && parseInt(totalStalls) <= 50 && (
-                    <div className="space-y-3 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                    <div className="space-y-3 p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border border-gray-200 dark:border-white/10">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-white/70">Mark Premium Stalls</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-white/70">Mark Premium Stalls</p>
                         <div className="flex items-center gap-3 text-xs">
-                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500 inline-block"></span><span className="text-white/50">Standard</span></span>
-                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/60 border border-amber-400 inline-block"></span><span className="text-white/50">Premium</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500 inline-block"></span><span className="text-gray-500 dark:text-white/50">Standard</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/60 border border-amber-400 inline-block"></span><span className="text-gray-500 dark:text-white/50">Premium</span></span>
                         </div>
                       </div>
-                      <p className="text-xs text-white/40">Click stalls to toggle — amber = Premium ★, green = Standard</p>
+                      <p className="text-xs text-gray-500 dark:text-white/40">Click stalls to toggle — amber = Premium ★, green = Standard</p>
                       <div className="flex flex-wrap gap-2">
                         {Array.from({ length: parseInt(totalStalls) }, (_, i) => i + 1).map(stallId => {
                           const isPremium = premiumStalls.has(stallId);
@@ -2465,8 +2465,8 @@ export default function OrganizerDashboard() {
                               }}
                               className={`w-10 h-10 rounded-xl text-xs font-bold border-2 transition-all duration-150 ${
                                 isPremium
-                                  ? 'bg-amber-500/30 border-amber-400 text-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.4)]'
-                                  : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25'
+                                  ? 'bg-amber-500/30 border-amber-400 text-amber-600 dark:text-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.4)]'
+                                  : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/25'
                               }`}
                             >
                               {isPremium ? '★' : stallId}
@@ -2475,7 +2475,7 @@ export default function OrganizerDashboard() {
                         })}
                       </div>
                       {premiumStalls.size > 0 && (
-                        <p className="text-xs text-amber-400 font-medium">
+                        <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                           ★ {premiumStalls.size} Premium · {parseInt(totalStalls) - premiumStalls.size} Standard
                         </p>
                       )}
@@ -2485,26 +2485,26 @@ export default function OrganizerDashboard() {
                   {/* Price inputs */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Standard Stall Price (₹)</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Price (₹)</label>
                       <input 
                         type="number" 
                         required
                         min="0"
                         value={standardPrice}
                         onChange={e => setStandardPrice(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                         placeholder="e.g. 500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-400/80 pl-1">★ Premium Stall Price (₹)</label>
+                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Price (₹)</label>
                       <input 
                         type="number" 
                         required
                         min="0"
                         value={premiumPrice}
                         onChange={e => setPremiumPrice(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-white placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
                         placeholder="e.g. 1000"
                       />
                     </div>
@@ -2513,24 +2513,24 @@ export default function OrganizerDashboard() {
                   {/* Physical Details (Stall Size & Location) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
                       <input 
                         type="text" 
                         required
                         value={standardStallSize}
                         onChange={e => setStandardStallSize(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                         placeholder="e.g. 10x10"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Standard Stall Location</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Location</label>
                       <input 
                         type="text" 
                         required
                         value={standardStallLocation}
                         onChange={e => setStandardStallLocation(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                         placeholder="e.g. Main Hall"
                       />
                     </div>
@@ -2538,43 +2538,43 @@ export default function OrganizerDashboard() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
+                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
                       <input 
                         type="text" 
                         required
                         value={premiumStallSize}
                         onChange={e => setPremiumStallSize(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-white placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
                         placeholder="e.g. 12x12"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-400/80 pl-1">★ Premium Stall Location</label>
+                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Location</label>
                       <input 
                         type="text" 
                         required
                         value={premiumStallLocation}
                         onChange={e => setPremiumStallLocation(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-white placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
                         placeholder="e.g. VIP Area"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2 mt-6">
-                    <label className="text-sm font-medium text-white/60 pl-1">Google Maps Link (Optional)</label>
+                    <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Google Maps Link (Optional)</label>
                     <input 
                       type="url" 
                       value={mapsUrl}
                       onChange={e => setMapsUrl(e.target.value)}
-                      className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                      className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
                       placeholder="e.g. https://maps.google.com/?q=..."
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Event Banner (Required)</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Event Banner (Required)</label>
                       <input 
                         type="file" 
                         accept="image/*"
@@ -2583,11 +2583,11 @@ export default function OrganizerDashboard() {
                           const file = e.target.files ? e.target.files[0] : null;
                           setEventBanner(file);
                         }}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white/60 pl-1">Gallery Images (Optional, Multiple)</label>
+                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Gallery Images (Optional, Multiple)</label>
                       <input 
                         type="file" 
                         multiple
@@ -2596,7 +2596,7 @@ export default function OrganizerDashboard() {
                           const files = e.target.files ? Array.from(e.target.files) : [];
                           setEventImages(files);
                         }}
-                        className="w-full px-5 py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-300 hover:file:bg-indigo-500/30"
+                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
                       />
                     </div>
                   </div>
@@ -2605,7 +2605,7 @@ export default function OrganizerDashboard() {
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-4 rounded-xl font-bold text-lg text-white/70 bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                      className="flex-1 py-4 rounded-xl font-bold text-lg text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
                     >
                       Cancel
                     </button>

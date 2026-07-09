@@ -1052,6 +1052,14 @@ def create_event(
 
 @app.get("/events/")
 def get_all_events(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Safely clean up any residual 'General Connection' events
+    try:
+        db.query(Event).filter(Event.name == "General Connection").delete(synchronize_session=False)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[CLEANUP ERROR] Failed to clean 'General Connection' events: {e}")
+
     if current_user.role == "Organizer":
         events = db.query(Event).filter(Event.organizer_id == current_user.id).offset(skip).limit(limit).all()
     else:

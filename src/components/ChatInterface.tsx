@@ -212,15 +212,15 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-[#0A0A0A]/95 backdrop-blur-2xl border-l border-white/10 shadow-[-10px_0_50px_rgba(0,0,0,0.8)] z-[70] flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-2xl border-l border-gray-200 dark:border-white/10 shadow-[-10px_0_50px_rgba(0,0,0,0.15)] dark:shadow-[-10px_0_50px_rgba(0,0,0,0.8)] z-[70] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10 bg-black/5 dark:bg-white/5">
               <div className="flex items-center gap-3">
                 {activeContext && !initialContext ? (
                   <button 
                     onClick={() => setActiveContext(null)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-white/70 hover:text-white transition-colors mr-2"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/20 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors mr-2"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
@@ -229,17 +229,17 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                   {activeContext ? <User className="text-white w-5 h-5" /> : <Inbox className="text-white w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white leading-tight">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
                     {activeContext ? activeContext.title : "Messages Inbox"}
                   </h3>
-                  <p className="text-white/50 text-xs">
+                  <p className="text-gray-500 dark:text-white/50 text-xs">
                     {activeContext ? "Private Conversation" : "Your active threads"}
                   </p>
                 </div>
               </div>
               <button 
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/20 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -250,9 +250,9 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
               // Inbox Mode
               <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
                 {inboxLoading ? (
-                  <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 text-white/50 animate-spin" /></div>
+                  <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 text-gray-400 dark:text-white/50 animate-spin" /></div>
                 ) : inboxItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-white/30">
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-white/30">
                     <Inbox className="w-12 h-12 mb-3 opacity-50" />
                     <p>Your inbox is empty.</p>
                   </div>
@@ -269,14 +269,14 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                         receiverId: item.other_user_id,
                         title: role === "Vendor" ? `Organizer of ${item.event_name}` : `${item.vendor_name} (${item.event_name})`
                       })}
-                      className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-all flex items-center gap-4 group"
+                      className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all flex items-center gap-4 group"
                     >
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-lg font-bold text-white group-hover:border-${accentColor}-500/50 transition-colors`}>
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-black/5 to-black/10 dark:from-white/10 dark:to-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-lg font-bold text-gray-900 dark:text-white group-hover:border-${accentColor}-500/50 transition-colors`}>
                         {item.other_user_name.charAt(0)}
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <h4 className="text-white font-bold truncate">{item.other_user_name}</h4>
-                        <p className="text-sm text-white/50 truncate">{item.event_name}</p>
+                        <h4 className="text-gray-900 dark:text-white font-bold truncate">{item.other_user_name}</h4>
+                        <p className="text-sm text-gray-500 dark:text-white/50 truncate">{item.event_name}</p>
                       </div>
                     </motion.div>
                   ))
@@ -286,7 +286,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
               // Chat Mode
               <>
                 {pitch && (
-                  <div className="bg-white/5 border-b border-white/10 p-4 shrink-0">
+                  <div className="bg-black/5 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 p-4 shrink-0">
                     {pitch.status === "Accepted" ? (
                       <div className="bg-emerald-500/20 border border-emerald-500/40 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                         <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-2">
@@ -296,17 +296,17 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                         <p className="text-emerald-100/70 font-medium text-lg">Final Price: ₹{pitch.offered_price}</p>
                       </div>
                     ) : (
-                      <div className="bg-black/30 border border-white/10 rounded-xl p-4">
+                      <div className="bg-black/5 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-4">
                         <div className="flex justify-between items-center mb-3">
-                          <span className="text-white/70 font-semibold text-sm uppercase tracking-wider">Live Offer</span>
+                          <span className="text-gray-700 dark:text-white/70 font-semibold text-sm uppercase tracking-wider">Live Offer</span>
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${pitch.status === 'Pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
                             {pitch.status}
                           </span>
                         </div>
                         <div className="flex justify-between items-end">
                           <div>
-                            <p className="text-xs text-white/50 mb-1">{pitch.stall_type} Stall</p>
-                            <p className="text-2xl font-bold text-white">₹{pitch.offered_price}</p>
+                            <p className="text-xs text-gray-500 dark:text-white/50 mb-1">{pitch.stall_type} Stall</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">₹{pitch.offered_price}</p>
                           </div>
                           
                           {((role === "Organizer" && pitch.status === "Pending") || 
@@ -318,12 +318,12 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                                   placeholder="Counter ₹" 
                                   value={counterPrice}
                                   onChange={e => setCounterPrice(e.target.value)}
-                                  className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-sm outline-none focus:border-rose-400/50"
+                                  className="w-24 bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-gray-900 dark:text-white text-sm outline-none focus:border-rose-500 dark:focus:border-rose-400/50"
                                 />
                                 <button 
                                   onClick={() => updatePitch(role === "Organizer" ? "Counter_Offered" : "Pending", parseFloat(counterPrice))}
                                   disabled={!counterPrice}
-                                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                  className="px-3 py-1.5 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 text-gray-900 dark:text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                                 >
                                   Counter
                                 </button>
@@ -344,7 +344,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide relative">
                   {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-white/30">
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-white/30">
                       <MessageSquare className="w-12 h-12 mb-3 opacity-50" />
                       <p>No messages yet. Say hello!</p>
                     </div>
@@ -358,19 +358,19 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                           key={msg.id} 
                           className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                         >
-                          <span className="text-[10px] font-bold text-white/30 mb-1 px-1 tracking-wide uppercase">
+                          <span className="text-[10px] font-bold text-gray-400 dark:text-white/30 mb-1 px-1 tracking-wide uppercase">
                             {msg.sender}
                           </span>
                           <div 
                             className={`max-w-[85%] p-3.5 text-sm leading-relaxed ${
                               isMe 
                                 ? `bg-gradient-to-br ${fromColor} ${toColor} text-white rounded-2xl rounded-tr-sm shadow-lg ${shadowColor}` 
-                                : "bg-white/10 border border-white/10 text-white/90 rounded-2xl rounded-tl-sm backdrop-blur-md"
+                                : "bg-black/5 dark:bg-white/10 border border-gray-250 dark:border-white/10 text-gray-900 dark:text-white/90 rounded-2xl rounded-tl-sm backdrop-blur-md"
                             }`}
                           >
                             {msg.text}
                           </div>
-                          <span className="text-[10px] text-white/30 mt-1.5 px-1">
+                          <span className="text-[10px] text-gray-400 dark:text-white/30 mt-1.5 px-1">
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </motion.div>
@@ -380,14 +380,14 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                   <div ref={messagesEndRef} className="h-1" />
                 </div>
 
-                <form onSubmit={handleSend} className="p-4 border-t border-white/10 bg-white/5 relative">
+                <form onSubmit={handleSend} className="p-4 border-t border-gray-200 dark:border-white/10 bg-black/5 dark:bg-white/5 relative">
                   <div className="relative flex items-center">
                     <input 
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Message..."
-                      className={`w-full bg-black/40 border border-white/10 rounded-full py-3.5 pl-5 pr-14 text-white placeholder:text-white/40 focus:outline-none ${borderColor} focus:ring-1 ${ringColor} transition-all shadow-inner`}
+                      className={`w-full bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-full py-3.5 pl-5 pr-14 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none ${borderColor} focus:ring-1 ${ringColor} transition-all shadow-inner`}
                     />
                     <button 
                       type="submit"
