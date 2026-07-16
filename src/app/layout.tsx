@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   title: "Festopiya | India's Event OS",
   description: "The B2B digital marketplace connecting event organizers with premium vendors.",
   icons: {
-    icon: "/favicon.ico?v=2",
+    icon: "/icon.png?v=2",
     shortcut: "/favicon.ico?v=2",
-    apple: "/favicon.ico?v=2",
+    apple: "/apple-icon.png?v=2",
   },
 };
 
