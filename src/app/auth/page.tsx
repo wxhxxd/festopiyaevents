@@ -26,13 +26,15 @@ export default function AuthPage() {
     setError(null);
     setLoading(true);
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
     try {
       if (isLogin) {
         const formData = new URLSearchParams();
         formData.append("username", email);
         formData.append("password", password);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+        const res = await fetch(`${apiUrl}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: formData.toString(),
@@ -54,7 +56,7 @@ export default function AuthPage() {
 
       } else {
         // Signup — role comes from the top toggle, not a form field
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+        const res = await fetch(`${apiUrl}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, company_name: companyName, role }),
@@ -66,7 +68,7 @@ export default function AuthPage() {
         const formData = new URLSearchParams();
         formData.append("username", email);
         formData.append("password", password);
-        const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+        const loginRes = await fetch(`${apiUrl}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: formData.toString(),
@@ -81,8 +83,8 @@ export default function AuthPage() {
         if (loginData.role === "Organizer") router.push("/organizer/dashboard");
         else router.push("/vendor/dashboard");
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
