@@ -37,7 +37,7 @@ export default async function SecretControlRoomPage() {
   } = await supabase.auth.getUser();
 
   // Strict email check (placeholder: admin@festopiya.com)
-  const allowedAdminEmail = "admin@festopiya.com";
+  const allowedAdminEmail = "abdulwaheed998922@gmail.com";
   const isAuthorized = user && user.email === allowedAdminEmail;
 
   if (!isAuthorized) {
