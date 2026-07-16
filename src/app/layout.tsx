@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "The B2B digital marketplace connecting event organizers with premium vendors.",
   icons: {
     icon: "/icon.png?v=2",
-    shortcut: "/favicon.ico?v=2",
+    shortcut: "/icon.png?v=2",
     apple: "/apple-icon.png?v=2",
   },
 };
