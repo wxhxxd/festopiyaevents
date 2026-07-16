@@ -18,6 +18,11 @@ const melfina = localFont({
 export const metadata: Metadata = {
   title: "Festopiya | India's Event OS",
   description: "The B2B digital marketplace connecting event organizers with premium vendors.",
+  icons: {
+    icon: "/favicon.ico?v=2",
+    shortcut: "/favicon.ico?v=2",
+    apple: "/favicon.ico?v=2",
+  },
 };
 
 export default function RootLayout({
