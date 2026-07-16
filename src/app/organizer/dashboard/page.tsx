@@ -225,7 +225,7 @@ function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass =
 
   if (!urls || urls.length === 0) {
     return (
-      <div className={`w-full ${aspectRatio} ${roundedClass} bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner`}>
+      <div className={`w-full ${aspectRatio} ${roundedClass} bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-400 dark:text-white/30 font-medium shadow-inner`}>
         No Banner
       </div>
     );
@@ -331,7 +331,7 @@ function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (e
         }}
         whileHover={{ scale: 1.05, zIndex: 10 }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        className="relative h-full p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md overflow-hidden group cursor-pointer shadow-lg shadow-black/20"
+        className="relative h-full p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md overflow-hidden group cursor-pointer shadow-lg shadow-black/20"
       >
         {/* Animated gradient glow effect that appears on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-fuchsia-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:via-fuchsia-500/10 group-hover:to-purple-500/10 transition-colors duration-500" />
@@ -350,16 +350,16 @@ function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (e
             <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
               Upcoming
             </span>
-            <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white group-hover:bg-white/10 transition-colors">
+            <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-white/50 group-hover:text-gray-900 dark:group-hover:text-white group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
               <span className="text-xl leading-none">&rarr;</span>
             </div>
           </div>
           
-          <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-fuchsia-400 transition-all duration-300">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-fuchsia-400 transition-all duration-300">
             {event.name}
           </h3>
           
-          <div className="mt-auto space-y-3 text-sm text-white/70">
+          <div className="mt-auto space-y-3 text-sm text-gray-600 dark:text-white/70">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-indigo-500/20">
                 <CalendarDays className="w-4 h-4 text-indigo-400" />
@@ -380,10 +380,10 @@ function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (e
             </div>
           </div>
           
-          <div className="mt-6 pt-4 border-t border-white/10">
+          <div className="mt-6 pt-4 border-t border-black/10 dark:border-white/10">
             <button
               onClick={(e) => onAction(event, e)}
-              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-all flex items-center justify-center gap-2 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
+              className="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white font-medium transition-all flex items-center justify-center gap-2 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
             >
               {isMine ? "View Bookings" : "View Details"}
             </button>
@@ -1807,21 +1807,21 @@ export default function OrganizerDashboard() {
                                 type="text"
                                 value={editNameValue}
                                 onChange={(e) => setEditNameValue(e.target.value)}
-                                className="px-3 py-1.5 rounded-xl bg-white/5 border border-indigo-500/40 text-white outline-none focus:ring-2 focus:ring-indigo-500/20 text-lg font-bold"
+                                className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-indigo-500/40 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 text-lg font-bold"
                                 autoFocus
                               />
                               <button type="submit" className="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold hover:bg-indigo-500/30 transition-all">Save</button>
-                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-white/5 text-white/50 border border-white/10 text-xs font-bold hover:bg-white/10 transition-all">Cancel</button>
+                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/50 border border-black/10 dark:border-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/10 transition-all">Cancel</button>
                             </form>
                           ) : (
                             <>
-                              <h2 className="text-3xl font-extrabold text-white tracking-tight">{organizerProfile?.display_name || "Organizer Name"}</h2>
+                              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{organizerProfile?.display_name || "Organizer Name"}</h2>
                               <button 
                                 onClick={() => {
                                   setEditNameValue(organizerProfile?.display_name || "");
                                   setIsEditingName(true);
                                 }}
-                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 border border-white/10 transition-all"
+                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white border border-black/10 dark:border-white/10 transition-all"
                               >
                                 Edit Name
                               </button>
@@ -1833,7 +1833,7 @@ export default function OrganizerDashboard() {
                                 href={organizerProfile.instagram_url.startsWith("http") ? organizerProfile.instagram_url : `https://instagram.com/${organizerProfile.instagram_url}`} 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="p-2 rounded-full bg-white/5 hover:bg-pink-500/10 text-white/60 hover:text-pink-400 border border-white/10 hover:border-pink-500/30 transition-all"
+                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-pink-500/10 text-gray-500 dark:text-white/60 hover:text-pink-400 border border-black/10 dark:border-white/10 hover:border-pink-500/30 transition-all"
                               >
                                 <AtSign className="w-4 h-4" />
                               </a>
@@ -1843,25 +1843,25 @@ export default function OrganizerDashboard() {
                                 href={organizerProfile.website_url.startsWith("http") ? organizerProfile.website_url : `https://${organizerProfile.website_url}`} 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="p-2 rounded-full bg-white/5 hover:bg-indigo-500/10 text-white/60 hover:text-indigo-400 border border-white/10 hover:border-indigo-500/30 transition-all"
+                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-indigo-500/10 text-gray-500 dark:text-white/60 hover:text-indigo-400 border border-black/10 dark:border-white/10 hover:border-indigo-500/30 transition-all"
                               >
                                 <Globe className="w-4 h-4" />
                               </a>
                             )}
                           </div>
                         </div>
-                        <p className="text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
+                        <p className="text-gray-500 dark:text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
                           {organizerProfile?.bio || "No biography added yet. Optimize your profile details inside the settings tab!"}
                         </p>
                       </div>
 
                       {/* Stats Section / Events created */}
                       <div className="flex gap-6 mt-2">
-                        <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-center">
+                        <div className="px-5 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md text-center">
                           <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">
                             {organizerProfile?.events?.length || 0}
                           </p>
-                          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Events Created</p>
+                          <p className="text-[10px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-widest mt-0.5">Events Created</p>
                         </div>
                       </div>
                     </div>
@@ -1870,13 +1870,13 @@ export default function OrganizerDashboard() {
                   {/* Media Feed Gallery Grid / Media Upload */}
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-4">
                     {/* Drag-and-Drop Media Upload Zone */}
-                    <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
+                    <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
                       <div className="p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
                         <UploadCloud className="w-8 h-8 animate-bounce" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-white">Add Showcase Images</h4>
-                        <p className="text-xs text-white/40 mt-1">Upload pictures or setup views of your events</p>
+                        <h4 className="font-bold text-gray-900 dark:text-white">Add Showcase Images</h4>
+                        <p className="text-xs text-gray-500 dark:text-white/40 mt-1">Upload pictures or setup views of your events</p>
                       </div>
                       
                       <div className="w-full max-w-xs relative">
@@ -1893,7 +1893,7 @@ export default function OrganizerDashboard() {
                         />
                         <label 
                           htmlFor="organizer-media-file"
-                          className="w-full py-3 px-4 rounded-xl border border-white/10 hover:border-indigo-500/30 bg-black/40 hover:bg-black/60 text-white/60 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
+                          className="w-full py-3 px-4 rounded-xl border border-black/10 dark:border-white/10 hover:border-indigo-500/30 bg-black/5 dark:bg-black/40 hover:bg-black/10 dark:hover:bg-black/60 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
                         >
                           {uploadFile ? uploadFile.name : "Select Image File"}
                         </label>
@@ -1912,12 +1912,12 @@ export default function OrganizerDashboard() {
 
                     {/* 3-Column Instagram-Style Media Feed Grid */}
                     <div className="space-y-4">
-                      <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Gallery Showcase Feed</p>
+                      <p className="text-xs font-black text-gray-550 dark:text-white/40 uppercase tracking-widest pl-1">Gallery Showcase Feed</p>
                       
                       {organizerProfile?.media?.length === 0 ? (
-                        <div className="py-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01] flex flex-col items-center justify-center text-center">
-                          <Store className="w-10 h-10 text-white/15 mb-3" />
-                          <p className="text-white/30 text-xs">No media uploaded yet. Start sharing event setups!</p>
+                        <div className="py-12 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01] flex flex-col items-center justify-center text-center">
+                          <Store className="w-10 h-10 text-gray-300 dark:text-white/15 mb-3" />
+                          <p className="text-gray-400 dark:text-white/30 text-xs">No media uploaded yet. Start sharing event setups!</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-3 gap-3">
@@ -2205,7 +2205,7 @@ export default function OrganizerDashboard() {
                       {eventBookings.map((booking) => (
                         <div 
                           key={booking.id} 
-                          className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col p-4 gap-2 hover:shadow-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300"
+                          className="group relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col p-4 gap-2 hover:shadow-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300"
                         >
                           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-fuchsia-500/0 group-hover:from-indigo-500/10 group-hover:via-purple-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
                           
@@ -2219,16 +2219,16 @@ export default function OrganizerDashboard() {
                               fallbackIcon="store"
                             />
                           ) : (
-                            <div className="w-full aspect-video md:max-w-md mx-auto bg-white/5 border border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
+                            <div className="w-full aspect-video md:max-w-md mx-auto bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
                               <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
-                              <Store className="w-8 h-8 text-white/30 relative z-10 group-hover:scale-110 group-hover:text-indigo-400 transition-all duration-300" />
+                              <Store className="w-8 h-8 text-gray-400 dark:text-white/30 relative z-10 group-hover:scale-110 group-hover:text-indigo-400 transition-all duration-300" />
                             </div>
                           )}
                           <div className="flex justify-between items-center mb-2 relative z-10">
                             <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                               Stall #{booking.stall_number ?? 'N/A'}
                             </span>
-                            <span className="text-white/40 text-xs font-mono">ID: #{booking.id}</span>
+                            <span className="text-gray-400 dark:text-white/40 text-xs font-mono">ID: #{booking.id}</span>
                           </div>
                           {(() => {
                             const isPremium = (() => {
@@ -2246,13 +2246,13 @@ export default function OrganizerDashboard() {
                               ? (selectedEventForBookings.premium_stall_location || 'VIP Area') 
                               : (selectedEventForBookings.standard_stall_location || 'Main Hall');
                             return (
-                              <div className="flex justify-between text-xs text-white/50 relative z-10 px-0.5 border-t border-white/5 pt-2 mt-1">
-                                <span>Size: <strong className="text-white/80">{size}</strong></span>
-                                <span>Loc: <strong className="text-white/80">{loc}</strong></span>
+                              <div className="flex justify-between text-xs text-gray-500 dark:text-white/50 relative z-10 px-0.5 border-t border-black/5 dark:border-white/5 pt-2 mt-1">
+                                <span>Size: <strong className="text-gray-800 dark:text-white/80">{size}</strong></span>
+                                <span>Loc: <strong className="text-gray-800 dark:text-white/80">{loc}</strong></span>
                               </div>
                             );
                           })()}
-                          <div className="flex items-center justify-between mt-1 relative z-10 border-t border-white/5 pt-2">
+                          <div className="flex items-center justify-between mt-1 relative z-10 border-t border-black/5 dark:border-white/5 pt-2">
                             <div 
                               className="flex items-center gap-3 cursor-pointer group/vendor"
                               onClick={() => {
@@ -2264,7 +2264,7 @@ export default function OrganizerDashboard() {
                               <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/20 group-hover/vendor:border-indigo-500/50 group-hover/vendor:bg-indigo-500/10 group-hover/vendor:text-indigo-300 transition-all">
                                 {booking.vendor_name?.charAt(0) || 'V'}
                               </div>
-                              <span className="text-white font-medium group-hover/vendor:text-indigo-300 transition-all duration-300 text-sm truncate max-w-[120px]">{booking.vendor_name}</span>
+                              <span className="text-gray-900 dark:text-white font-medium group-hover/vendor:text-indigo-300 transition-all duration-300 text-sm truncate max-w-[120px]">{booking.vendor_name}</span>
                             </div>
                             <button
                               onClick={() => {
@@ -2288,12 +2288,12 @@ export default function OrganizerDashboard() {
                   )}
 
                   {/* Gallery Section */}
-                  <div className="mt-8 pt-8 border-t border-white/10">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <div className="mt-8 pt-8 border-t border-black/10 dark:border-white/10">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                       <LayoutGrid className="w-5 h-5 text-indigo-400" />
                       Event Gallery
                     </h3>
-                    <p className="text-white/60 text-sm mb-4">
+                    <p className="text-gray-600 dark:text-white/60 text-sm mb-4">
                       Browse photos uploaded for this event.
                     </p>
                     {getImageUrls(selectedEventForBookings).length > 0 ? (

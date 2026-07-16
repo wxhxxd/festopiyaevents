@@ -213,7 +213,7 @@ function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass =
 
   if (!urls || urls.length === 0) {
     return (
-      <div className={`w-full ${aspectRatio} ${roundedClass} bg-white/5 border border-white/10 flex items-center justify-center text-white/30 font-medium shadow-inner`}>
+      <div className={`w-full ${aspectRatio} ${roundedClass} bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-400 dark:text-white/30 font-medium shadow-inner`}>
         No Banner
       </div>
     );
