@@ -11,7 +11,9 @@ import {
   Check, 
   Search,
   Percent,
-  Wallet
+  Wallet,
+  MessageSquare,
+  ShieldAlert
 } from "lucide-react";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 
@@ -24,8 +26,87 @@ interface Booking {
 }
 
 export default function ControlRoomClient() {
-  const [activeTab, setActiveTab] = useState<"bookings" | "escrow" | "users">("bookings");
+  const [activeTab, setActiveTab] = useState<"bookings" | "escrow" | "users" | "messages">("bookings");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [selectedConv, setSelectedConv] = useState<any>(null);
+  const [convMessages, setConvMessages] = useState<any[]>([]);
+  const [loadingConv, setLoadingConv] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState(false);
+
+  const fetchConversations = async () => {
+    setLoadingConv(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/conversations`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data);
+      }
+    } catch (err) {
+      console.error("Failed to load conversations", err);
+    } finally {
+      setLoadingConv(false);
+    }
+  };
+
+  const fetchMessages = async (eventId: string, vendorId: string) => {
+    setLoadingMsg(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/conversations/messages?event_id=${eventId}&vendor_id=${vendorId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConvMessages(data);
+      }
+    } catch (err) {
+      console.error("Failed to load messages", err);
+    } finally {
+      setLoadingMsg(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeTab === "messages") {
+      fetchConversations();
+      setSelectedConv(null);
+      setConvMessages([]);
+    }
+  }, [activeTab]);
+
+  const renderMessageText = (text: string) => {
+    if (!text) return null;
+
+    const pattern = /(\b[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+\b|\+?\d{1,4}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\b\d{10}\b|whatsapp|phonepe|gpay|g\s?pay|paytm|pay\s?tm|pay\s?direct|direct\s?payment|contact|call|number|phone|mobile|g-pay)/gi;
+
+    const parts = text.split(pattern);
+    if (parts.length === 1) return <span>{text}</span>;
+
+    return (
+      <span>
+        {parts.map((part, i) => {
+          const isMatch = pattern.test(part);
+          return isMatch ? (
+            <span key={i} className="bg-red-500/25 border border-red-500/40 text-red-300 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-1 animate-pulse" title="Flagged: Potential platform bypass/fee evasion info">
+              <ShieldAlert className="w-3.5 h-3.5 text-red-400 shrink-0" />
+              {part}
+            </span>
+          ) : (
+            <span key={i}>{part}</span>
+          );
+        })}
+      </span>
+    );
+  };
   
   // Initial bookings that mathematically align with user's metrics:
   // 10 bookings with advance paid/collected = 10 * 1500 = ₹15,000 Total Advance Collected
@@ -132,6 +213,18 @@ export default function ControlRoomClient() {
             >
               <UsersIcon className="w-5 h-5 text-fuchsia-400" />
               Users
+            </button>
+
+            <button
+              onClick={() => setActiveTab("messages")}
+              className={`w-full py-4 px-5 rounded-2xl font-semibold text-sm flex items-center gap-4 transition-all duration-300 border ${
+                activeTab === "messages"
+                  ? "bg-white/5 border-white/10 text-white shadow-lg"
+                  : "bg-transparent border-transparent text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <MessageSquare className="w-5 h-5 text-indigo-400" />
+              Message Audit
             </button>
           </nav>
         </div>
@@ -400,6 +493,142 @@ export default function ControlRoomClient() {
                 <div className="mt-4 font-mono font-bold text-white text-3xl">12</div>
               </div>
             </div>
+          </section>
+        )}
+
+        {activeTab === "messages" && (
+          <section className="flex-1 flex flex-col min-h-0 space-y-6">
+            <div className="flex justify-between items-center shrink-0">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-indigo-400" />
+                Inter-User Conversation Monitor
+              </h2>
+              <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl font-mono">
+                <ShieldAlert className="w-3.5 h-3.5 animate-pulse" />
+                <span>Anti-Disintermediation Audit Mode</span>
+              </div>
+            </div>
+
+            {loadingConv ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+              </div>
+            ) : (
+              <div className="flex-1 min-h-[500px] grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+                {/* Left side: Conversations list */}
+                <div className="lg:col-span-5 flex flex-col min-h-0 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <div className="p-4 border-b border-white/10 bg-white/[0.01]">
+                    <p className="text-xs text-zinc-500 font-mono">Active Threads ({conversations.length})</p>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+                    {conversations.length === 0 ? (
+                      <div className="p-8 text-center text-zinc-500 text-sm">
+                        No messages found in database.
+                      </div>
+                    ) : (
+                      conversations.map((conv, i) => {
+                        const isSelected = selectedConv?.event_id === conv.event_id && selectedConv?.vendor_id === conv.vendor_id;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setSelectedConv(conv);
+                              fetchMessages(conv.event_id, conv.vendor_id);
+                            }}
+                            className={`w-full p-5 text-left flex flex-col gap-1.5 transition-all duration-200 outline-none ${
+                              isSelected 
+                                ? "bg-white/5 border-l-4 border-indigo-500" 
+                                : "hover:bg-white/[0.02]"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <span className="font-bold text-white text-sm tracking-wide">{conv.event_name}</span>
+                              <span className="text-[10px] text-zinc-500 font-mono">
+                                {new Date(conv.last_message_time).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="text-xs text-zinc-400 font-medium">
+                              Org: {conv.organizer_name} | Vendor: {conv.vendor_name}
+                            </div>
+                            <p className="text-xs text-zinc-500 truncate mt-1 italic">
+                              "{conv.last_message}"
+                            </p>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Right side: Selected conversation chat reader */}
+                <div className="lg:col-span-7 flex flex-col min-h-0 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  {selectedConv ? (
+                    <>
+                      {/* Chat Header */}
+                      <div className="p-5 border-b border-white/10 bg-white/[0.01] flex items-center justify-between shrink-0">
+                        <div>
+                          <h3 className="font-bold text-white text-sm">{selectedConv.event_name} Chat</h3>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">
+                            Audit path: {selectedConv.organizer_name} &lt;&mdash;&gt; {selectedConv.vendor_name}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Chat Messages */}
+                      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                        {loadingMsg ? (
+                          <div className="h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500"></div>
+                          </div>
+                        ) : (
+                          convMessages.map((msg, i) => {
+                            const isVendor = msg.sender?.includes("(Vendor)");
+                            return (
+                              <div
+                                key={i}
+                                className={`flex flex-col max-w-[85%] ${
+                                  isVendor ? "mr-auto" : "ml-auto"
+                                }`}
+                              >
+                                <span className="text-[10px] text-zinc-500 font-semibold mb-1 px-1">
+                                  {msg.sender}
+                                </span>
+                                <div
+                                  className={`p-4 rounded-2xl border ${
+                                    isVendor
+                                      ? "bg-zinc-900 border-zinc-800 text-zinc-300 rounded-tl-none"
+                                      : "bg-indigo-950/40 border-indigo-900/60 text-zinc-300 rounded-tr-none"
+                                  }`}
+                                >
+                                  <p className="text-sm break-words whitespace-pre-wrap leading-relaxed">
+                                    {renderMessageText(msg.text)}
+                                  </p>
+                                </div>
+                                <span className="text-[9px] text-zinc-650 self-end mt-1 px-1">
+                                  {new Date(msg.timestamp).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                      <MessageSquare className="w-12 h-12 text-zinc-600 mb-3" />
+                      <p className="text-sm font-semibold text-zinc-400">Select a conversation thread</p>
+                      <p className="text-xs text-zinc-600 max-w-xs mt-1 leading-relaxed">
+                        Select any message thread from the left panel to inspect full conversation history and flag phone/payment details.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         )}
 

@@ -1484,6 +1484,62 @@ def get_messages(event_id: str, vendor_id: Optional[str] = None, db: Session = D
             m.sender = f"{m.user.company_name} ({m.user.role})"
     return messages
 
+@app.get("/admin/conversations")
+def get_admin_conversations(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.email != "abdulwaheed998922@gmail.com":
+        raise HTTPException(status_code=403, detail="Not authorized as admin")
+    
+    messages = db.query(ChatMessage).order_by(ChatMessage.timestamp.desc()).all()
+    conversations = []
+    seen = set()
+    
+    for m in messages:
+        user1 = db.query(User).filter(User.id == m.user_id).first()
+        user2 = db.query(User).filter(User.id == m.receiver_id).first()
+        
+        if not user1 or not user2:
+            continue
+            
+        vendor = user1 if user1.role == "Vendor" else user2
+        organizer = user2 if user1.role == "Vendor" else user1
+        
+        key = (m.event_id, vendor.id)
+        if key not in seen:
+            seen.add(key)
+            event = db.query(Event).filter(Event.id == m.event_id).first()
+            if event:
+                conversations.append({
+                    "event_id": event.id,
+                    "event_name": event.name,
+                    "vendor_id": vendor.id,
+                    "vendor_name": vendor.company_name,
+                    "organizer_id": organizer.id,
+                    "organizer_name": organizer.company_name,
+                    "last_message": m.text,
+                    "last_message_time": m.timestamp.isoformat()
+                })
+    return conversations
+
+@app.get("/admin/conversations/messages", response_model=List[ChatMessageResponse])
+def get_admin_conversation_messages(
+    event_id: str,
+    vendor_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.email != "abdulwaheed998922@gmail.com":
+        raise HTTPException(status_code=403, detail="Not authorized as admin")
+        
+    messages = db.query(ChatMessage).filter(
+        ChatMessage.event_id == event_id,
+        ((ChatMessage.user_id == vendor_id) | (ChatMessage.receiver_id == vendor_id))
+    ).order_by(ChatMessage.timestamp.asc()).all()
+    
+    for m in messages:
+        if m.user:
+            m.sender = f"{m.user.company_name} ({m.user.role})"
+    return messages
+
 # ----------------- Creator Profile API Endpoints -----------------
 
 @app.get("/users/{vendor_id}/profile", response_model=VendorProfileResponse)
