@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 import FAQSection from "@/components/FAQSection";
+import AdSenseInArticle from "@/components/AdSenseInArticle";
 
 const yellowtail = { className: "font-yellowtail" };
 const caveat = { className: "font-caveat" };
@@ -81,6 +82,9 @@ export default function LandingPage() {
         </Link>
 
       </section>
+
+      {/* Google AdSense In-Article Ad */}
+      <AdSenseInArticle />
 
       {/* FAQ Section */}
       <FAQSection />
