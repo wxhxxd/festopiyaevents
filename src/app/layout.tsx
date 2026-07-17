@@ -133,6 +133,11 @@ export default function RootLayout({
             gtag('config', 'G-9W0T4LRR4Z');
           `}
         </Script>
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2446676144525840"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {children}
       </body>
     </html>
