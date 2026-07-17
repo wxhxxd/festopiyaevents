@@ -61,11 +61,6 @@ export const metadata: Metadata = {
     description: "Connect event organizers with premium food stalls and local vendors for college fests and cultural events.",
     images: ["/logo.png"],
   },
-  icons: {
-    icon: "/icon.png?v=2",
-    shortcut: "/icon.png?v=2",
-    apple: "/apple-icon.png?v=2",
-  },
 };
 
 export default function RootLayout({
