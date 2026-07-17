@@ -61,6 +61,9 @@ export const metadata: Metadata = {
     description: "Connect event organizers with premium food stalls and local vendors for college fests and cultural events.",
     images: ["/logo.png"],
   },
+  other: {
+    "google-adsense-account": "ca-pub-2446676144525840",
+  },
 };
 
 const jsonLd = {
