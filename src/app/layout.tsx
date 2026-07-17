@@ -63,6 +63,45 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://festopiya.com/#organization",
+      "name": "Festopiya",
+      "url": "https://festopiya.com",
+      "logo": "https://festopiya.com/logo.png",
+      "description": "Festopiya is a B2B digital event marketplace and Event OS connecting event organizers with premium local food vendors, stall bookings, and student clubs for college fests and cultural events.",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://festopiya.com/#website",
+      "url": "https://festopiya.com",
+      "name": "Festopiya",
+      "description": "India's Event OS connecting event organizers with premium food vendors for college fests in Hyderabad.",
+      "publisher": {
+        "@id": "https://festopiya.com/#organization"
+      }
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://festopiya.com/#localbusiness",
+      "name": "Festopiya",
+      "image": "https://festopiya.com/logo.png",
+      "url": "https://festopiya.com",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Hyderabad",
+        "addressRegion": "Telangana",
+        "addressCountry": "IN"
+      },
+      "description": "Connecting event organizers with premium local food vendors and stall bookings for college fests in Hyderabad."
+    }
+  ]
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,6 +113,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${melfina.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-9W0T4LRR4Z"
           strategy="afterInteractive"
