@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /organizer
+Disallow: /vendor
+Disallow: /secret-control-room
+Disallow: /api
+Disallow: /verify-email
+
+Sitemap: https://festopiya.com/sitemap.xml

@@ -57,10 +57,10 @@ export default function LandingPage() {
           Let&rsquo;s cook up an event.
         </h1>
 
-        <p className={`${caveat.className} animate-fade-rise-delay text-2xl md:text-3xl text-gray-200 drop-shadow-md max-w-2xl mx-auto mt-6 leading-relaxed`}>
+        <h2 className={`${caveat.className} animate-fade-rise-delay text-2xl md:text-3xl text-gray-200 drop-shadow-md max-w-2xl mx-auto mt-6 leading-relaxed font-normal`}>
           Organizers need the best stalls. Vendors need the best crowds. Match up,
           negotiate your terms, and secure the bag. We just handle the connection.
-        </p>
+        </h2>
 
         <Link href="/auth">
           <button className="animate-fade-rise-delay-2 mt-10 bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium tracking-widest uppercase transition-all duration-300 transform hover:scale-105 hover:bg-white/20 active:scale-95 rounded-full px-8 py-4 cursor-pointer">

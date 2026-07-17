@@ -128,6 +128,7 @@ export default function AuthPage() {
             key={r}
             type="button"
             onClick={() => setRole(r)}
+            suppressHydrationWarning={true}
             className="relative px-7 py-2.5 rounded-full text-sm font-semibold tracking-wide transition-colors duration-200 cursor-pointer"
           >
             {role === r && (
@@ -174,6 +175,7 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={() => { setIsLogin(true); setError(null); }}
+            suppressHydrationWarning={true}
             className={`flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${isLogin ? "text-white" : "text-white/40 hover:text-white/70"}`}
           >
             Log In
@@ -181,6 +183,7 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={() => { setIsLogin(false); setError(null); }}
+            suppressHydrationWarning={true}
             className={`flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${!isLogin ? "text-white" : "text-white/40 hover:text-white/70"}`}
           >
             Sign Up
@@ -260,6 +263,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
+            suppressHydrationWarning={true}
             className="w-full mt-2 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden cursor-pointer shadow-[0_0_20px_rgba(99,102,241,0.35)]"
           >
             <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
