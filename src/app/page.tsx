@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
+import FAQSection from "@/components/FAQSection";
 
 const yellowtail = { className: "font-yellowtail" };
 const caveat = { className: "font-caveat" };
@@ -45,7 +47,14 @@ export default function LandingPage() {
       <nav className="relative z-10 flex items-center px-8 py-6 md:px-16">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Festopiya Logo" className="h-7 w-auto shrink-0 drop-shadow-2xl" />
+          <Image
+            src="/logo.png"
+            alt="Festopiya Logo"
+            width={112}
+            height={28}
+            priority={true}
+            className="h-7 w-auto shrink-0 drop-shadow-2xl object-contain"
+          />
           <FestopiyaBranding className="text-2xl tracking-wide" isLanding={true} />
         </div>
       </nav>
@@ -62,13 +71,19 @@ export default function LandingPage() {
           negotiate your terms, and secure the bag. We just handle the connection.
         </h2>
 
-        <Link href="/auth">
-          <button className="animate-fade-rise-delay-2 mt-10 bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium tracking-widest uppercase transition-all duration-300 transform hover:scale-105 hover:bg-white/20 active:scale-95 rounded-full px-8 py-4 cursor-pointer">
+        <Link href="/auth" aria-label="Go to login or sign up page to start booking event stalls">
+          <button
+            aria-label="Start booking stalls or registering as a vendor"
+            className="animate-fade-rise-delay-2 mt-10 bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium tracking-widest uppercase transition-all duration-300 transform hover:scale-105 hover:bg-white/20 active:scale-95 rounded-full px-8 py-4 cursor-pointer"
+          >
             Start Cooking 🍳
           </button>
         </Link>
 
       </section>
+
+      {/* FAQ Section */}
+      <FAQSection />
     </main>
   );
 }
