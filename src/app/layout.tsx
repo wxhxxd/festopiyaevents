@@ -17,8 +17,8 @@ const melfina = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Festopiya | India's Event OS - Vendor & Stall Booking Marketplace",
-  description: "Festopiya is India's leading Event OS connecting event organizers with premium food stalls, local vendors, and student clubs for college fests and large-scale festivals.",
+  title: "Festopiya | India's Event OS & Stall Booking",
+  description: "Festopiya connects event organizers with premium food stalls and local vendors for college fests and large-scale festivals in India.",
   keywords: [
     "event marketplace",
     "college fests",
