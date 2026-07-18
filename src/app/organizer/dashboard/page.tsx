@@ -763,6 +763,7 @@ export default function OrganizerDashboard() {
     bio: '',
     instagram_url: '',
     website_url: '',
+    display_name: '',
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -771,8 +772,14 @@ export default function OrganizerDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     if (!token) {
       router.push("/auth");
+    } else {
+      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+      if (role) {
+        document.cookie = `role=${role}; path=/; max-age=86400; SameSite=Lax`;
+      }
     }
   }, [router]);
 
@@ -996,6 +1003,7 @@ export default function OrganizerDashboard() {
           bio: data.bio || '',
           instagram_url: data.instagram_url || '',
           website_url: data.website_url || '',
+          display_name: data.display_name || '',
         });
       })
       .catch(err => console.error('Failed to fetch profile', err));
@@ -1171,6 +1179,8 @@ export default function OrganizerDashboard() {
               localStorage.removeItem("token"); 
               localStorage.removeItem("company_name"); 
               localStorage.removeItem("role"); 
+              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
               router.push("/auth"); 
             }}
             className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-500/10 dark:hover:bg-red-500/15 text-gray-500 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 hover:border-red-200 dark:hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
@@ -1286,6 +1296,8 @@ export default function OrganizerDashboard() {
                 localStorage.removeItem("token"); 
                 localStorage.removeItem("company_name"); 
                 localStorage.removeItem("role"); 
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                 router.push("/auth"); 
               }}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all duration-300 group cursor-pointer"
@@ -1666,7 +1678,7 @@ export default function OrganizerDashboard() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => handleSearchVendors(e.target.value)}
-                      placeholder="Search vendors by username, brand name, or category..."
+                      placeholder="Search vendors by stall name, food types (e.g., Mojitos, loaded chips), or category..."
                       className="w-full px-6 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-md text-base"
                     />
                     {isSearching && (
@@ -1962,11 +1974,27 @@ export default function OrganizerDashboard() {
 
               <form onSubmit={handleSaveSettings} className="max-w-2xl space-y-6">
 
-                {/* Organization / Host Name */}
+                {/* Event Name */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
+                    <CalendarDays className="w-4 h-4 text-indigo-400" />
+                    Primary Event Name
+                  </label>
+                  <input
+                    id="organizer-event-name"
+                    type="text"
+                    value={profileData.display_name}
+                    onChange={e => setProfileData({ ...profileData, display_name: e.target.value })}
+                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    placeholder="e.g. Festopiya Carnival 2026"
+                  />
+                </div>
+
+                {/* College/Organization */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <Building2 className="w-4 h-4 text-indigo-400" />
-                    Organization / Host Name
+                    College / Organization
                   </label>
                   <input
                     id="organizer-company-name"
@@ -1974,7 +2002,7 @@ export default function OrganizerDashboard() {
                     value={profileData.company_name}
                     onChange={e => setProfileData({ ...profileData, company_name: e.target.value })}
                     className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
-                    placeholder="Your organization or host name"
+                    placeholder="e.g. Teegala Krishna Reddy Engineering College (TKREC)"
                   />
                 </div>
 
@@ -1994,11 +2022,11 @@ export default function OrganizerDashboard() {
                   />
                 </div>
 
-                {/* Event Type / Specialization */}
+                {/* Expected Crowd */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
                     <Sparkles className="w-4 h-4 text-indigo-400" />
-                    Event Type / Specialization
+                    Expected Crowd
                   </label>
                   <input
                     id="organizer-category"
@@ -2006,7 +2034,7 @@ export default function OrganizerDashboard() {
                     value={profileData.category}
                     onChange={e => setProfileData({ ...profileData, category: e.target.value })}
                     className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
-                    placeholder="e.g. Music Festivals, Corporate Events, Weddings"
+                    placeholder="e.g. 5,000+ students, 10k+ foot traffic"
                   />
                 </div>
 
@@ -2022,7 +2050,7 @@ export default function OrganizerDashboard() {
                     value={profileData.bio}
                     onChange={e => setProfileData({ ...profileData, bio: e.target.value })}
                     className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-sm resize-none"
-                    placeholder="Tell vendors a bit about your events and organisation..."
+                    placeholder="Tell vendors about your college fests, theme, and crowd demographics..."
                   />
                 </div>
 

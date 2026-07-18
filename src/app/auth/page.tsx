@@ -50,6 +50,9 @@ export default function AuthPage() {
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("company_name", data.company_name);
         localStorage.setItem("role", data.role);
+        
+        document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `role=${data.role}; path=/; max-age=86400; SameSite=Lax`;
 
         if (data.role === "Organizer") router.push("/organizer/dashboard");
         else router.push("/vendor/dashboard");
@@ -79,6 +82,9 @@ export default function AuthPage() {
         localStorage.setItem("token", loginData.access_token);
         localStorage.setItem("company_name", loginData.company_name);
         localStorage.setItem("role", loginData.role);
+        
+        document.cookie = `token=${loginData.access_token}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `role=${loginData.role}; path=/; max-age=86400; SameSite=Lax`;
 
         if (loginData.role === "Organizer") router.push("/organizer/dashboard");
         else router.push("/vendor/dashboard");

@@ -571,8 +571,14 @@ export default function VendorDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     if (!token) {
       router.push("/auth");
+    } else {
+      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+      if (role) {
+        document.cookie = `role=${role}; path=/; max-age=86400; SameSite=Lax`;
+      }
     }
   }, [router]);
 
@@ -920,6 +926,8 @@ export default function VendorDashboard() {
               localStorage.removeItem("token"); 
               localStorage.removeItem("company_name"); 
               localStorage.removeItem("role"); 
+              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
               router.push("/auth"); 
             }}
             className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-500/10 dark:hover:bg-red-500/15 text-gray-500 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 hover:border-red-200 dark:hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
@@ -1037,6 +1045,8 @@ export default function VendorDashboard() {
                 localStorage.removeItem("token"); 
                 localStorage.removeItem("company_name"); 
                 localStorage.removeItem("role"); 
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                 router.push("/auth"); 
               }}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all duration-300 group cursor-pointer"
@@ -1053,10 +1063,10 @@ export default function VendorDashboard() {
         <div className="max-w-7xl mx-auto space-y-8 h-full flex flex-col">
           
            {activeTab === "find_events" && (
-            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col text-gray-900 dark:text-white relative z-10 overflow-hidden">
 
               {/* ── Hero container with background video ──────────────────── */}
-              <div className="relative rounded-3xl overflow-hidden p-6 md:p-12 mb-10 bg-black/45 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-md max-w-7xl mx-auto w-full">
+              <div className="relative p-6 md:p-12 mb-10 w-full">
                 {/* Background Video */}
                 <video
                   autoPlay
@@ -1551,8 +1561,8 @@ export default function VendorDashboard() {
                     <Users className="w-7 h-7 text-rose-400" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-white">Organizer Hub</h2>
-                    <p className="text-white/50 mt-0.5">Search for event hosts, planners, and discover partnership opportunities.</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Organizer Hub</h2>
+                    <p className="text-gray-500 dark:text-white/50 mt-0.5">Search for event hosts, planners, and discover partnership opportunities.</p>
                   </div>
                 </div>
               </div>
@@ -1577,8 +1587,8 @@ export default function VendorDashboard() {
                 {/* Search Results */}
                 {searchResults.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01]">
-                    <Users className="w-12 h-12 text-white/10 mb-4" />
-                    <h3 className="text-xl font-medium text-white/60 mb-1">
+                    <Users className="w-12 h-12 text-gray-400 dark:text-white/10 mb-4" />
+                    <h3 className="text-xl font-medium text-gray-900 dark:text-white/60 mb-1">
                       {searchQuery ? "No Results Found" : "Find Top Hosts"}
                     </h3>
                     <p className="text-gray-550 dark:text-white/40 text-sm max-w-sm text-center">
@@ -1610,8 +1620,8 @@ export default function VendorDashboard() {
                             )}
                           </div>
                           <div className="overflow-hidden">
-                            <h4 className="font-extrabold text-white text-lg tracking-tight group-hover:text-rose-300 transition-colors truncate">{org.display_name}</h4>
-                            <p className="text-white/40 text-xs truncate">@{org.username}</p>
+                            <h4 className="font-extrabold text-gray-900 dark:text-white text-lg tracking-tight group-hover:text-rose-600 dark:group-hover:text-rose-300 transition-colors truncate">{org.display_name}</h4>
+                            <p className="text-gray-500 dark:text-white/40 text-xs truncate">@{org.username}</p>
                             {org.category && (
                               <span className="mt-2 inline-block px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-wider border border-rose-500/20">
                                 {org.category}
@@ -1620,7 +1630,7 @@ export default function VendorDashboard() {
                           </div>
                         </div>
                         
-                        <p className="text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
+                        <p className="text-gray-600 dark:text-white/60 text-xs mt-4 leading-relaxed line-clamp-2">
                           {org.bio || "No biography added yet."}
                         </p>
                       </div>
