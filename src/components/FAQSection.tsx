@@ -1,20 +1,20 @@
 export default function FAQSection() {
   const faqs = [
     {
-      question: "How does Festopiya help in booking food vendors for college fests in Hyderabad?",
-      answer: "Festopiya connects event organizers from top Hyderabad institutions (such as BITS Hyderabad, CBIT, and IIT Hyderabad) with verified, premium local food vendors. Organizers can browse menus, review vendor ratings, and manage stall bookings all in one central Event OS."
+      question: "How do I book food stalls for a college fest in Hyderabad?",
+      answer: "Booking food stalls for college fests in Hyderabad is simple and efficient with Festopiya. First, organizers register their event, list available stall slots, and outline food court requirements. Verified food vendors from across Hyderabad then submit applications with their curated menus. Organizers can review menus, check ratings, negotiate terms (like flat fee or revenue split), and accept the best vendors. Once accepted, the booking fee enters our secure escrow system to finalize the slot reservation."
     },
     {
-      question: "What types of campus event stalls can be booked through Festopiya?",
-      answer: "We support a wide array of stall configurations, including fast food counters, gourmet dining pop-ups, specialized beverage stalls, merchandise tables, and college club activity booths, tailored to campus festival requirements."
+      question: "What is an Event OS and how does it help student clubs?",
+      answer: "An Event Operating System (Event OS) is a comprehensive digital platform that manages all logistical, communication, and financial workflows of an event in one central place. For student clubs and organizers, Festopiya acts as an Event OS that centralizes vendor coordination, digital stall layouts, contracts, and payment processing. Instead of using messy spreadsheets and manual follow-ups, student clubs can manage everything from a single dashboard, reducing coordination errors and securing transactions."
     },
     {
-      question: "How does the Festopiya vendor escrow system work?",
-      answer: "Our secure vendor escrow system ensures trust between organizers and stall vendors. The booking deposit is held securely by Festopiya and is only released to the vendor once the college fest concludes successfully and both parties confirm that all terms were satisfied."
+      question: "How does the Festopiya vendor escrow system protect my payments?",
+      answer: "The Festopiya vendor escrow system acts as a neutral third party that holds event stall booking fees securely until the event concludes. When a booking is finalized, the organizer deposits the payment into the Escrow Vault. The vendor is notified that the payment is secured, preventing the risk of last-minute cancellation without compensation. Once the fest is successfully completed and both parties confirm terms were met, the funds are released to the vendor, protecting both sides."
     },
     {
-      question: "Can local Hyderabad vendors join Festopiya to list their stalls?",
-      answer: "Absolutely! Local food stalls, dessert vendors, and merchandise businesses can register as vendors on Festopiya, verify their business credentials, and start bidding on stall spaces for upcoming college fests and local cultural events."
+      question: "Can I book local food vendors for engineering college tech fests?",
+      answer: "Yes! Festopiya supports bookings for all types of events, including engineering college tech fests, cultural nights, and sports meets. Organizers at major Hyderabad engineering colleges can recruit local vendors specialized in fast food, desserts, beverages (like Mojitos), or snacks (like loaded chips). By registering on our platform, you gain access to a network of local businesses ready to serve large crowds, ensuring a vibrant food court for your technical symposium or festival."
     }
   ];
 
