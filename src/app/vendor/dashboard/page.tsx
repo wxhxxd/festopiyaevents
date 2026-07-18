@@ -2239,15 +2239,12 @@ export default function VendorDashboard() {
                   </div>
                   
                   {/* Stall Map Container */}
-                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-black/50 shadow-inner">
-                    {/* High quality clean architectural floor plan placeholder */}
-                    <img 
-                      src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80" 
-                      alt="Floor Map Placeholder" 
-                      className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale"
-                    />
-                    {/* Grid overlay for tech vibe */}
-                    <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 shadow-[inset_0_4px_24px_rgba(0,0,0,0.9)]">
+                    {/* Tech blueprint Grid overlay */}
+                    <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+                    <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '8px 8px' }}></div>
+                    {/* Vignette effect */}
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#09090b_95%)] pointer-events-none" />
                     
                     {/* Interactive Stalls Overlay */}
                     {stalls.map((stall) => (
@@ -2266,17 +2263,17 @@ export default function VendorDashboard() {
                           );
                         }}
                         disabled={stall.status === 'booked'}
-                        whileHover={stall.status === 'available' ? { scale: 1.1, zIndex: 10 } : {}}
+                        whileHover={stall.status === 'available' ? { scale: 1.05, zIndex: 10 } : {}}
                         whileTap={stall.status === 'available' ? { scale: 0.95 } : {}}
                         style={{ top: stall.top, left: stall.left }}
-                        className={`absolute w-[15%] h-[15%] rounded-lg border-2 flex flex-col items-center justify-center font-bold text-[10px] shadow-lg transition-all duration-300
+                        className={`absolute w-[15%] h-[15%] rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] backdrop-blur-md transition-all duration-300
                           ${stall.status === 'booked'
-                            ? 'bg-red-500/20 border-red-500/30 text-red-400/50 cursor-not-allowed'
+                            ? 'bg-red-950/30 border-red-900 text-red-700/50 opacity-45 cursor-not-allowed'
                             : selectedStall === stall.id
-                              ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_20px_rgba(244,63,94,0.6)] z-20'
+                              ? 'bg-rose-500/30 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.65)] z-20 hover:scale-105'
                               : stall.isPremium
-                                ? 'bg-amber-500/25 border-amber-400/60 text-amber-200 cursor-pointer hover:bg-amber-500/40 hover:shadow-[0_0_15px_rgba(251,191,36,0.4)]'
-                                : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 cursor-pointer hover:bg-emerald-500/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                                ? 'bg-zinc-900/50 border-amber-500 text-amber-400 cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+                                : 'bg-zinc-900/50 border-green-500 text-green-400 cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]'
                           }
                         `}
                       >
@@ -2288,22 +2285,22 @@ export default function VendorDashboard() {
                     ))}
                     
                     {/* Legend */}
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-4 p-3 rounded-xl bg-black/60 backdrop-blur-md border border-white/10">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500"></div>
-                        <span className="text-xs text-white/70 font-medium">Standard</span>
+                    <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-6 p-3 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-white/5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Available</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-sm bg-amber-500/50 border border-amber-400"></div>
-                        <span className="text-xs text-white/70 font-medium">★ Premium</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
+                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Premium</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                        <span className="text-xs text-white/70 font-medium">Booked</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-700 shadow-[0_0_8px_rgba(185,28,28,0.4)] opacity-50"></div>
+                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Booked</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-rose-500 border border-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
-                        <span className="text-xs text-white/70 font-medium">Selected</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></div>
+                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Selected</span>
                       </div>
                     </div>
                   </div>
