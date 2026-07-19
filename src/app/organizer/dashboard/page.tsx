@@ -36,7 +36,9 @@ import {
   UploadCloud,
   Search,
   Shield,
-  CreditCard
+  CreditCard,
+  ArrowLeft,
+  ArrowRight
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -403,6 +405,7 @@ export default function OrganizerDashboard() {
 
   // Form states
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [rawEventDate, setRawEventDate] = useState("");
@@ -1057,8 +1060,35 @@ export default function OrganizerDashboard() {
     }
   };
 
+  const isStepValid = (step: number) => {
+    if (step === 1) {
+      return eventName.trim() !== "" && rawEventDate !== "";
+    }
+    if (step === 2) {
+      const stallsNum = parseInt(totalStalls);
+      return totalStalls.trim() !== "" && !isNaN(stallsNum) && stallsNum > 0;
+    }
+    if (step === 3) {
+      return standardPrice.trim() !== "" && premiumPrice.trim() !== "";
+    }
+    if (step === 4) {
+      return standardStallSize.trim() !== "" && standardStallLocation.trim() !== "" &&
+             premiumStallSize.trim() !== "" && premiumStallLocation.trim() !== "";
+    }
+    if (step === 5) {
+      return eventBanner !== null;
+    }
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentStep < 5) {
+      if (isStepValid(currentStep)) {
+        setCurrentStep(currentStep + 1);
+      }
+      return;
+    }
     if (!eventName || !eventDate || !totalStalls) return;
 
     const token = localStorage.getItem("token");
@@ -1342,7 +1372,7 @@ export default function OrganizerDashboard() {
                   {/* Card 1 — Create Event */}
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
                     className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
                   >
                     <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
@@ -2477,251 +2507,401 @@ export default function OrganizerDashboard() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           >
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.6)]">
+            <div className="relative w-full max-w-2xl max-h-[95vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] flex flex-col">
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors z-[100]"
               >
                 <X className="w-5 h-5" />
               </button>
               
               {successMsg ? (
                 <div className="flex flex-col items-center justify-center py-10">
-                  <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4" />
+                  <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4 animate-bounce" />
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Event Created!</h3>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3 mb-8">
-                    <button 
-                      type="submit"
-                      title="Submit Event"
-                      className="p-2 bg-indigo-500/20 rounded-lg hover:bg-indigo-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-[0_0_15px_rgba(99,102,241,0.2)]"
-                    >
-                      <Plus className="text-indigo-400 w-6 h-6" />
-                    </button>
-                    Let's build something epic
-                  </h2>
+                <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6 w-full flex flex-col justify-between min-h-[450px]">
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Event Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={eventName}
-                        onChange={e => setEventName(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                        placeholder="e.g. Neo Tokyo Expo"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Date &amp; Time</label>
-                      <input 
-                        type="datetime-local" 
-                        required
-                        value={rawEventDate}
-                        onChange={e => handleDateChange(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner dark:[color-scheme:dark]"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Total Stalls Available</label>
-                    <input 
-                      type="number" 
-                      required
-                      min="1"
-                      value={totalStalls}
-                      onChange={e => { setTotalStalls(e.target.value); setPremiumStalls(new Set()); }}
-                      className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                      placeholder="e.g. 100"
-                    />
+                  {/* Progress Indicator */}
+                  <div className="flex items-center justify-between mb-2 px-1">
+                    {Array.from({ length: 5 }, (_, i) => i + 1).map((stepNum) => (
+                      <React.Fragment key={stepNum}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (stepNum < currentStep || isStepValid(stepNum - 1)) {
+                              setCurrentStep(stepNum);
+                            }
+                          }}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                            currentStep === stepNum 
+                              ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white shadow-lg scale-110' 
+                              : currentStep > stepNum 
+                                ? 'bg-indigo-500 text-white hover:bg-indigo-650' 
+                                : 'bg-black/5 dark:bg-white/5 text-gray-400 border border-gray-200 dark:border-white/10 cursor-not-allowed'
+                          }`}
+                        >
+                          {stepNum}
+                        </button>
+                        {stepNum < 5 && (
+                          <div className={`flex-1 h-0.5 mx-2 transition-all duration-300 ${currentStep > stepNum ? 'bg-indigo-500' : 'bg-black/5 dark:bg-white/5'}`} />
+                        )}
+                      </React.Fragment>
+                    ))}
                   </div>
 
-                  {/* ── Interactive per-stall Premium designator ── */}
-                  {parseInt(totalStalls) > 0 && parseInt(totalStalls) <= 50 && (
-                    <div className="space-y-3 p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border border-gray-200 dark:border-white/10">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-gray-800 dark:text-white/70">Mark Premium Stalls</p>
-                        <div className="flex items-center gap-3 text-xs">
-                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500 inline-block"></span><span className="text-gray-500 dark:text-white/50">Standard</span></span>
-                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/60 border border-amber-400 inline-block"></span><span className="text-gray-500 dark:text-white/50">Premium</span></span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-white/40">Click stalls to toggle — amber = Premium ★, green = Standard</p>
-                      <div className="flex flex-wrap gap-2">
-                        {Array.from({ length: parseInt(totalStalls) }, (_, i) => i + 1).map(stallId => {
-                          const isPremium = premiumStalls.has(stallId);
-                          return (
-                            <button
-                              key={stallId}
-                              type="button"
-                              onClick={() => {
-                                setPremiumStalls(prev => {
-                                  const next = new Set(prev);
-                                  if (next.has(stallId)) next.delete(stallId);
-                                  else next.add(stallId);
-                                  return next;
-                                });
-                              }}
-                              className={`w-10 h-10 rounded-xl text-xs font-bold border-2 transition-all duration-150 ${
-                                isPremium
-                                  ? 'bg-amber-500/30 border-amber-400 text-amber-600 dark:text-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.4)]'
-                                  : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/25'
-                              }`}
-                            >
-                              {isPremium ? '★' : stallId}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {premiumStalls.size > 0 && (
-                        <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                          ★ {premiumStalls.size} Premium · {parseInt(totalStalls) - premiumStalls.size} Standard
-                        </p>
+                  {/* Step Content */}
+                  <div className="flex-1 py-4">
+                    <AnimatePresence mode="wait">
+                      {currentStep === 1 && (
+                        <motion.div
+                          key="step1"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white mb-6">
+                            Create <br />
+                            <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-550 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                              your next festival
+                            </span><br />
+                            in seconds.
+                          </h2>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Event Name</label>
+                              <input 
+                                type="text" 
+                                required
+                                value={eventName}
+                                onChange={e => setEventName(e.target.value)}
+                                className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. Neo Tokyo Expo"
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Date &amp; Time</label>
+                              <input 
+                                type="datetime-local" 
+                                required
+                                value={rawEventDate}
+                                onChange={e => handleDateChange(e.target.value)}
+                                className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner dark:[color-scheme:dark]"
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
                       )}
-                    </div>
-                  )}
 
-                  {/* Price inputs */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Price (₹)</label>
-                      <input 
-                        type="number" 
-                        required
-                        min="0"
-                        value={standardPrice}
-                        onChange={e => setStandardPrice(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                        placeholder="e.g. 500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Price (₹)</label>
-                      <input 
-                        type="number" 
-                        required
-                        min="0"
-                        value={premiumPrice}
-                        onChange={e => setPremiumPrice(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
-                        placeholder="e.g. 1000"
-                      />
-                    </div>
+                      {currentStep === 2 && (
+                        <motion.div
+                          key="step2"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white mb-6">
+                            Configure <br />
+                            <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-550 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                              the stall layout
+                            </span><br />
+                            for vendors.
+                          </h2>
+                          
+                          <div className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Total Stalls Available</label>
+                              <input 
+                                type="number" 
+                                required
+                                min="1"
+                                value={totalStalls}
+                                onChange={e => { setTotalStalls(e.target.value); setPremiumStalls(new Set()); }}
+                                className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. 24"
+                              />
+                            </div>
+
+                            {/* Interactive per-stall Premium designator */}
+                            {parseInt(totalStalls) > 0 && parseInt(totalStalls) <= 50 && (
+                              <div className="space-y-3 p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 max-h-[220px] overflow-y-auto">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-semibold text-gray-800 dark:text-white/70">Mark Premium Stalls</p>
+                                  <div className="flex items-center gap-3 text-xs">
+                                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/50 border border-emerald-500 inline-block"></span><span className="text-gray-500 dark:text-white/50">Standard</span></span>
+                                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-500/60 border border-amber-400 inline-block"></span><span className="text-gray-500 dark:text-white/50">Premium</span></span>
+                                  </div>
+                                </div>
+                                <p className="text-[10px] text-gray-500 dark:text-white/40">Click stalls to toggle — amber = Premium ★, green = Standard</p>
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                  {Array.from({ length: parseInt(totalStalls) }, (_, i) => i + 1).map(stallId => {
+                                    const isPremium = premiumStalls.has(stallId);
+                                    return (
+                                      <button
+                                        key={stallId}
+                                        type="button"
+                                        onClick={() => {
+                                          setPremiumStalls(prev => {
+                                            const next = new Set(prev);
+                                            if (next.has(stallId)) next.delete(stallId);
+                                            else next.add(stallId);
+                                            return next;
+                                          });
+                                        }}
+                                        className={`w-9 h-9 rounded-xl text-xs font-bold border-2 transition-all duration-150 ${
+                                          isPremium
+                                            ? 'bg-amber-500/30 border-amber-400 text-amber-600 dark:text-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.4)]'
+                                            : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/25'
+                                        }`}
+                                      >
+                                        {isPremium ? '★' : stallId}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                {premiumStalls.size > 0 && (
+                                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-2">
+                                    ★ {premiumStalls.size} Premium · {parseInt(totalStalls) - premiumStalls.size} Standard
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {currentStep === 3 && (
+                        <motion.div
+                          key="step3"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white mb-6">
+                            Set up <br />
+                            <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-550 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                              the stall pricing
+                            </span><br />
+                            for booking.
+                          </h2>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Price (₹)</label>
+                              <input 
+                                type="number" 
+                                required
+                                min="0"
+                                value={standardPrice}
+                                onChange={e => setStandardPrice(e.target.value)}
+                                className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. 500"
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Price (₹)</label>
+                              <input 
+                                type="number" 
+                                required
+                                min="0"
+                                value={premiumPrice}
+                                onChange={e => setPremiumPrice(e.target.value)}
+                                className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
+                                placeholder="e.g. 1000"
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {currentStep === 4 && (
+                        <motion.div
+                          key="step4"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white mb-6">
+                            Specify <br />
+                            <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-550 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                              stall sizes &amp; areas
+                            </span><br />
+                            clearly.
+                          </h2>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
+                              <input 
+                                type="text" 
+                                required
+                                value={standardStallSize}
+                                onChange={e => setStandardStallSize(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. 10x10"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Standard Stall Location</label>
+                              <input 
+                                type="text" 
+                                required
+                                value={standardStallLocation}
+                                onChange={e => setStandardStallLocation(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. Main Hall"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
+                              <input 
+                                type="text" 
+                                required
+                                value={premiumStallSize}
+                                onChange={e => setPremiumStallSize(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white outline-none focus:border-amber-500/50 transition-all shadow-inner"
+                                placeholder="e.g. 12x12"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Location</label>
+                              <input 
+                                type="text" 
+                                required
+                                value={premiumStallLocation}
+                                onChange={e => setPremiumStallLocation(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white outline-none focus:border-amber-500/50 transition-all shadow-inner"
+                                placeholder="e.g. VIP Area"
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {currentStep === 5 && (
+                        <motion.div
+                          key="step5"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white mb-6">
+                            Upload <br />
+                            <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-550 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                              banners &amp; visuals
+                            </span><br />
+                            to attract vendors.
+                          </h2>
+                          
+                          <div className="space-y-4 pt-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Event Banner (Required)</label>
+                                <input 
+                                  type="file" 
+                                  accept="image/*"
+                                  required
+                                  onChange={(e) => {
+                                    const file = e.target.files ? e.target.files[0] : null;
+                                    setEventBanner(file);
+                                  }}
+                                  className="w-full px-3 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Gallery Images (Optional)</label>
+                                <input 
+                                  type="file" 
+                                  multiple
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const files = e.target.files ? Array.from(e.target.files) : [];
+                                    setEventImages(files);
+                                  }}
+                                  className="w-full px-3 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Google Maps Link (Optional)</label>
+                              <input 
+                                type="url" 
+                                value={mapsUrl}
+                                onChange={e => setMapsUrl(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                                placeholder="e.g. https://maps.google.com/?q=..."
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
-                  {/* Physical Details (Stall Size & Location) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={standardStallSize}
-                        onChange={e => setStandardStallSize(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                        placeholder="e.g. 10x10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Location</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={standardStallLocation}
-                        onChange={e => setStandardStallLocation(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                        placeholder="e.g. Main Hall"
-                      />
-                    </div>
-                  </div>
+                  {/* Navigation Buttons */}
+                  <div className="flex gap-4 pt-6 border-t border-gray-150 dark:border-white/10 mt-auto">
+                    {currentStep === 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => setIsModalOpen(false)}
+                        className="flex-1 py-4 rounded-xl font-bold text-base text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(currentStep - 1)}
+                        className="flex-1 py-4 rounded-xl font-bold text-base text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                      </button>
+                    )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={premiumStallSize}
-                        onChange={e => setPremiumStallSize(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
-                        placeholder="e.g. 12x12"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Location</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={premiumStallLocation}
-                        onChange={e => setPremiumStallLocation(e.target.value)}
-                        className="w-full px-5 py-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all shadow-inner"
-                        placeholder="e.g. VIP Area"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mt-6">
-                    <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Google Maps Link (Optional)</label>
-                    <input 
-                      type="url" 
-                      value={mapsUrl}
-                      onChange={e => setMapsUrl(e.target.value)}
-                      className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
-                      placeholder="e.g. https://maps.google.com/?q=..."
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Event Banner (Required)</label>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        required
-                        onChange={(e) => {
-                          const file = e.target.files ? e.target.files[0] : null;
-                          setEventBanner(file);
+                    {currentStep < 5 ? (
+                      <button
+                        type="button"
+                        disabled={!isStepValid(currentStep)}
+                        onClick={() => {
+                          if (isStepValid(currentStep)) setCurrentStep(currentStep + 1);
                         }}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Gallery Images (Optional, Multiple)</label>
-                      <input 
-                        type="file" 
-                        multiple
-                        accept="image/*"
-                        onChange={(e) => {
-                          const files = e.target.files ? Array.from(e.target.files) : [];
-                          setEventImages(files);
-                        }}
-                        className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/20 file:text-indigo-650 dark:file:text-indigo-300 hover:file:bg-indigo-500/30"
-                      />
-                    </div>
+                        className={`flex-[2] py-4 rounded-xl font-bold text-base transition-all flex justify-center items-center gap-2 cursor-pointer
+                          ${!isStepValid(currentStep)
+                            ? 'bg-gray-300 dark:bg-zinc-800 text-gray-500 dark:text-zinc-550 cursor-not-allowed border border-gray-200 dark:border-zinc-700' 
+                            : 'bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(99,102,241,0.25)]'}`}
+                      >
+                        Next <ArrowRight className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button 
+                        type="submit"
+                        disabled={isSubmitting || !isStepValid(5)}
+                        className={`flex-[2] py-4 rounded-xl font-bold text-base transition-all flex justify-center items-center gap-2 cursor-pointer
+                          ${isSubmitting || !isStepValid(5)
+                            ? 'bg-indigo-500/30 text-white/50 cursor-not-allowed border border-indigo-500/20' 
+                            : 'bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(99,102,241,0.35)]'}`}
+                      >
+                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Event"}
+                      </button>
+                    )}
                   </div>
-                  
-                  <div className="flex gap-4 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-4 rounded-xl font-bold text-lg text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`flex-[2] py-4 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all flex justify-center items-center gap-2
-                        ${isSubmitting ? 'bg-indigo-500/30 text-white/50 cursor-not-allowed border border-indigo-500/20' : 'bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white hover:scale-[1.02] active:scale-[0.98]'}`}
-                    >
-                      {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : "Submit Event"}
-                    </button>
-                  </div>
+
                 </form>
               )}
             </div>
