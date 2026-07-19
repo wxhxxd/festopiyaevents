@@ -180,3 +180,35 @@ body {
     animation-timing-function: ease-in;
   }
 }
+
+/* ── 3D Hover Action Cards (From Uiverse.io by Cornerstone-04) ── */
+.perspective-3d {
+  perspective: 600px;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.card-3d:hover {
+  transform: translateZ(15px) rotateX(15deg) rotateY(15deg);
+}
+
+.card-3d-icon {
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-3d:hover .card-3d-icon {
+  transform: translateZ(45px) scale(1.15) translateY(-5px);
+}
+
+.card-3d-text {
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-3d:hover .card-3d-text {
+  transform: translateZ(30px);
+}
+

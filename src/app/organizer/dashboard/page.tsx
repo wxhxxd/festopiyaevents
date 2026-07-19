@@ -1362,22 +1362,22 @@ export default function OrganizerDashboard() {
                 </div>
 
                 {/* Right — Action cards */}
-                <div className="grid grid-cols-3 gap-3 md:gap-4 pt-10">
+                <div className="grid grid-cols-3 gap-3 md:gap-4 pt-10 perspective-3d">
 
                   {/* Card 1 — Create Event */}
                   <button
                     type="button"
                     onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center card-3d"
                   >
-                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/calender3d.png" 
                         className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Calendar" 
                       />
                     </div>
-                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors card-3d-text">
                       Create New Event
                     </p>
                   </button>
@@ -1385,16 +1385,16 @@ export default function OrganizerDashboard() {
                   {/* Card 2 — Review Pitches */}
                   <div
                     onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center card-3d"
                   >
-                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/message3d2.png" 
                         className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Message" 
                       />
                     </div>
-                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors card-3d-text">
                       Review Pitches
                     </p>
                   </div>
@@ -1402,16 +1402,16 @@ export default function OrganizerDashboard() {
                   {/* Card 3 — My Live Events */}
                   <div
                     onClick={() => document.getElementById('current-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center"
+                    className="relative w-full flex flex-col items-center pt-10 pb-3 px-1.5 min-h-[90px] md:min-h-[110px] rounded-2xl md:rounded-3xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),0_10px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 hover:shadow-[0_8px_16px_rgba(0,0,0,0.1)] dark:hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.25),0_15px_25px_-5px_rgba(0,0,0,0.6)] cursor-pointer group text-center card-3d"
                   >
-                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none">
+                    <div className="absolute -top-7 md:-top-9 left-1/2 -translate-x-1/2 w-14 h-14 md:w-18 md:h-18 flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/event3d.png" 
                         className="w-14 h-14 md:w-18 md:h-18 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.4)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-115 group-hover:-translate-y-1.5" 
                         alt="Events" 
                       />
                     </div>
-                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors">
+                    <p className="mt-auto text-gray-900 dark:text-white font-bold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors card-3d-text">
                       My Live Events
                     </p>
                   </div>
