@@ -305,20 +305,44 @@ function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (e
 
   function handleMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
-    
-    // Calculate distance from center of the card
     const x = (clientX - left - width / 2) / 10; 
     const y = (clientY - top - height / 2) / 10;
-    
     mouseX.set(x);
     mouseY.set(y);
   }
 
   function handleMouseLeave() {
-    // Reset back to center when mouse leaves
     mouseX.set(0);
     mouseY.set(0);
   }
+
+  const parseEventDate = (dateString: string) => {
+    if (!dateString) return { day: "20", month: "JUL" };
+    try {
+      const cleanString = dateString.replace(" at ", " ");
+      const d = new Date(cleanString);
+      if (!isNaN(d.getTime())) {
+        const day = d.getDate().toString().padStart(2, "0");
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const month = months[d.getMonth()];
+        return { day, month };
+      }
+      
+      const parts = dateString.split(" ");
+      if (parts.length >= 2) {
+        let month = parts[0].toUpperCase().substring(0, 3);
+        let day = parts[1].replace(",", "");
+        month = month.replace(/[^A-Z]/g, "");
+        if (day.length === 1) day = "0" + day;
+        return { day, month };
+      }
+    } catch (e) {
+      console.error("Date parse error", e);
+    }
+    return { day: "20", month: "JUL" };
+  };
+
+  const { day, month } = parseEventDate(event.date);
 
   return (
     <motion.div
@@ -333,65 +357,36 @@ function EventCard({ event, onAction, isMine }: { event: EventData, onAction: (e
           rotateY: mouseX,
           rotateX: useMotionTemplate`calc(${mouseY} * -1)`,
         }}
-        whileHover={{ scale: 1.05, zIndex: 10 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        className="relative h-full p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md overflow-hidden group cursor-pointer shadow-lg shadow-black/20"
+        whileHover={{ scale: 1.03, zIndex: 10 }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        className="relative w-full h-[450px] rounded-[2.5rem] border border-black/10 dark:border-white/10 overflow-hidden group cursor-pointer shadow-xl shadow-black/30 flex flex-col justify-end bg-zinc-950"
       >
-        {/* Animated gradient glow effect that appears on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-fuchsia-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:via-fuchsia-500/10 group-hover:to-purple-500/10 transition-colors duration-500" />
-        
-        <div className="relative z-10 flex flex-col h-full">
-          <SafeImage
-            src={event.banner_url || (getImageUrls(event)[0])}
-            alt={event.name}
-            aspectRatio="aspect-video"
-            maxWDesktop=""
-            roundedClass="rounded-2xl mb-6 shadow-inner"
-            fallbackIcon="store"
-          />
-          
-          <div className="flex justify-between items-start mb-6">
-            <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
-              Upcoming
-            </span>
-            <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-white/50 group-hover:text-gray-900 dark:group-hover:text-white group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
-              <span className="text-xl leading-none">&rarr;</span>
-            </div>
-          </div>
-          
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-fuchsia-400 transition-all duration-300">
+        {/* Background Event Banner Image */}
+        <img
+          src={event.banner_url || (getImageUrls(event)[0]) || "/default-banner.png"}
+          alt={event.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 z-0"
+        />
+
+        {/* Bottom Gradient overlay for text contrast and Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-95 transition-opacity duration-300 z-10" />
+        <div className="absolute inset-0 bg-[#1E0B36]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+
+        {/* Top Right: Date Badge */}
+        <div className="absolute top-8 right-8 z-20 flex flex-col items-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+          <span className="text-4xl md:text-5xl font-black leading-none tracking-tighter">{day}</span>
+          <span className="text-xs md:text-sm font-black tracking-widest uppercase mt-1">{month}</span>
+        </div>
+
+        {/* Bottom Left: Event Name & Location */}
+        <div className="relative z-20 p-8 text-left">
+          <h3 className="text-xl md:text-2xl font-black text-white leading-tight tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:text-pink-300 transition-colors duration-300">
             {event.name}
           </h3>
-          
-          <div className="mt-auto space-y-3 text-sm text-gray-600 dark:text-white/70">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-indigo-500/20">
-                <CalendarDays className="w-4 h-4 text-indigo-400" />
-              </div>
-              <span className="font-medium">{event.date}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-fuchsia-500/20">
-                <MapPin className="w-4 h-4 text-fuchsia-400" />
-              </div>
-              <span className="font-medium">{event.standard_stall_location || "TBD"}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/20">
-                <Users className="w-4 h-4 text-emerald-400" />
-              </div>
-              <span className="font-medium">{event.total_stalls} Total Stalls</span>
-            </div>
-          </div>
-          
-          <div className="mt-6 pt-4 border-t border-black/10 dark:border-white/10">
-            <button
-              onClick={(e) => onAction(event, e)}
-              className="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white font-medium transition-all flex items-center justify-center gap-2 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 group-hover:text-indigo-300"
-            >
-              {isMine ? "View Bookings" : "View Details"}
-            </button>
-          </div>
+          <p className="text-xs md:text-sm font-bold text-gray-300 mt-2 uppercase tracking-widest drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+            {event.standard_stall_location || "TBD"}
+          </p>
         </div>
       </motion.div>
     </motion.div>
@@ -2212,7 +2207,13 @@ export default function OrganizerDashboard() {
                 {/* Event Title over Hero Banner */}
                 <div className="absolute bottom-6 left-8 right-8 z-20">
                   <span className="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-md uppercase tracking-wider mb-3 inline-block">Dashboard</span>
-                  <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">{selectedEventForBookings.name}</h2>
+                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight text-white drop-shadow-md">
+                    Manage <br />
+                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                      {selectedEventForBookings.name}
+                    </span><br />
+                    like a pro.
+                  </h2>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-white/70 text-sm">
                     <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
                       <CalendarDays className="w-4 h-4 text-indigo-400 animate-pulse" />
@@ -3305,12 +3306,18 @@ export default function OrganizerDashboard() {
               </button>
               
               <div className="space-y-6">
-                <div>
-                  <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-500 dark:text-indigo-300 border-indigo-500/30">
+                <div className="space-y-4">
+                  <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-500 dark:text-indigo-300 border-indigo-500/30 inline-block">
                     Live Event Info
                   </span>
-                  <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mt-4">{selectedEventDetails.name}</h2>
-                  <p className="text-gray-500 dark:text-white/40 text-sm mt-1">Uploaded by other organizer</p>
+                  <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
+                    Explore <br />
+                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-555 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
+                      {selectedEventDetails.name}
+                    </span><br />
+                    like a pro.
+                  </h2>
+                  <p className="text-gray-500 dark:text-white/45 text-sm">Uploaded by other organizer</p>
                 </div>
 
                 <SafeImage
