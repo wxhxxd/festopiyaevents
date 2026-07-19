@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://festopiya.com";
+  const baseUrl = "https://www.festopiya.com";
 
   // Public-facing routes with proper change frequency and priority
   const routes = [

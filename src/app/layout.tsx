@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     "event coordinator",
     "campus fests"
   ],
-  metadataBase: new URL("https://festopiya.com"),
+  metadataBase: new URL("https://www.festopiya.com"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Festopiya | India's Event OS - Vendor & Stall Booking Marketplace",
     description: "The B2B digital marketplace connecting event organizers with premium vendors and food stalls for college fests and grand celebrations.",
-    url: "https://festopiya.com",
+    url: "https://www.festopiya.com",
     siteName: "Festopiya",
     images: [
       {
@@ -71,28 +71,28 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://festopiya.com/#organization",
+      "@id": "https://www.festopiya.com/#organization",
       "name": "Festopiya",
-      "url": "https://festopiya.com",
-      "logo": "https://festopiya.com/logo.png",
+      "url": "https://www.festopiya.com",
+      "logo": "https://www.festopiya.com/logo.png",
       "description": "Festopiya is a B2B digital event marketplace and Event OS connecting event organizers with premium local food vendors, stall bookings, and student clubs for college fests and cultural events.",
     },
     {
       "@type": "WebSite",
-      "@id": "https://festopiya.com/#website",
-      "url": "https://festopiya.com",
+      "@id": "https://www.festopiya.com/#website",
+      "url": "https://www.festopiya.com",
       "name": "Festopiya",
       "description": "India's Event OS connecting event organizers with premium food vendors for college fests in Hyderabad.",
       "publisher": {
-        "@id": "https://festopiya.com/#organization"
+        "@id": "https://www.festopiya.com/#organization"
       }
     },
     {
       "@type": "LocalBusiness",
-      "@id": "https://festopiya.com/#localbusiness",
+      "@id": "https://www.festopiya.com/#localbusiness",
       "name": "Festopiya",
-      "image": "https://festopiya.com/logo.png",
-      "url": "https://festopiya.com",
+      "image": "https://www.festopiya.com/logo.png",
+      "url": "https://www.festopiya.com",
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",

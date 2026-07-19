@@ -7,4 +7,4 @@ Disallow: /secret-control-room
 Disallow: /api
 Disallow: /verify-email
 
-Sitemap: https://festopiya.com/sitemap.xml
+Sitemap: https://www.festopiya.com/sitemap.xml
