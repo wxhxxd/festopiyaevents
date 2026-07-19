@@ -1362,57 +1362,78 @@ export default function OrganizerDashboard() {
                 </div>
 
                 {/* Right — Action cards */}
-                <div className="grid grid-cols-3 gap-3 md:gap-4 pt-10 perspective-3d">
+                <div className="grid grid-cols-3 gap-3 md:gap-4 pt-10 perspective-3d justify-items-center">
 
                   {/* Card 1 — Create Event */}
                   <button
                     type="button"
                     onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
-                    className="relative w-full flex flex-col items-center justify-start py-4 cursor-pointer group text-center bg-transparent border-none shadow-none outline-none card-3d"
+                    className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center cursor-pointer group card-3d bg-transparent border-none shadow-none outline-none"
                   >
-                    <p className="text-gray-900 dark:text-white font-bold text-[11px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-650 dark:group-hover:text-pink-300 transition-colors card-3d-text mb-6">
-                      Create New Event
-                    </p>
-                    <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center pointer-events-none card-3d-icon">
+                    <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/calender3d.png" 
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-110" 
+                        className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-105" 
                         alt="Calendar" 
                       />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none card-3d-text z-20">
+                      <p 
+                        className="text-white font-extrabold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide uppercase px-2"
+                        style={{
+                          textShadow: '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 4px 6px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        Create New<br/>Event
+                      </p>
                     </div>
                   </button>
 
                   {/* Card 2 — Review Pitches */}
                   <div
                     onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-                    className="relative w-full flex flex-col items-center justify-start py-4 cursor-pointer group text-center bg-transparent border-none shadow-none outline-none card-3d"
+                    className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center cursor-pointer group card-3d bg-transparent border-none shadow-none outline-none"
                   >
-                    <p className="text-gray-900 dark:text-white font-bold text-[11px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-650 dark:group-hover:text-pink-300 transition-colors card-3d-text mb-6">
-                      Review Pitches
-                    </p>
-                    <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center pointer-events-none card-3d-icon">
+                    <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/message3d2.png" 
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-110" 
+                        className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-105" 
                         alt="Message" 
                       />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none card-3d-text z-20">
+                      <p 
+                        className="text-white font-extrabold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide uppercase px-2"
+                        style={{
+                          textShadow: '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 4px 6px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        Review<br/>Pitches
+                      </p>
                     </div>
                   </div>
 
                   {/* Card 3 — My Live Events */}
                   <div
                     onClick={() => document.getElementById('current-events-section')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="relative w-full flex flex-col items-center justify-start py-4 cursor-pointer group text-center bg-transparent border-none shadow-none outline-none card-3d"
+                    className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center cursor-pointer group card-3d bg-transparent border-none shadow-none outline-none"
                   >
-                    <p className="text-gray-900 dark:text-white font-bold text-[11px] sm:text-xs md:text-sm text-center leading-tight tracking-wide group-hover:text-pink-650 dark:group-hover:text-pink-300 transition-colors card-3d-text mb-6">
-                      My Live Events
-                    </p>
-                    <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center pointer-events-none card-3d-icon">
+                    <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none card-3d-icon">
                       <img 
                         src="/event3d.png" 
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-110" 
+                        className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:scale-105" 
                         alt="Events" 
                       />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none card-3d-text z-20">
+                      <p 
+                        className="text-white font-extrabold text-[10px] sm:text-xs md:text-sm text-center leading-tight tracking-wide uppercase px-2"
+                        style={{
+                          textShadow: '-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 4px 6px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        My Live<br/>Events
+                      </p>
                     </div>
                   </div>
                 </div>
