@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 import UiverseLoader from "@/components/UiverseLoader";
@@ -300,6 +300,100 @@ interface PitchData {
   status: string;
   event_name?: string;
   organizer_id?: number;
+}
+
+function VendorEventCard({ event, onClick }: { event: any, onClick: () => void }) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left - width / 2) / 10; 
+    const y = (clientY - top - height / 2) / 10;
+    mouseX.set(x);
+    mouseY.set(y);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
+
+  const parseEventDate = (dateString: string) => {
+    if (!dateString) return { day: "20", month: "JUL" };
+    try {
+      const cleanString = dateString.replace(" at ", " ");
+      const d = new Date(cleanString);
+      if (!isNaN(d.getTime())) {
+        const day = d.getDate().toString().padStart(2, "0");
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const month = months[d.getMonth()];
+        return { day, month };
+      }
+      
+      const parts = dateString.split(" ");
+      if (parts.length >= 2) {
+        let month = parts[0].toUpperCase().substring(0, 3);
+        let day = parts[1].replace(",", "");
+        month = month.replace(/[^A-Z]/g, "");
+        if (day.length === 1) day = "0" + day;
+        return { day, month };
+      }
+    } catch (e) {
+      console.error("Date parse error", e);
+    }
+    return { day: "20", month: "JUL" };
+  };
+
+  const { day, month } = parseEventDate(event.date);
+
+  return (
+    <motion.div
+      style={{ perspective: 1000 }}
+      className="h-full"
+    >
+      <motion.div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={onClick}
+        style={{
+          rotateY: mouseX,
+          rotateX: useMotionTemplate`calc(${mouseY} * -1)`,
+        }}
+        whileHover={{ scale: 1.03, zIndex: 10 }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        className="relative w-full h-[450px] rounded-[2.5rem] border border-black/10 dark:border-white/10 overflow-hidden group cursor-pointer shadow-xl shadow-black/30 flex flex-col justify-end bg-zinc-950"
+      >
+        {/* Background Event Banner Image */}
+        <img
+          src={event.banner_url || (getImageUrls(event)[0]) || "/default-banner.png"}
+          alt={event.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 z-0"
+        />
+
+        {/* Bottom Gradient overlay for text contrast and Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-95 transition-opacity duration-300 z-10" />
+        <div className="absolute inset-0 bg-[#1E0B36]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+
+        {/* Top Right: Date Badge */}
+        <div className="absolute top-8 right-8 z-20 flex flex-col items-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+          <span className="text-4xl md:text-5xl font-black leading-none tracking-tighter">{day}</span>
+          <span className="text-xs md:text-sm font-black tracking-widest uppercase mt-1">{month}</span>
+        </div>
+
+        {/* Bottom Left: Event Name & Location */}
+        <div className="relative z-20 p-8 text-left">
+          <h3 className="text-xl md:text-2xl font-black text-white leading-tight tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:text-pink-300 transition-colors duration-300">
+            {event.name}
+          </h3>
+          <p className="text-xs md:text-sm font-bold text-gray-300 mt-2 uppercase tracking-widest drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+            {event.standard_stall_location || "TBD"}
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
 
 export default function VendorDashboard() {
@@ -1212,92 +1306,22 @@ export default function VendorDashboard() {
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
                         {Array.isArray(filteredEvents) && filteredEvents.map((event, index) => (
                           <motion.div
                             key={event.id}
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                            className="group relative p-6 md:p-8 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md overflow-hidden shadow-md dark:shadow-rose-500/20 transition-all duration-300 cursor-pointer"
-                            onClick={() => {
-                              setSelectedEvent(event);
-                              setSelectedStall(null);
-                              setBookingError(null);
-                            }}
                           >
-                            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 via-rose-500/0 to-red-500/0 group-hover:from-pink-500/10 group-hover:via-rose-500/10 group-hover:to-red-500/5 transition-colors duration-500" />
-                            <div className="relative z-10 flex flex-col h-full">
-                              <SafeImage
-                                src={event.banner_url || (getImageUrls(event)[0])}
-                                alt={event.name}
-                                aspectRatio="aspect-video"
-                                maxWDesktop=""
-                                roundedClass="rounded-2xl mb-6 shadow-inner"
-                                fallbackIcon="store"
-                              />
-                              <div className="flex justify-between items-start mb-4">
-                                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Exhibition</span>
-                              </div>
-                              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{event.name}</h3>
-                              <div className="space-y-2 text-gray-550 dark:text-white/70 mb-5">
-                                <div className="flex items-center gap-2">
-                                  <CalendarDays className="w-4 h-4 text-rose-400" />
-                                  <span className="font-medium">{event.date}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <MapPin className="w-4 h-4 text-pink-400" />
-                                  <span className="font-medium">{event.standard_stall_location || "TBD"}</span>
-                                </div>
-                              </div>
-
-                              {/* ── Stall Tier Selector or Ended Badge ────── */}
-                              <div className="mt-auto pt-5 border-t border-black/10 dark:border-white/10">
-                                {isEventExpired(event.date) ? (
-                                  <div className="flex items-center justify-between p-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
-                                    <span className="text-sm font-semibold text-gray-550 dark:text-white/40">Event has ended</span>
-                                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-red-500/10 text-red-400 border border-red-500/25 uppercase tracking-wide">Past Event</span>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <p className="text-xs font-semibold text-gray-500 dark:text-white/40 uppercase tracking-widest mb-3">Choose Stall Type</p>
-                                    <div className="grid grid-cols-2 gap-3 mb-4">
-                                      {/* Standard */}
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setSelectedEvent(event);
-                                          setSelectedStall(null);
-                                          setBookingError(null);
-                                          setStallType("Standard");
-                                          setOfferedPrice(event.standard_price?.toString() || "0");
-                                        }}
-                                        className="flex flex-col items-center p-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group/btn"
-                                      >
-                                        <span className="text-xs font-bold text-gray-500 dark:text-white/50 group-hover/btn:text-emerald-300 transition-colors uppercase tracking-wider mb-1">Standard</span>
-                                        <span className="text-xl font-black text-gray-900 dark:text-white group-hover/btn:text-emerald-300 transition-colors">₹{event.standard_price || 0}</span>
-                                      </button>
-                                      {/* Premium */}
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setSelectedEvent(event);
-                                          setSelectedStall(null);
-                                          setBookingError(null);
-                                          setStallType("Premium");
-                                          setOfferedPrice(event.premium_price?.toString() || "0");
-                                        }}
-                                        className="flex flex-col items-center p-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 hover:border-amber-500/60 hover:bg-amber-500/15 transition-all group/btn relative overflow-hidden"
-                                      >
-                                        <span className="absolute top-1 right-2 text-[9px] font-black text-amber-400 uppercase tracking-widest">★ Best</span>
-                                        <span className="text-xs font-bold text-amber-400/70 group-hover/btn:text-amber-300 transition-colors uppercase tracking-wider mb-1">Premium</span>
-                                        <span className="text-xl font-black text-amber-300 group-hover/btn:text-amber-200 transition-colors">₹{event.premium_price || 0}</span>
-                                      </button>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
+                            <VendorEventCard
+                              event={event}
+                              onClick={() => {
+                                setSelectedEvent(event);
+                                setSelectedStall(null);
+                                setBookingError(null);
+                              }}
+                            />
                           </motion.div>
                         ))}
                       </div>
