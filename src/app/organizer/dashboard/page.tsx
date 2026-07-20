@@ -1379,7 +1379,7 @@ export default function OrganizerDashboard() {
                     <div className="flex flex-col items-start text-left z-10">
                       <span className={`${yellowtail.className} text-pink-500 dark:text-pink-400 text-2xl md:text-3xl mb-2 block animate-pulse`}>Ready to launch?</span>
                       <h2 className="text-white font-black text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight uppercase transition-transform duration-500 group-hover:scale-105 origin-left">
-                        CREATE <span className={`${yellowtail.className} text-pink-400 dark:text-pink-400 text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
+                        CREATE <span className={`${yellowtail.className} text-white text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
                       </h2>
                       <div className="mt-4 flex items-center gap-2 text-sky-400 group-hover:text-sky-300 transition-colors duration-300">
                         <span className="text-xs font-bold uppercase tracking-widest">Start setting up</span>
