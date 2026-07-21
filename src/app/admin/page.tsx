@@ -1,44 +1,48 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 import AdminDashboardClient from "./AdminDashboardClient";
 import React from "react";
 import { Lock } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export default function AdminPage() {
+  const [loading, setLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-export default async function AdminPage() {
-  const cookieStore = await cookies();
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+        );
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-  // Create the Supabase server client
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Can be ignored if middleware handles session refreshes
-          }
-        },
-      },
-    }
-  );
+        const allowedAdminEmail = "abdulwaheed998922@gmail.com";
+        if (user && user.email === allowedAdminEmail) {
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+        }
+      } catch {
+        setIsAuthorized(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
-  // Fetch the current user session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Strict email check (placeholder: admin@festopiya.com)
-  const allowedAdminEmail = "abdulwaheed998922@gmail.com";
-  const isAuthorized = user && user.email === allowedAdminEmail;
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#0B0B11] text-zinc-300 flex items-center justify-center p-6 font-sans">
+        <p className="text-zinc-400 text-sm">Verifying Admin Access...</p>
+      </main>
+    );
+  }
 
   if (!isAuthorized) {
     return (
