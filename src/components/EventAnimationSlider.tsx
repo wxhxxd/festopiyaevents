@@ -72,7 +72,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return diff;
   }, [current, total]);
 
-  // RESTORED: Exact wheel positioning metrics from original script
+  // Exact wheel positioning metrics from original script
   const getSlideProps = useCallback((step: number, containerHeight: number) => {
     const absStep = Math.abs(step);
     
@@ -253,8 +253,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   if (total === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[350px] border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-        <Calendar className="w-12 h-12 text-white/20 mb-4" />
-        <p className="text-white/60 font-medium">No events found.</p>
+        <span className="text-white/60 font-medium">No events found.</span>
       </div>
     );
   }
@@ -264,12 +263,14 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   return (
     <section 
       ref={sliderRef}
-      className="w-full h-[380px] sm:h-[450px] md:h-[550px] relative overflow-hidden flex flex-row items-center justify-between select-none bg-transparent"
+      className="w-full h-[380px] sm:h-[450px] md:h-[550px] relative flex flex-row items-center justify-between select-none bg-transparent"
     >
-      {/* Subtle Glow Aura behind the image stack */}
+      {/* Pure CSS Radial Gradient Glow Aura (Fixes WebKit/Safari blur clipping box artifact) */}
       <div 
-        className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 rounded-full blur-[100px] sm:blur-[130px] opacity-15 sm:opacity-20 transition-all duration-1000 pointer-events-none z-0"
-        style={{ backgroundColor: getEventGlowColor(activeEvent?.name || "") }}
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 rounded-full pointer-events-none z-0 transition-all duration-1000"
+        style={{ 
+          background: `radial-gradient(circle, ${getEventGlowColor(activeEvent?.name || "")}44 0%, rgba(0,0,0,0) 70%)` 
+        }}
       />
 
       {/* Left side: Name */}
