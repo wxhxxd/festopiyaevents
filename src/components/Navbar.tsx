@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 
 export default function Navbar() {
@@ -91,16 +91,34 @@ export default function Navbar() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
-              className="inline-flex items-center justify-center rounded-xl p-2.5 text-zinc-300 hover:bg-white/10 hover:text-white focus:outline-none border border-white/10"
+              className="inline-flex items-center justify-center rounded-xl p-2.5 text-zinc-300 hover:bg-white/10 hover:text-white focus:outline-none border border-white/10 h-11 w-11"
               aria-controls="mobile-menu"
               aria-expanded={mobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Menu className="h-6 w-6" aria-hidden="true" />
-              )}
+              <div className="relative w-5 h-4 flex flex-col justify-between items-center">
+                <span 
+                  className={`w-5 h-0.5 bg-zinc-300 rounded-full transition-all duration-600 ease-in-out ${
+                    mobileMenuOpen 
+                      ? "rotate-[765deg] translate-y-[7px] bg-white" 
+                      : ""
+                  }`} 
+                />
+                <span 
+                  className={`w-5 h-0.5 bg-zinc-300 rounded-full transition-all duration-600 ease-in-out ${
+                    mobileMenuOpen 
+                      ? "opacity-0 scale-0" 
+                      : ""
+                  }`} 
+                />
+                <span 
+                  className={`w-5 h-0.5 bg-zinc-300 rounded-full transition-all duration-600 ease-in-out ${
+                    mobileMenuOpen 
+                      ? "-rotate-[765deg] -translate-y-[7px] bg-white" 
+                      : ""
+                  }`} 
+                />
+              </div>
             </button>
           </div>
         </div>
