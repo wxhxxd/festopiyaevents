@@ -72,16 +72,17 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return diff;
   }, [current, total]);
 
+  // RESTORED: Exact wheel positioning metrics from original script
   const getSlideProps = useCallback((step: number, containerHeight: number) => {
     const absStep = Math.abs(step);
     
     // Positions corresponding to step: -2, -1, 0, 1, 2
     const positions = [
-      { x: -0.25, y: -0.9, rot: -25, s: 1.3, b: 12, o: 0 },    // step = -2 (exited top)
-      { x: -0.12, y: -0.45, rot: -12, s: 1.1, b: 6, o: 0.5 },  // step = -1 (back card)
-      { x: 0, y: 0, rot: 0, s: 1, b: 0, o: 1 },                 // step = 0 (active card)
-      { x: -0.04, y: 0.45, rot: 12, s: 0.8, b: 4, o: 0.5 },    // step = 1 (front card)
-      { x: -0.08, y: 0.9, rot: 25, s: 0.6, b: 10, o: 0 }       // step = 2 (exited bottom)
+      { x: -0.35, y: -0.95, rot: -30, s: 1.35, b: 16, o: 0 },    // step = -2 (exited top)
+      { x: -0.18, y: -0.5, rot: -15, s: 1.15, b: 8, o: 0.55 },   // step = -1 (back card)
+      { x: 0, y: 0, rot: 0, s: 1, b: 0, o: 1 },                  // step = 0 (active card)
+      { x: -0.06, y: 0.5, rot: 15, s: 0.75, b: 6, o: 0.55 },     // step = 1 (front card)
+      { x: -0.12, y: 0.95, rot: 30, s: 0.55, b: 14, o: 0 }       // step = 2 (exited bottom)
     ];
 
     const idx = Math.max(0, Math.min(4, step + 2));
@@ -192,7 +193,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
         opacity: props.opacity,
         filter: `blur(${props.blur}px)`,
         zIndex: props.zIndex,
-        duration: 0.8,
+        duration: 0.9,
         ease: "power3.inOut"
       });
     });
@@ -211,7 +212,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     let lastTime = 0;
     const onWheel = (e: WheelEvent) => {
       const now = Date.now();
-      if (now - lastTime < 1500) return;
+      if (now - lastTime < 1800) return;
       if (animating) return;
       
       if (Math.abs(e.deltaY) > 5) {
@@ -228,7 +229,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
 
     const onTouchEnd = (e: TouchEvent) => {
       const now = Date.now();
-      if (now - lastTime < 1500) return;
+      if (now - lastTime < 1800) return;
       if (animating) return;
 
       const diff = touchStartY - e.changedTouches[0].clientY;
@@ -263,7 +264,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   return (
     <section 
       ref={sliderRef}
-      className="w-full h-[320px] sm:h-[420px] md:h-[500px] relative overflow-hidden flex flex-row items-center justify-between select-none bg-transparent"
+      className="w-full h-[380px] sm:h-[450px] md:h-[550px] relative overflow-hidden flex flex-row items-center justify-between select-none bg-transparent"
     >
       {/* Subtle Glow Aura behind the image stack */}
       <div 
@@ -294,7 +295,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
               key={event.id}
               data-index={index}
               onClick={() => onEventClick(event)}
-              className="slider__slide absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] sm:w-[65%] aspect-ratio-1.4 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl cursor-pointer"
+              className="slider__slide absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] sm:w-[65%] aspect-ratio-1.4 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl cursor-pointer"
               style={{
                 opacity: 0,
                 pointerEvents: index === current ? "auto" : "none"
