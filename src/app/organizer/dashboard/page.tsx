@@ -1217,13 +1217,13 @@ export default function OrganizerDashboard() {
 
       {/* Sidebar - Glassmorphism */}
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
-        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-x-auto md:overflow-hidden scrollbar-hide">
           <div className="hidden md:flex items-center justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
           </div>
 
-          <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
+          <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-1.5 md:gap-2 flex-nowrap md:space-y-2">
             {[
               { icon: CalendarDays, label: "Events", tab: "events", icon3d: "/calender3d.png" },
               { icon: Users, label: "Vendor Hub", tab: "vendors", icon3d: "/profile3d.png" },
@@ -1266,7 +1266,7 @@ export default function OrganizerDashboard() {
                 <button 
                   key={i} 
                   onClick={() => setActiveTab(item.tab as any)}
-                  className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
+                  className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-10 h-10 md:w-full md:h-auto px-0 md:px-4 md:py-3 shrink-0 ${
                     activeTab === item.tab 
                       ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
                       : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
@@ -1275,17 +1275,17 @@ export default function OrganizerDashboard() {
                   {item.icon3d ? (
                     <img 
                       src={item.icon3d} 
-                      className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                      className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                          ? 'scale-125 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1' 
+                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-0.5'
                       }`} 
                       alt={item.label}
                     />
                   ) : (
-                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
+                    <item.icon className={`w-5 h-5 md:w-5 md:h-5 transition-all duration-300 ${
                       activeTab === item.tab 
-                        ? 'text-indigo-500 dark:text-indigo-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
+                        ? 'text-indigo-500 dark:text-indigo-400 stroke-[2.25] scale-115 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]' 
                         : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-400 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     }`} />
                   )}
@@ -1296,7 +1296,7 @@ export default function OrganizerDashboard() {
             
             <button 
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-              className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
+              className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-10 h-10 md:w-full md:h-auto px-0 md:px-4 md:py-3 shrink-0 ${
                 isChatOpen 
                   ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
                   : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
@@ -1304,10 +1304,10 @@ export default function OrganizerDashboard() {
             >
               <img 
                 src="/message3d2.png" 
-                className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
-                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                    ? 'scale-125 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1' 
+                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-0.5'
                 }`} 
                 alt="Messages"
               />
@@ -1339,66 +1339,79 @@ export default function OrganizerDashboard() {
         <div className="max-w-7xl mx-auto h-full flex flex-col">
           
           {activeTab === 'events' && (
-            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col text-gray-900 dark:text-white relative z-10 overflow-hidden">
 
-              {/* ── Hero 2-col grid ──────────────────────────────── */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
+              {/* ── Hero container with background video ──────────────────── */}
+              <div className="relative p-6 md:p-12 mb-10 w-full rounded-[2rem] overflow-hidden border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl">
+                {/* Background Video */}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+                >
+                  <source src="/bg-video.mp4" type="video/mp4" />
+                </video>
 
-                {/* Left — Welcome & headline */}
-                <div>
-                  {/* Headline */}
-                  <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
-                    Manage <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
-                      your festivals
-                    </span><br />
-                    like a pro.
-                  </h1>
+                {/* Content Wrapper */}
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  {/* Left — Welcome & headline */}
+                  <div>
+                    {/* Headline */}
+                    <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
+                      Manage <br />
+                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                        your festivals
+                      </span><br />
+                      like a pro.
+                    </h1>
 
-                  {/* Subtext */}
-                  <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
-                    Your central hub to launch new events, review vendor pitches, and lock in deals.
-                  </p>
-                </div>
+                    {/* Subtext */}
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
+                      Your central hub to launch new events, review vendor pitches, and lock in deals.
+                    </p>
+                  </div>
 
-                {/* Right — Horizontal Action Banner */}
-                <div className="flex items-center justify-center pt-10 w-full h-full lg:min-h-[280px]">
-                  <motion.button
-                    type="button"
-                    onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="relative w-full h-full min-h-[220px] md:min-h-[260px] flex flex-row items-center justify-between gap-6 p-8 md:p-10 rounded-[2.5rem] overflow-hidden group cursor-pointer border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/10 via-black/20 to-transparent dark:from-white/5 dark:via-white/10 dark:to-transparent backdrop-blur-xl hover:border-pink-500/50 hover:shadow-[0_0_50px_rgba(236,72,153,0.3)] dark:hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-500 shadow-2xl focus:outline-none"
-                  >
-                    {/* Glowing backdrops */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 bg-gradient-to-tr from-pink-500/20 via-purple-500/10 to-cyan-500/20 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-700 pointer-events-none" />
-                    
-                    {/* Cyber grid pattern */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] opacity-40 pointer-events-none" />
+                  {/* Right — Horizontal Action Banner */}
+                  <div className="flex items-center justify-center w-full h-full lg:min-h-[280px]">
+                    <motion.button
+                      type="button"
+                      onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="relative w-full h-full min-h-[220px] md:min-h-[260px] flex flex-row items-center justify-between gap-6 p-8 md:p-10 rounded-[2.5rem] overflow-hidden group cursor-pointer border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/10 via-black/20 to-transparent dark:from-white/5 dark:via-white/10 dark:to-transparent backdrop-blur-xl hover:border-pink-500/50 hover:shadow-[0_0_50px_rgba(236,72,153,0.3)] dark:hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-500 shadow-2xl focus:outline-none"
+                    >
+                      {/* Glowing backdrops */}
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 bg-gradient-to-tr from-pink-500/20 via-purple-500/10 to-cyan-500/20 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-700 pointer-events-none" />
+                      
+                      {/* Cyber grid pattern */}
+                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] opacity-40 pointer-events-none" />
 
-                    <div className="flex flex-col items-start text-left z-10">
-                      <span className={`${yellowtail.className} text-pink-500 dark:text-pink-400 text-2xl md:text-3xl mb-2 block animate-pulse`}>Ready to launch?</span>
-                      <h2 className="text-white font-black text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight uppercase transition-transform duration-500 group-hover:scale-105 origin-left">
-                        CREATE <span className={`${yellowtail.className} text-white text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
-                      </h2>
-                      <div className="mt-4 flex items-center gap-2 text-sky-400 group-hover:text-sky-300 transition-colors duration-300">
-                        <span className="text-xs font-bold uppercase tracking-widest">Start setting up</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
+                      <div className="flex flex-col items-start text-left z-10">
+                        <span className={`${yellowtail.className} text-pink-500 dark:text-pink-400 text-2xl md:text-3xl mb-2 block animate-pulse`}>Ready to launch?</span>
+                        <h2 className="text-white font-black text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight uppercase transition-transform duration-500 group-hover:scale-105 origin-left">
+                          CREATE <span className={`${yellowtail.className} text-white text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
+                        </h2>
+                        <div className="mt-4 flex items-center gap-2 text-sky-400 group-hover:text-sky-300 transition-colors duration-300">
+                          <span className="text-xs font-bold uppercase tracking-widest">Start setting up</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="relative shrink-0 z-10 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 flex items-center justify-center">
-                      {/* Behind glow */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 to-cyan-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
-                      <motion.img 
-                        src="/calender3d.png" 
-                        className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)]" 
-                        alt="Calendar"
-                        animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }}
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                      />
-                    </div>
-                  </motion.button>
+                      <div className="relative shrink-0 z-10 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 flex items-center justify-center">
+                        {/* Behind glow */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 to-cyan-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+                        <motion.img 
+                          src="/calender3d.png" 
+                          className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)]" 
+                          alt="Calendar"
+                          animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }}
+                          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                        />
+                      </div>
+                    </motion.button>
+                  </div>
                 </div>
               </div>
 

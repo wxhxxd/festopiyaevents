@@ -1034,13 +1034,13 @@ export default function VendorDashboard() {
 
       {/* Sidebar - Glassmorphism */}
       <aside className="fixed bottom-6 left-4 right-4 h-16 z-50 p-0 md:relative md:bottom-auto md:left-auto md:right-auto md:w-64 md:h-screen md:p-6 flex flex-row md:flex-col transition-all duration-300">
-        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-visible md:overflow-hidden">
+        <div className="flex-1 flex flex-row md:flex-col items-center md:items-stretch justify-around md:justify-start rounded-full md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/20 bg-gray-50/50 dark:bg-white/10 md:bg-gray-50/30 md:dark:bg-white/5 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,0.4),0_25px_50px_-12px_rgba(0,0,0,0.5)] px-4 py-2 md:py-8 md:px-4 overflow-x-auto md:overflow-hidden scrollbar-hide">
           <div className="hidden md:flex items-center justify-center md:justify-start gap-3 px-2 mb-10">
             <img src="/logo.png" alt="Festopiya Logo" className="h-6 w-auto mr-2 shrink-0" />
             <FestopiyaBranding className="text-2xl" />
           </div>
 
-          <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-2 md:space-y-2">
+          <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-1.5 md:gap-2 flex-nowrap md:space-y-2">
             {[
               { icon: Search, label: "Find Events", tab: "find_events", icon3d: "/calender3d.png" },
               { icon: Store, label: "My Stalls", tab: "my_stalls", icon3d: "/home3d.png" },
@@ -1085,7 +1085,7 @@ export default function VendorDashboard() {
                 <button 
                   key={i} 
                   onClick={() => setActiveTab(item.tab as any)}
-                  className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
+                  className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-10 h-10 md:w-full md:h-auto px-0 md:px-4 md:py-3 shrink-0 ${
                     activeTab === item.tab 
                       ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
                       : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
@@ -1094,17 +1094,17 @@ export default function VendorDashboard() {
                   {item.icon3d ? (
                     <img 
                       src={item.icon3d} 
-                      className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                      className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                         activeTab === item.tab 
-                          ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                          ? 'scale-125 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1' 
+                          : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-0.5'
                       }`} 
                       alt={item.label}
                     />
                   ) : (
-                    <item.icon className={`w-6 h-6 md:w-5 md:h-5 transition-all duration-300 ${
+                    <item.icon className={`w-5 h-5 md:w-5 md:h-5 transition-all duration-300 ${
                       activeTab === item.tab 
-                        ? 'text-rose-500 dark:text-rose-400 stroke-[2.25] scale-125 -translate-y-1 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
+                        ? 'text-rose-500 dark:text-rose-400 stroke-[2.25] scale-115 -translate-y-0.5 filter drop-shadow-[0_3px_5px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_3px_5px_rgba(0,0,0,0.5)] drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]' 
                         : 'text-gray-500 dark:text-white/60 stroke-[2] group-hover:text-pink-500 dark:group-hover:text-pink-300 group-hover:scale-115 group-hover:-translate-y-0.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     }`} />
                   )}
@@ -1115,7 +1115,7 @@ export default function VendorDashboard() {
             
             <button 
               onClick={() => { setChatContext(null); setIsChatOpen(true); }}
-              className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-12 h-12 md:w-full md:h-auto px-0 md:px-4 md:py-3 ${
+              className={`flex items-center justify-center gap-3 rounded-2xl transition-all duration-300 group w-10 h-10 md:w-full md:h-auto px-0 md:px-4 md:py-3 shrink-0 ${
                 isChatOpen 
                   ? "bg-gradient-to-b from-black/10 to-black/5 dark:from-white/20 dark:to-white/5 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.3)] border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white" 
                   : "text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
@@ -1123,10 +1123,10 @@ export default function VendorDashboard() {
             >
               <img 
                 src="/message3d2.png" 
-                className={`w-9 h-9 md:w-6 md:h-6 object-contain transition-all duration-300 ${
+                className={`w-7 h-7 md:w-6 md:h-6 object-contain transition-all duration-300 ${
                   isChatOpen 
-                    ? 'scale-135 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1.5' 
-                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-1'
+                    ? 'scale-125 opacity-100 filter drop-shadow-[0_6px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_6px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] -translate-y-1' 
+                    : 'opacity-75 filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] group-hover:opacity-100 group-hover:scale-115 group-hover:-translate-y-0.5'
                 }`} 
                 alt="Messages"
               />
