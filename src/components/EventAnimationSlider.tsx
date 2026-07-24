@@ -114,7 +114,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   }, []);
 
   const handleGo = useCallback((dir: "next" | "prev") => {
-    if (animating || total <= 1) return;
+    if (total <= 1) return;
     setAnimating(true);
     setDirection(dir);
     
@@ -123,7 +123,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       : (current - 1 + total) % total;
 
     setCurrent(nextIdx);
-  }, [current, animating, total]);
+  }, [current, total]);
 
   // Handle title text stagger animation inside useEffect
   useEffect(() => {
@@ -153,13 +153,14 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     const chars = lineDiv.querySelectorAll("span");
     gsap.fromTo(
       chars,
-      { y: h * dirSign * 0.8, opacity: 0 },
+      { y: h * dirSign * 0.7, opacity: 0 },
       {
         y: 0,
         opacity: 1,
-        stagger: 0.03,
-        duration: 0.7,
-        ease: "power4.out",
+        stagger: 0.02,
+        duration: 0.45,
+        ease: "power2.out",
+        overwrite: "auto",
         onComplete: () => {
           setAnimating(false);
         }
@@ -167,7 +168,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     );
   }, [current, total, events, direction]);
 
-  // Animate slides on current index change
+  // Animate slides on current index change with GPU hardware acceleration
   useEffect(() => {
     if (total === 0 || !imagesContainerRef.current) return;
 
@@ -182,7 +183,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       
       const props = getSlideProps(step, containerHeight);
 
-      // Animate card positions
+      // GPU Accelerated ultra-smooth GSAP motion
       gsap.to(slide, {
         x: props.x,
         y: props.y,
@@ -193,8 +194,10 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
         opacity: props.opacity,
         filter: `blur(${props.blur}px)`,
         zIndex: props.zIndex,
-        duration: 0.9,
-        ease: "power3.inOut"
+        duration: 0.55,
+        ease: "power2.out",
+        force3D: true,
+        overwrite: "auto"
       });
     });
 
@@ -202,7 +205,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return () => stopAutoPlay();
   }, [current, total, events, getRelativeStep, getSlideProps, startAutoPlay, stopAutoPlay]);
 
-  // Scoped Wheel & Touch Scroll Events with preventDefault to isolate page scrolling
+  // Fast responsive Wheel & Touch Scroll Events
   useEffect(() => {
     if (total === 0 || !sliderRef.current) return;
 
@@ -210,11 +213,9 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
 
     let lastTime = 0;
     const onWheel = (e: WheelEvent) => {
-      // Prevent default page scroll when scrolling over the slider
       e.preventDefault();
       const now = Date.now();
-      if (now - lastTime < 1200) return;
-      if (animating) return;
+      if (now - lastTime < 450) return; // Snappy 450ms cooldown
       
       if (Math.abs(e.deltaY) > 5) {
         handleGo(e.deltaY > 0 ? "next" : "prev");
@@ -232,7 +233,6 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
 
     const onTouchMove = (e: TouchEvent) => {
       if (!isSwiping) return;
-      // Prevent default page scroll when swiping finger over the slider
       e.preventDefault();
     };
 
@@ -241,17 +241,15 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       isSwiping = false;
 
       const now = Date.now();
-      if (now - lastTime < 1200) return;
-      if (animating) return;
+      if (now - lastTime < 400) return; // Responsive 400ms swipe cooldown
 
       const diff = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(diff) < 25) return;
+      if (Math.abs(diff) < 20) return;
 
       handleGo(diff > 0 ? "next" : "prev");
       lastTime = now;
     };
 
-    // CRITICAL: passive: false allows e.preventDefault() to block page scrolling
     sliderEl.addEventListener("wheel", onWheel, { passive: false });
     sliderEl.addEventListener("touchstart", onTouchStart, { passive: true });
     sliderEl.addEventListener("touchmove", onTouchMove, { passive: false });
@@ -263,7 +261,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       sliderEl.removeEventListener("touchmove", onTouchMove);
       sliderEl.removeEventListener("touchend", onTouchEnd);
     };
-  }, [total, handleGo, animating]);
+  }, [total, handleGo]);
 
   if (total === 0) {
     return (
@@ -312,7 +310,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
               key={event.id}
               data-index={index}
               onClick={() => onEventClick(event)}
-              className="slider__slide absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] sm:w-[65%] aspect-ratio-1.4 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl cursor-pointer"
+              className="slider__slide absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] sm:w-[65%] aspect-ratio-1.4 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl cursor-pointer will-change-transform"
               style={{
                 opacity: 0,
                 pointerEvents: index === current ? "auto" : "none"
