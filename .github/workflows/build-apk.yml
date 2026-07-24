@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies & Build static Next.js export
         run: |
-          npm ci
+          npm install
           npm run android:sync
 
       - name: Set up JDK 17
@@ -30,9 +30,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
 
       - name: Build Android APK
         run: |
