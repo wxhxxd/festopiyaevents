@@ -42,6 +42,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import ChatInterface, { ChatContext } from "@/components/ChatInterface";
+import EventAnimationSlider from "@/components/EventAnimationSlider";
 
 const getFullImageUrl = (url?: string) => {
   if (!url) return "";
@@ -1284,24 +1285,15 @@ export default function VendorDashboard() {
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                        {Array.isArray(filteredEvents) && filteredEvents.map((event, index) => (
-                          <motion.div
-                            key={event.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                          >
-                            <VendorEventCard
-                              event={event}
-                              onClick={() => {
-                                setSelectedEvent(event);
-                                setSelectedStall(null);
-                                setBookingError(null);
-                              }}
-                            />
-                          </motion.div>
-                        ))}
+                      <div className="w-full">
+                        <EventAnimationSlider
+                          events={filteredEvents}
+                          onEventClick={(event) => {
+                            setSelectedEvent(event);
+                            setSelectedStall(null);
+                            setBookingError(null);
+                          }}
+                        />
                       </div>
                     )}
                   </div>
