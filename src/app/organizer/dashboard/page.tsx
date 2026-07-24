@@ -1339,79 +1339,66 @@ export default function OrganizerDashboard() {
         <div className="max-w-7xl mx-auto h-full flex flex-col">
           
           {activeTab === 'events' && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col text-gray-900 dark:text-white relative z-10 overflow-hidden">
+            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
 
-              {/* ── Hero container with background video ──────────────────── */}
-              <div className="relative p-6 md:p-12 mb-10 w-full rounded-[2rem] overflow-hidden border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl">
-                {/* Background Video */}
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
-                >
-                  <source src="/bg-video.mp4" type="video/mp4" />
-                </video>
+              {/* ── Hero 2-col grid ──────────────────────────────── */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
 
-                {/* Content Wrapper */}
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                  {/* Left — Welcome & headline */}
-                  <div>
-                    {/* Headline */}
-                    <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
-                      Manage <br />
-                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
-                        your festivals
-                      </span><br />
-                      like a pro.
-                    </h1>
+                {/* Left — Welcome & headline */}
+                <div>
+                  {/* Headline */}
+                  <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
+                    Manage <br />
+                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
+                      your festivals
+                    </span><br />
+                    like a pro.
+                  </h1>
 
-                    {/* Subtext */}
-                    <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
-                      Your central hub to launch new events, review vendor pitches, and lock in deals.
-                    </p>
-                  </div>
+                  {/* Subtext */}
+                  <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
+                    Your central hub to launch new events, review vendor pitches, and lock in deals.
+                  </p>
+                </div>
 
-                  {/* Right — Horizontal Action Banner */}
-                  <div className="flex items-center justify-center w-full h-full lg:min-h-[280px]">
-                    <motion.button
-                      type="button"
-                      onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="relative w-full h-full min-h-[220px] md:min-h-[260px] flex flex-row items-center justify-between gap-6 p-8 md:p-10 rounded-[2.5rem] overflow-hidden group cursor-pointer border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/10 via-black/20 to-transparent dark:from-white/5 dark:via-white/10 dark:to-transparent backdrop-blur-xl hover:border-pink-500/50 hover:shadow-[0_0_50px_rgba(236,72,153,0.3)] dark:hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-500 shadow-2xl focus:outline-none"
-                    >
-                      {/* Glowing backdrops */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 bg-gradient-to-tr from-pink-500/20 via-purple-500/10 to-cyan-500/20 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-700 pointer-events-none" />
-                      
-                      {/* Cyber grid pattern */}
-                      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] opacity-40 pointer-events-none" />
+                {/* Right — Horizontal Action Banner */}
+                <div className="flex items-center justify-center pt-10 w-full h-full lg:min-h-[280px]">
+                  <motion.button
+                    type="button"
+                    onClick={() => { setIsModalOpen(true); setCurrentStep(1); }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative w-full h-full min-h-[220px] md:min-h-[260px] flex flex-row items-center justify-between gap-6 p-8 md:p-10 rounded-[2.5rem] overflow-hidden group cursor-pointer border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/10 via-black/20 to-transparent dark:from-white/5 dark:via-white/10 dark:to-transparent backdrop-blur-xl hover:border-pink-500/50 hover:shadow-[0_0_50px_rgba(236,72,153,0.3)] dark:hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-500 shadow-2xl focus:outline-none"
+                  >
+                    {/* Glowing backdrops */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 bg-gradient-to-tr from-pink-500/20 via-purple-500/10 to-cyan-500/20 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-700 pointer-events-none" />
+                    
+                    {/* Cyber grid pattern */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] opacity-40 pointer-events-none" />
 
-                      <div className="flex flex-col items-start text-left z-10">
-                        <span className={`${yellowtail.className} text-pink-500 dark:text-pink-400 text-2xl md:text-3xl mb-2 block animate-pulse`}>Ready to launch?</span>
-                        <h2 className="text-white font-black text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight uppercase transition-transform duration-500 group-hover:scale-105 origin-left">
-                          CREATE <span className={`${yellowtail.className} text-white text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
-                        </h2>
-                        <div className="mt-4 flex items-center gap-2 text-sky-400 group-hover:text-sky-300 transition-colors duration-300">
-                          <span className="text-xs font-bold uppercase tracking-widest">Start setting up</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
-                        </div>
+                    <div className="flex flex-col items-start text-left z-10">
+                      <span className={`${yellowtail.className} text-pink-500 dark:text-pink-400 text-2xl md:text-3xl mb-2 block animate-pulse`}>Ready to launch?</span>
+                      <h2 className="text-white font-black text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight uppercase transition-transform duration-500 group-hover:scale-105 origin-left">
+                        CREATE <span className={`${yellowtail.className} text-white text-4xl sm:text-5xl md:text-6xl normal-case font-normal inline-block mx-1 drop-shadow-md`}>New</span><br/>EVENT
+                      </h2>
+                      <div className="mt-4 flex items-center gap-2 text-sky-400 group-hover:text-sky-300 transition-colors duration-300">
+                        <span className="text-xs font-bold uppercase tracking-widest">Start setting up</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
                       </div>
+                    </div>
 
-                      <div className="relative shrink-0 z-10 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 flex items-center justify-center">
-                        {/* Behind glow */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 to-cyan-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
-                        <motion.img 
-                          src="/calender3d.png" 
-                          className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)]" 
-                          alt="Calendar"
-                          animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }}
-                          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                        />
-                      </div>
-                    </motion.button>
-                  </div>
+                    <div className="relative shrink-0 z-10 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 flex items-center justify-center">
+                      {/* Behind glow */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-pink-500 to-cyan-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+                      <motion.img 
+                        src="/calender3d.png" 
+                        className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_10px_10px_rgba(0,0,0,0.6)]" 
+                        alt="Calendar"
+                        animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }}
+                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                      />
+                    </div>
+                  </motion.button>
                 </div>
               </div>
 
