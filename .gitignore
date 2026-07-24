@@ -31,3 +31,12 @@ backend/__pycache__/
 *.db
 events.db
 backend/events.db
+
+# OS metadata files
+desktop.ini
+Thumbs.db
+
+# TypeScript compiler cache
+*.tsbuildinfo
+next-env.d.ts
+
