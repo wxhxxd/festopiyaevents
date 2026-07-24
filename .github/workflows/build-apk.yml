@@ -17,13 +17,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
-      - name: Install dependencies & Build static Next.js export
-        run: |
-          npm install
-          npm run android:sync
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build static Next.js export
+        run: npm run android:sync
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
