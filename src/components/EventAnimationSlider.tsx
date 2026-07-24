@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
 interface EventData {
   id: string;
@@ -13,7 +12,6 @@ interface EventData {
   standard_stall_size?: string;
   standard_stall_location?: string;
   standard_price?: number;
-  premium_price?: number;
 }
 
 interface EventAnimationSliderProps {
@@ -21,12 +19,12 @@ interface EventAnimationSliderProps {
   onEventClick: (event: EventData) => void;
 }
 
-const CURATED_COLORS = [
-  "#14121E", // Dark Midnight Violet
-  "#0C1625", // Dark Blue Sapphire
-  "#0A1E14", // Deep Emerald
-  "#1E0A10", // Rich Wine Burgundy
-  "#141416", // Matte Obsidian
+const GLOW_COLORS = [
+  "#f472b6", // Pink glow
+  "#38bdf8", // Sky blue glow
+  "#a78bfa", // Purple glow
+  "#fb7185", // Rose glow
+  "#34d399", // Emerald glow
 ];
 
 export default function EventAnimationSlider({ events, onEventClick }: EventAnimationSliderProps) {
@@ -35,13 +33,10 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   const [direction, setDirection] = useState<"next" | "prev">("next");
 
   const sliderRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
   const imagesContainerRef = useRef<HTMLDivElement>(null);
   const titleContainerRef = useRef<HTMLDivElement>(null);
 
-  const [cursorOpacity, setCursorOpacity] = useState(0);
   const autoPlayTimer = useRef<NodeJS.Timeout | null>(null);
-
   const total = events.length;
 
   // Helper to safely parse image URLs
@@ -58,14 +53,14 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return "/default-banner.png";
   };
 
-  // Helper to generate consistent background color based on name
-  const getEventColor = (eventName: string) => {
+  // Helper to generate consistent color based on name
+  const getEventGlowColor = (eventName: string) => {
     let hash = 0;
     for (let i = 0; i < eventName.length; i++) {
       hash = eventName.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const idx = Math.abs(hash) % CURATED_COLORS.length;
-    return CURATED_COLORS[idx];
+    const idx = Math.abs(hash) % GLOW_COLORS.length;
+    return GLOW_COLORS[idx];
   };
 
   const getRelativeStep = useCallback((idx: number) => {
@@ -82,11 +77,11 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     
     // Positions corresponding to step: -2, -1, 0, 1, 2
     const positions = [
-      { x: -0.35, y: -0.95, rot: -30, s: 1.35, b: 16, o: 0 },   // step = -2 (exited top)
-      { x: -0.18, y: -0.5, rot: -15, s: 1.15, b: 8, o: 0.55 },  // step = -1 (back card)
+      { x: -0.25, y: -0.9, rot: -25, s: 1.3, b: 12, o: 0 },    // step = -2 (exited top)
+      { x: -0.12, y: -0.45, rot: -12, s: 1.1, b: 6, o: 0.5 },  // step = -1 (back card)
       { x: 0, y: 0, rot: 0, s: 1, b: 0, o: 1 },                 // step = 0 (active card)
-      { x: -0.06, y: 0.5, rot: 15, s: 0.75, b: 6, o: 0.55 },    // step = 1 (front card)
-      { x: -0.12, y: 0.95, rot: 30, s: 0.55, b: 14, o: 0 }      // step = 2 (exited bottom)
+      { x: -0.04, y: 0.45, rot: 12, s: 0.8, b: 4, o: 0.5 },    // step = 1 (front card)
+      { x: -0.08, y: 0.9, rot: 25, s: 0.6, b: 10, o: 0 }       // step = 2 (exited bottom)
     ];
 
     const idx = Math.max(0, Math.min(4, step + 2));
@@ -135,7 +130,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
 
     const titleEl = titleContainerRef.current;
     const activeEventName = events[current]?.name || "";
-    const h = titleEl.offsetHeight || 80;
+    const h = titleEl.offsetHeight || 60;
     const dirSign = direction === "next" ? 1 : -1;
 
     // Clear old text container
@@ -162,7 +157,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
         y: 0,
         opacity: 1,
         stagger: 0.03,
-        duration: 0.8,
+        duration: 0.7,
         ease: "power4.out",
         onComplete: () => {
           setAnimating(false);
@@ -171,21 +166,12 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     );
   }, [current, total, events, direction]);
 
-  // Animate slides and background on current index change
+  // Animate slides on current index change
   useEffect(() => {
     if (total === 0 || !imagesContainerRef.current) return;
 
-    const containerHeight = imagesContainerRef.current.offsetHeight || 350;
+    const containerHeight = imagesContainerRef.current.offsetHeight || 300;
     const slides = imagesContainerRef.current.querySelectorAll(".slider__slide");
-
-    // Animate background color transition of slider container
-    if (sliderRef.current) {
-      gsap.to(sliderRef.current, {
-        backgroundColor: getEventColor(events[current]?.name || ""),
-        duration: 1,
-        ease: "power2.out"
-      });
-    }
 
     slides.forEach((slide) => {
       const idxAttr = slide.getAttribute("data-index");
@@ -206,7 +192,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
         opacity: props.opacity,
         filter: `blur(${props.blur}px)`,
         zIndex: props.zIndex,
-        duration: 0.9,
+        duration: 0.8,
         ease: "power3.inOut"
       });
     });
@@ -215,51 +201,57 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return () => stopAutoPlay();
   }, [current, total, events, getRelativeStep, getSlideProps, startAutoPlay, stopAutoPlay]);
 
-  // Keyboard controls, scroll wheel, & cursor hover listeners
+  // Scoped Wheel & Touch Scroll Events to Slider container
   useEffect(() => {
-    if (total === 0) return;
+    if (total === 0 || !sliderRef.current) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        handleGo("next");
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        handleGo("prev");
+    const sliderEl = sliderRef.current;
+
+    // Wheel throttle helper
+    let lastTime = 0;
+    const onWheel = (e: WheelEvent) => {
+      const now = Date.now();
+      if (now - lastTime < 1500) return;
+      if (animating) return;
+      
+      if (Math.abs(e.deltaY) > 5) {
+        handleGo(e.deltaY > 0 ? "next" : "prev");
+        lastTime = now;
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+    // Swipe helpers
+    let touchStartY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
     };
-  }, [total, handleGo]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cursorRef.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const onTouchEnd = (e: TouchEvent) => {
+      const now = Date.now();
+      if (now - lastTime < 1500) return;
+      if (animating) return;
 
-    gsap.to(cursorRef.current, {
-      x: x,
-      y: y,
-      xPercent: -50,
-      yPercent: -50,
-      duration: 0.2,
-      ease: "power2.out"
-    });
+      const diff = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) < 40) return;
 
-    if (cursorOpacity === 0) {
-      setCursorOpacity(1);
-    }
-  };
+      handleGo(diff > 0 ? "next" : "prev");
+      lastTime = now;
+    };
 
-  const handleMouseLeave = () => {
-    setCursorOpacity(0);
-  };
+    sliderEl.addEventListener("wheel", onWheel, { passive: true });
+    sliderEl.addEventListener("touchstart", onTouchStart, { passive: true });
+    sliderEl.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      sliderEl.removeEventListener("wheel", onWheel);
+      sliderEl.removeEventListener("touchstart", onTouchStart);
+      sliderEl.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [total, handleGo, animating]);
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+      <div className="flex flex-col items-center justify-center h-[350px] border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
         <Calendar className="w-12 h-12 text-white/20 mb-4" />
         <p className="text-white/60 font-medium">No events found.</p>
       </div>
@@ -271,95 +263,51 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   return (
     <section 
       ref={sliderRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="slider"
+      className="w-full h-[320px] sm:h-[420px] md:h-[500px] relative overflow-hidden flex flex-row items-center justify-between select-none bg-transparent"
     >
-      {/* Dynamic Cursor tracking bubble */}
+      {/* Subtle Glow Aura behind the image stack */}
       <div 
-        ref={cursorRef}
-        className="slider__cursor transition-opacity duration-300"
-        style={{ opacity: cursorOpacity, pointerEvents: "none" }}
-      >
-        +
-      </div>
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 rounded-full blur-[100px] sm:blur-[130px] opacity-15 sm:opacity-20 transition-all duration-1000 pointer-events-none z-0"
+        style={{ backgroundColor: getEventGlowColor(activeEvent?.name || "") }}
+      />
 
-      <div className="slider__header">
-        <div className="flex gap-2">
-          <button 
-            type="button"
-            onClick={() => handleGo("prev")}
-            className="slider__menu hover:scale-105 transition-transform"
-            aria-label="Previous event"
-          >
-            <ChevronLeft className="w-5 h-5 text-white/80" />
-          </button>
-          <button 
-            type="button"
-            onClick={() => handleGo("next")}
-            className="slider__menu hover:scale-105 transition-transform"
-            aria-label="Next event"
-          >
-            <ChevronRight className="w-5 h-5 text-white/80" />
-          </button>
-        </div>
-        <span className="slider__label">Discover {current + 1} of {total}</span>
-      </div>
-
-      <div className="slider__body">
-        <div className="slider__left">
-          {/* Active Event title linked to details */}
-          <h2 
-            ref={titleContainerRef}
-            onClick={() => onEventClick(activeEvent)}
-            className="slider__title hover:text-pink-400 transition-colors duration-300 cursor-pointer"
-            aria-live="polite"
-          >
-            {activeEvent?.name}
-          </h2>
-          
-          <div className="slider__footer">
-            <div className="slider__info">
-              <p className="slider__description">
-                {activeEvent?.standard_stall_size ? `STALL SIZE: ${activeEvent.standard_stall_size}` : "STALL SIZE: 10x10"}<br />
-                {activeEvent?.date ? `DATE: ${activeEvent.date.toUpperCase()}` : "DATE: TBD"}
-              </p>
-              <p className="slider__location">
-                LOC: {activeEvent?.standard_stall_location || "HYDERABAD"}<br />
-                {activeEvent?.standard_price ? `STARTING AT ₹${activeEvent.standard_price}` : "PRICE: TBD"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Carousel Stack Container */}
-        <div 
-          ref={imagesContainerRef}
-          className="slider__right"
+      {/* Left side: Name */}
+      <div className="w-[45%] flex items-center justify-start z-10 pl-2 sm:pl-8">
+        <h2 
+          ref={titleContainerRef}
+          onClick={() => onEventClick(activeEvent)}
+          className="font-black text-white hover:text-pink-400 transition-colors duration-300 cursor-pointer uppercase tracking-tight leading-none text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl select-none"
+          aria-live="polite"
         >
-          <div className="slider__images">
-            {events.map((event, index) => (
-              <div
-                key={event.id}
-                data-index={index}
-                onClick={() => onEventClick(event)}
-                className="slider__slide cursor-pointer"
-                style={{
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  opacity: 0,
-                  pointerEvents: index === current ? "auto" : "none" // only click active card
-                }}
-              >
-                <img 
-                  src={getEventImage(event)} 
-                  alt={event.name} 
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
+          {activeEvent?.name}
+        </h2>
+      </div>
+
+      {/* Right side: Image Stack */}
+      <div 
+        ref={imagesContainerRef}
+        className="w-[55%] h-full relative flex items-center justify-center z-10"
+      >
+        <div className="w-full h-full relative">
+          {events.map((event, index) => (
+            <div
+              key={event.id}
+              data-index={index}
+              onClick={() => onEventClick(event)}
+              className="slider__slide absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] sm:w-[65%] aspect-ratio-1.4 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl cursor-pointer"
+              style={{
+                opacity: 0,
+                pointerEvents: index === current ? "auto" : "none"
+              }}
+            >
+              <img 
+                src={getEventImage(event)} 
+                alt={event.name} 
+                className="w-full h-full object-cover filter brightness-90"
+                draggable={false}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>

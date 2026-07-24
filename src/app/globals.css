@@ -213,170 +213,16 @@ body {
 }
 
 /* ── Event Animation Slider Styles ── */
-.slider {
-  width: 100%;
-  height: 550px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  border-radius: 2rem;
-  background-color: #0c0c0e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 1.2s ease-in-out;
-  cursor: none; /* Hide default cursor to show custom cursor */
-}
-
-.slider * {
-  cursor: none; /* Propagate custom cursor hiding */
-}
-
-.slider__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  flex-shrink: 0;
-  z-index: 5;
-}
-
-.slider__menu {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: border-color 0.3s ease;
-}
-
-.slider__menu:hover {
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
-.slider__menu span {
-  width: 16px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.slider__label {
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-}
-
-.slider__body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0 24px 32px;
-  min-height: 0;
-  position: relative;
-}
-
-.slider__left {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  z-index: 4;
-}
-
-.slider__title {
-  font-size: clamp(40px, 8vw, 90px);
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  overflow: hidden;
-  position: relative;
-  margin-top: auto;
-  margin-bottom: auto;
-  text-transform: uppercase;
-  user-select: none;
-}
-
 .slider__title span {
   display: inline-block;
   will-change: transform;
-}
-
-.slider__footer {
-  flex-shrink: 0;
-  margin-top: 24px;
-}
-
-.slider__info {
-  display: flex;
-  gap: 24px;
-}
-
-.slider__description {
-  font-size: 9px;
-  letter-spacing: 1.2px;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.5;
-  text-transform: uppercase;
-}
-
-.slider__location {
-  font-size: 9px;
-  letter-spacing: 1.2px;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.5;
-  text-transform: uppercase;
-  margin-top: 8px;
-}
-
-.slider__cursor {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  will-change: transform;
-  z-index: 10;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.slider__right {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.slider__images {
-  width: 100%;
-  height: 100%;
-  position: relative;
 }
 
 .slider__slide {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 65%;
+  width: 80%;
   aspect-ratio: 1.4;
   overflow: hidden;
   will-change: transform, filter, opacity;
@@ -384,62 +230,11 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   contain: layout style;
-  pointer-events: auto; /* Allow clicking on cards */
 }
 
-.slider__slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.9);
-}
-
-@media screen and (min-width: 768px) {
-  .slider {
-    height: 600px;
-  }
-  .slider__header {
-    padding: 32px 40px;
-  }
-  .slider__body {
-    padding: 0 40px 40px;
-  }
-  .slider__footer {
-    margin-top: 32px;
-  }
-  .slider__slide {
-    width: 50%;
-  }
-}
-
-@media screen and (min-width: 1024px) {
-  .slider__body {
-    flex-direction: row;
-  }
-  .slider__left {
-    width: 45%;
-    flex-shrink: 0;
-    z-index: auto;
-  }
-  .slider__right {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    opacity: 1;
-    pointer-events: auto;
-  }
+@media screen and (min-width: 640px) {
   .slider__slide {
     width: 65%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slider__slide,
-  .slider__title span {
-    will-change: auto;
   }
 }
 
