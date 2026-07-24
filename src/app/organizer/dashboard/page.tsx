@@ -44,6 +44,7 @@ import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ChatInterface, { ChatContext } from "@/components/ChatInterface";
+import EventAnimationSlider from "@/components/EventAnimationSlider";
 
 const getFullImageUrl = (url?: string) => {
   if (!url) return "";
@@ -1442,18 +1443,16 @@ export default function OrganizerDashboard() {
                       </div>
                       
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                        {activeEventTab === 'explore' && (
-                          <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <input
-                              type="text"
-                              placeholder="Search events..."
-                              value={eventSearchQuery}
-                              onChange={(e) => setEventSearchQuery(e.target.value)}
-                              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-indigo-500/50"
-                            />
-                          </div>
-                        )}
+                        <div className="relative w-full sm:w-64">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="text"
+                            placeholder="Search events by name..."
+                            value={eventSearchQuery}
+                            onChange={(e) => setEventSearchQuery(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-indigo-500/50"
+                          />
+                        </div>
                         <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
                           <button
                             type="button"
@@ -1489,17 +1488,11 @@ export default function OrganizerDashboard() {
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                        {filteredEvents.map((event, index) => (
-                          <motion.div
-                            key={event.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
-                          >
-                            <EventCard event={event} onAction={handleEventAction} isMine={event.organizer_id === myUserId} />
-                          </motion.div>
-                        ))}
+                      <div className="w-full">
+                        <EventAnimationSlider
+                          events={filteredEvents}
+                          onEventClick={(event) => handleEventAction(event, { stopPropagation: () => {} })}
+                        />
                       </div>
                     )}
                   </div>
