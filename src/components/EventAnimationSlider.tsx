@@ -202,17 +202,18 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return () => stopAutoPlay();
   }, [current, total, events, getRelativeStep, getSlideProps, startAutoPlay, stopAutoPlay]);
 
-  // Scoped Wheel & Touch Scroll Events to Slider container
+  // Scoped Wheel & Touch Scroll Events with preventDefault to isolate page scrolling
   useEffect(() => {
     if (total === 0 || !sliderRef.current) return;
 
     const sliderEl = sliderRef.current;
 
-    // Wheel throttle helper
     let lastTime = 0;
     const onWheel = (e: WheelEvent) => {
+      // Prevent default page scroll when scrolling over the slider
+      e.preventDefault();
       const now = Date.now();
-      if (now - lastTime < 1800) return;
+      if (now - lastTime < 1200) return;
       if (animating) return;
       
       if (Math.abs(e.deltaY) > 5) {
@@ -221,31 +222,45 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       }
     };
 
-    // Swipe helpers
     let touchStartY = 0;
+    let isSwiping = false;
+
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
+      isSwiping = true;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isSwiping) return;
+      // Prevent default page scroll when swiping finger over the slider
+      e.preventDefault();
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (!isSwiping) return;
+      isSwiping = false;
+
       const now = Date.now();
-      if (now - lastTime < 1800) return;
+      if (now - lastTime < 1200) return;
       if (animating) return;
 
       const diff = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(diff) < 40) return;
+      if (Math.abs(diff) < 25) return;
 
       handleGo(diff > 0 ? "next" : "prev");
       lastTime = now;
     };
 
-    sliderEl.addEventListener("wheel", onWheel, { passive: true });
+    // CRITICAL: passive: false allows e.preventDefault() to block page scrolling
+    sliderEl.addEventListener("wheel", onWheel, { passive: false });
     sliderEl.addEventListener("touchstart", onTouchStart, { passive: true });
+    sliderEl.addEventListener("touchmove", onTouchMove, { passive: false });
     sliderEl.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
       sliderEl.removeEventListener("wheel", onWheel);
       sliderEl.removeEventListener("touchstart", onTouchStart);
+      sliderEl.removeEventListener("touchmove", onTouchMove);
       sliderEl.removeEventListener("touchend", onTouchEnd);
     };
   }, [total, handleGo, animating]);
@@ -263,9 +278,10 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   return (
     <section 
       ref={sliderRef}
-      className="w-full h-[380px] sm:h-[450px] md:h-[550px] relative flex flex-row items-center justify-between select-none bg-transparent"
+      style={{ touchAction: "none" }}
+      className="w-full h-[380px] sm:h-[450px] md:h-[550px] relative flex flex-row items-center justify-between select-none bg-transparent touch-none overscroll-contain"
     >
-      {/* Pure CSS Radial Gradient Glow Aura (Fixes WebKit/Safari blur clipping box artifact) */}
+      {/* Pure CSS Radial Gradient Glow Aura */}
       <div 
         className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 rounded-full pointer-events-none z-0 transition-all duration-1000"
         style={{ 
