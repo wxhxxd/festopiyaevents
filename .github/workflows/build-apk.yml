@@ -24,7 +24,15 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build static Next.js export
-        run: npm run android:sync
+        run: |
+          npm run android:sync > build-log.txt 2>&1
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build-log
+          path: build-log.txt
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
