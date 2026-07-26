@@ -2138,352 +2138,350 @@ export default function OrganizerDashboard() {
                   }`}
                 >
                   {isSavingProfile
-                    ? <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
-                    : <><Save className="w-5 h-5" /> Save Profile</>
-                  }
-                </button>
+                            ? <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                            : <><Save className="w-5 h-5" /> Save Profile</>
+                          }
+                        </button>
 
-              </form>
-            </div>
-          )}
-          
-        </div>
-      </section>
-
-      {/* View Bookings Modal */}
-      <AnimatePresence>
-        {selectedEventForBookings && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] border border-white/10 bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col scrollbar-hide"
-            >
-              {/* Close button */}
-              <button 
-                onClick={() => setSelectedEventForBookings(null)}
-                className="absolute top-6 right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Hero Banner Section */}
-              <div className="relative w-full h-64 md:h-80 overflow-hidden bg-black/40 border-b border-white/10 shrink-0">
-                <SafeImage
-                  src={selectedEventForBookings.banner_url || (getImageUrls(selectedEventForBookings)[0])}
-                  alt={selectedEventForBookings.name}
-                  aspectRatio="w-full h-full"
-                  maxWDesktop="none"
-                  roundedClass="rounded-none"
-                  fallbackIcon="store"
-                />
-                {/* Gradient Overlay for aesthetic look */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-black/40 z-10" />
-                
-                {/* Event Title over Hero Banner */}
-                <div className="absolute bottom-6 left-8 right-8 z-20">
-                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-md uppercase tracking-wider mb-3 inline-block">Dashboard</span>
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight text-white drop-shadow-md">
-                    Manage <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
-                      {selectedEventForBookings.name}
-                    </span><br />
-                    like a pro.
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-4 mt-2 text-white/70 text-sm">
-                    <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                      <CalendarDays className="w-4 h-4 text-indigo-400 animate-pulse" />
-                      <span className="font-semibold">{selectedEventForBookings.date}</span>
+                      </form>
                     </div>
-                    {selectedEventForBookings.maps_url ? (
-                      <a 
-                        href={selectedEventForBookings.maps_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-xl backdrop-blur-sm transition-all duration-300 font-semibold"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MapPin className="w-4 h-4 text-indigo-400" />
-                        <span>View on Maps</span>
-                      </a>
-                    ) : (
-                      <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                        <MapPin className="w-4 h-4 text-indigo-400" />
-                        <span className="font-semibold">{selectedEventForBookings.standard_stall_location || "TBD"}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row flex-1">
-                {/* Left Side: Bookings Grid & Gallery */}
-                <div className="flex-1 p-8 border-b md:border-b-0 md:border-r border-white/10">
-                  <div className="mb-6">
-                    <p className="text-white/75 font-semibold text-lg mb-1">Booked Stalls</p>
-                    <p className="text-white/50 text-sm">Review details of reserved stalls and chat with vendors.</p>
-                  </div>
+                  )}
                   
-                  {isBookingsLoading ? (
-                    <div className="flex flex-col items-center justify-center py-10">
-                      <UiverseLoader />
-                      <p className="text-white/60 mt-4">Loading bookings...</p>
-                    </div>
-                  ) : eventBookings.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                        <Users className="w-8 h-8 text-white/20" />
-                      </div>
-                      <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No Bookings Yet</h3>
-                      <p className="text-white/50 max-w-md text-sm">There are currently no stalls booked for this event. Check back later as vendors reserve their spaces.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {eventBookings.map((booking) => (
+                </div>
+              </section>
+
+              {/* View Bookings Modal */}
+              <AnimatePresence>
+                {selectedEventForBookings && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                      animate={{ scale: 1, y: 0, opacity: 1 }}
+                      exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                      className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/95 backdrop-blur-3xl shadow-[0_0_80px_rgba(99,102,241,0.25)] flex flex-col scrollbar-hide"
+                    >
+                      {/* Floating ambient glow spots */}
+                      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+                      {/* Close button - Fixed top-right z-50 to never overlap text */}
+                      <button 
+                        onClick={() => setSelectedEventForBookings(null)}
+                        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-black/60 hover:bg-indigo-500/20 border border-white/20 hover:border-indigo-500/50 text-white/70 hover:text-white transition-all shadow-xl backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+
+                      {/* Hero Banner Section */}
+                      <div className="relative w-full h-72 sm:h-80 md:h-96 overflow-hidden bg-black/50 border-b border-white/10 shrink-0 group">
+                        <SafeImage
+                          src={selectedEventForBookings.banner_url || (getImageUrls(selectedEventForBookings)[0])}
+                          alt={selectedEventForBookings.name}
+                          aspectRatio="w-full h-full"
+                          maxWDesktop="none"
+                          roundedClass="rounded-none group-hover:scale-105 transition-transform duration-700 cursor-pointer"
+                          fallbackIcon="store"
+                        />
                         <div 
-                          key={booking.id} 
-                          className="group relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md shadow-lg shadow-black/20 flex flex-col p-4 gap-2 hover:shadow-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-fuchsia-500/0 group-hover:from-indigo-500/10 group-hover:via-purple-500/10 group-hover:to-fuchsia-500/5 transition-colors duration-500 z-0" />
+                          onClick={() => setLightboxImage(selectedEventForBookings.banner_url || (getImageUrls(selectedEventForBookings)[0]))}
+                          className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/50 to-black/40 cursor-pointer" 
+                        />
+                        
+                        {/* Event Header Overlay */}
+                        <div className="absolute bottom-6 left-6 sm:left-8 right-16 sm:right-20 z-20 pointer-events-none">
+                          <div className="flex flex-wrap items-center gap-2 mb-3">
+                            <span className="px-3 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-300 border border-indigo-500/40 backdrop-blur-md uppercase shadow-lg">
+                              ★ ORGANIZER MANAGEMENT HUB
+                            </span>
+                            <span className="px-3 py-1 text-[11px] font-semibold tracking-wider rounded-full bg-white/10 text-white/80 border border-white/15 backdrop-blur-md uppercase">
+                              {selectedEventForBookings.total_stalls || 0} Total Stalls
+                            </span>
+                          </div>
+
+                          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-4">
+                            {selectedEventForBookings.name}
+                          </h2>
+
+                          {/* Metadata Chips */}
+                          <div className="flex flex-wrap items-center gap-3 mt-4 text-white/80 text-xs sm:text-sm pointer-events-auto">
+                            <div className="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-md">
+                              <CalendarDays className="w-4 h-4 text-indigo-400 animate-pulse" />
+                              <span className="font-semibold text-white">{selectedEventForBookings.date}</span>
+                            </div>
+
+                            {selectedEventForBookings.maps_url ? (
+                              <a 
+                                href={selectedEventForBookings.maps_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 hover:from-indigo-500/30 hover:to-blue-500/30 border border-indigo-500/40 text-indigo-300 px-3.5 py-1.5 rounded-xl backdrop-blur-md transition-all duration-300 font-semibold shadow-md hover:scale-105"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MapPin className="w-4 h-4 text-indigo-400" />
+                                <span>View Live Map ↗</span>
+                              </a>
+                            ) : (
+                              <div className="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-md">
+                                <MapPin className="w-4 h-4 text-indigo-400" />
+                                <span className="font-semibold text-white">{selectedEventForBookings.standard_stall_location || "Venue TBD"}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Main Content Body */}
+                      <div className="flex flex-col lg:flex-row flex-1 z-20">
+                        {/* Left Column: Bookings Matrix & Gallery */}
+                        <div className="flex-1 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-white/10">
+                          <div className="flex items-center justify-between mb-6">
+                            <div>
+                              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <Users className="w-5 h-5 text-indigo-400" />
+                                Reserved Stall Vendors ({eventBookings.length})
+                              </h3>
+                              <p className="text-white/50 text-xs sm:text-sm mt-0.5">Review booked vendors, pitches, and communicate directly.</p>
+                            </div>
+                          </div>
                           
-                          {booking.image_url ? (
-                            <SafeImage
-                              src={booking.image_url}
-                              alt={`Vendor for Stall #${booking.stall_number}`}
-                              aspectRatio="aspect-video"
-                              maxWDesktop="md:max-w-md"
-                              roundedClass="rounded-xl mb-2 relative z-10"
-                              fallbackIcon="store"
-                            />
+                          {isBookingsLoading ? (
+                            <div className="flex flex-col items-center justify-center py-12">
+                              <UiverseLoader />
+                              <p className="text-white/60 text-sm mt-4">Loading stall reservations...</p>
+                            </div>
+                          ) : eventBookings.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                                <Users className="w-8 h-8 text-white/20" />
+                              </div>
+                              <h4 className="text-base font-bold text-white mb-1">No Reservations Yet</h4>
+                              <p className="text-white/50 max-w-md text-xs leading-relaxed">
+                                There are currently no stalls reserved by vendors. Vendors can explore and pitch for stalls directly.
+                              </p>
+                            </div>
                           ) : (
-                            <div className="w-full aspect-video md:max-w-md mx-auto bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl mb-2 flex items-center justify-center relative overflow-hidden shrink-0 z-10">
-                              <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
-                              <Store className="w-8 h-8 text-gray-400 dark:text-white/30 relative z-10 group-hover:scale-110 group-hover:text-indigo-400 transition-all duration-300" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {eventBookings.map((booking) => (
+                                <div 
+                                  key={booking.id} 
+                                  className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg flex flex-col p-4 gap-3 hover:shadow-indigo-500/20 hover:border-indigo-500/40 transition-all duration-300"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="px-3 py-1 text-xs font-black rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                      Stall #{booking.stall_number}
+                                    </span>
+                                    <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
+                                      Booked
+                                    </span>
+                                  </div>
+
+                                  {booking.image_url && (
+                                    <div className="w-full aspect-video rounded-xl overflow-hidden border border-white/10 cursor-pointer" onClick={() => setLightboxImage(booking.image_url)}>
+                                      <SafeImage
+                                        src={booking.image_url}
+                                        alt={`Vendor for Stall #${booking.stall_number}`}
+                                        aspectRatio="aspect-video"
+                                        maxWDesktop="none"
+                                        roundedClass="rounded-none group-hover:scale-105 transition-transform duration-500"
+                                        fallbackIcon="store"
+                                      />
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center justify-between pt-1">
+                                    <div>
+                                      <p className="text-sm font-bold text-white">{booking.vendor_name || `Vendor #${booking.vendor_id}`}</p>
+                                      <p className="text-xs text-white/50">Stall Tier: {booking.stall_type || 'Standard'}</p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setChatContext({
+                                          eventId: selectedEventForBookings.id,
+                                          receiverId: booking.vendor_id,
+                                          title: `${booking.vendor_name} (Stall #${booking.stall_number})`
+                                        });
+                                        setIsChatOpen(true);
+                                      }}
+                                      className="p-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 transition-all flex items-center gap-1.5 text-xs font-bold shadow-md cursor-pointer hover:scale-105"
+                                    >
+                                      <MessageSquare className="w-3.5 h-3.5" /> Message
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
-                          <div className="flex justify-between items-center mb-2 relative z-10">
-                            <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                              Stall #{booking.stall_number ?? 'N/A'}
-                            </span>
-                            <span className="text-gray-400 dark:text-white/40 text-xs font-mono">ID: #{booking.id}</span>
-                          </div>
-                          {(() => {
-                            const isPremium = (() => {
-                              try {
-                                const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
-                                return Array.isArray(ids) && ids.includes(booking.stall_number);
-                              } catch {
-                                return false;
-                              }
-                            })();
-                            const size = isPremium 
-                              ? (selectedEventForBookings.premium_stall_size || '12x12') 
-                              : (selectedEventForBookings.standard_stall_size || '10x10');
-                            const loc = isPremium 
-                              ? (selectedEventForBookings.premium_stall_location || 'VIP Area') 
-                              : (selectedEventForBookings.standard_stall_location || 'Main Hall');
-                            return (
-                              <div className="flex justify-between text-xs text-gray-500 dark:text-white/50 relative z-10 px-0.5 border-t border-black/5 dark:border-white/5 pt-2 mt-1">
-                                <span>Size: <strong className="text-gray-800 dark:text-white/80">{size}</strong></span>
-                                <span>Loc: <strong className="text-gray-800 dark:text-white/80">{loc}</strong></span>
+
+                          {/* Photo Gallery Showcase */}
+                          <div className="mt-8 pt-6 border-t border-white/10">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                                  <Store className="w-5 h-5 text-indigo-400" />
+                                  Event Photos & Venue Gallery
+                                </h4>
+                                <p className="text-white/50 text-xs">Tap any photo to view full screen preview.</p>
                               </div>
-                            );
-                          })()}
-                          <div className="flex items-center justify-between mt-1 relative z-10 border-t border-black/5 dark:border-white/5 pt-2">
-                            <div 
-                              className="flex items-center gap-3 cursor-pointer group/vendor"
-                              onClick={() => {
-                                setSelectedEventForBookings(null);
-                                handleOpenVendorProfile(booking.vendor_id);
-                              }}
-                              title="View Creator Profile"
-                            >
-                              <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/20 group-hover/vendor:border-indigo-500/50 group-hover/vendor:bg-indigo-500/10 group-hover/vendor:text-indigo-300 transition-all">
-                                {booking.vendor_name?.charAt(0) || 'V'}
-                              </div>
-                              <span className="text-gray-900 dark:text-white font-medium group-hover/vendor:text-indigo-300 transition-all duration-300 text-sm truncate max-w-[120px]">{booking.vendor_name}</span>
+                              <span className="px-3 py-1 text-xs font-bold rounded-full bg-white/5 text-white/70 border border-white/10">
+                                {getImageUrls(selectedEventForBookings).length} Photos
+                              </span>
                             </div>
+
+                            {getImageUrls(selectedEventForBookings).length > 0 ? (
+                              <div 
+                                ref={galleryRef}
+                                onMouseDown={handleMouseDown}
+                                onMouseLeave={handleMouseLeave}
+                                onMouseUp={handleMouseUp}
+                                onMouseMove={handleMouseMove}
+                                className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none pb-2 scrollbar-hide"
+                                style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+                              >
+                                {getImageUrls(selectedEventForBookings).map((url: string, idx: number) => (
+                                  <div 
+                                    key={url + idx} 
+                                    onClick={() => {
+                                      if (!dragMoved.current) {
+                                        setLightboxImage(url);
+                                      }
+                                    }}
+                                    className="flex-none w-60 sm:w-72 aspect-video snap-start relative rounded-2xl overflow-hidden border border-white/15 bg-white/5 group/gallery hover:border-indigo-500/50 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]"
+                                  >
+                                    <SafeImage
+                                      src={url}
+                                      alt={`${selectedEventForBookings.name} Gallery ${idx + 1}`}
+                                      aspectRatio="aspect-video"
+                                      maxWDesktop=""
+                                      roundedClass="rounded-none pointer-events-none group-hover/gallery:scale-110 transition-transform duration-500"
+                                      fallbackIcon="store"
+                                    />
+                                    <div className="absolute top-2 left-2 z-10 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-black/60 text-white/90 border border-white/20 backdrop-blur-md">
+                                      Photo {idx + 1}
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/gallery:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
+                                      <span className="text-white text-xs font-bold px-3.5 py-1.5 rounded-full bg-indigo-500/90 shadow-xl border border-white/20">
+                                        Expand Photo 🔍
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="p-8 rounded-2xl border border-dashed border-white/10 text-center text-white/40 text-xs">
+                                No additional venue gallery photos uploaded for this event.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right Column: Analytics & Summary Panel */}
+                        <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col bg-white/[0.02] shrink-0">
+                          <h3 className="text-lg font-bold text-white border-b border-white/10 pb-4 mb-6 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-indigo-400" />
+                            Event Analytics Summary
+                          </h3>
+                          
+                          <div className="space-y-4 flex-1">
+                            <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent border border-indigo-500/30">
+                              <span className="block text-xs text-indigo-300 uppercase font-bold tracking-wider mb-1">Total Estimated Revenue</span>
+                              <span className="text-3xl font-black text-emerald-400 drop-shadow-md">
+                                ₹{eventBookings.reduce((sum, b) => {
+                                  const isPremium = (() => {
+                                    try {
+                                      const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
+                                      return Array.isArray(ids) && ids.includes(b.stall_number);
+                                    } catch { return false; }
+                                  })();
+                                  const price = isPremium ? selectedEventForBookings.premium_price : selectedEventForBookings.standard_price;
+                                  return sum + (price || 0);
+                                }, 0).toLocaleString()}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Total Capacity</span>
+                                <span className="text-lg font-black text-white mt-0.5 block">{selectedEventForBookings.total_stalls} Stalls</span>
+                              </div>
+                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Booked Stalls</span>
+                                <span className="text-lg font-black text-indigo-400 mt-0.5 block">{eventBookings.length} Booked</span>
+                              </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                              <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Stall Tiers Configuration</p>
+                              
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-white/60">Standard Stall Size:</span>
+                                <span className="font-bold text-white">{selectedEventForBookings.standard_stall_size || '10x10 ft'}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
+                                <span className="text-white/60">Standard Stall Price:</span>
+                                <span className="font-bold text-emerald-400">₹{selectedEventForBookings.standard_price || 0}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
+                                <span className="text-white/60">Premium Stall Size:</span>
+                                <span className="font-bold text-white">{selectedEventForBookings.premium_stall_size || '12x12 ft'}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
+                                <span className="text-white/60">Premium Stall Price:</span>
+                                <span className="font-bold text-amber-400">₹{selectedEventForBookings.premium_price || 0}</span>
+                              </div>
+                            </div>
+
+                            {/* Delete Event Button */}
                             <button
-                              onClick={() => {
-                                setChatContext({
-                                  eventId: booking.event_id,
-                                  vendorId: booking.vendor_id,
-                                  receiverId: booking.vendor_id,
-                                  title: `${booking.vendor_name} (${selectedEventForBookings?.name})`
-                                });
-                                setIsChatOpen(true);
+                              onClick={async () => {
+                                const confirmDelete = window.confirm(
+                                  `Are you sure you want to delete "${selectedEventForBookings.name}"? This will cancel all bookings, pitches, and delete all associated chat messages. This action cannot be undone.`
+                                );
+                                if (!confirmDelete) return;
+                                
+                                try {
+                                  const token = localStorage.getItem("token");
+                                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+                                  const cleanApiUrl = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
+                                  const res = await fetch(`${cleanApiUrl}/events/${selectedEventForBookings.id}`, {
+                                    method: "DELETE",
+                                    headers: {
+                                      "Authorization": `Bearer ${token}`
+                                    }
+                                  });
+                                  
+                                  if (res.ok) {
+                                    alert("Event deleted successfully!");
+                                    setSelectedEventForBookings(null);
+                                    fetchEvents();
+                                  } else {
+                                    const errData = await res.json().catch(() => null);
+                                    alert(errData?.detail || "Failed to delete event.");
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to delete event", err);
+                                  alert("An error occurred while deleting the event.");
+                                }
                               }}
-                              className="p-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-colors"
-                              title="Message Vendor"
+                              className="mt-4 w-full py-3 rounded-xl font-bold text-xs text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/80 border border-red-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
                             >
-                              <MessageSquare className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" /> Delete Event
                             </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                  {/* Gallery Section */}
-                  <div className="mt-8 pt-8 border-t border-black/10 dark:border-white/10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <LayoutGrid className="w-5 h-5 text-indigo-400" />
-                      Event Gallery
-                    </h3>
-                    <p className="text-gray-600 dark:text-white/60 text-sm mb-4">
-                      Browse photos uploaded for this event.
-                    </p>
-                    {getImageUrls(selectedEventForBookings).length > 0 ? (
-                      <div 
-                        ref={galleryRef}
-                        onMouseDown={handleMouseDown}
-                        onMouseLeave={handleMouseLeave}
-                        onMouseUp={handleMouseUp}
-                        onMouseMove={handleMouseMove}
-                        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none scrollbar-hide pb-2"
-                        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
-                      >
-                        {getImageUrls(selectedEventForBookings).map((url: string, idx: number) => (
-                          <div 
-                            key={url + idx} 
-                            onClick={() => {
-                              if (!dragMoved.current) {
-                                setLightboxImage(url);
-                              }
-                            }}
-                            className="flex-none w-2/3 sm:w-1/2 md:w-1/3 aspect-video snap-start relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 group/gallery hover:border-indigo-500/30 transition-all cursor-pointer"
-                          >
-                            <SafeImage
-                              src={url}
-                              alt={`${selectedEventForBookings.name} Gallery ${idx + 1}`}
-                              aspectRatio="aspect-video"
-                              maxWDesktop=""
-                              roundedClass="rounded-none pointer-events-none"
-                              fallbackIcon="store"
-                            />
-                            {/* Hover overlay hint */}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/gallery:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
-                              <span className="text-white text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-500/80 shadow-md">Click to Expand</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-6 rounded-2xl border border-dashed border-white/10 text-center text-white/40 text-sm">
-                        No gallery images uploaded for this event.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Side: Analytics & Summary Panel */}
-                <div className="w-full md:w-80 p-8 flex flex-col bg-white/[0.02] shrink-0 border-t md:border-t-0 md:border-l border-white/10">
-                  <h3 className="text-xl font-bold text-white border-b border-white/10 pb-4 mb-6">Event Summary</h3>
-                  
-                  <div className="space-y-4 flex-1">
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                      <span className="block text-xs text-white/40 uppercase font-semibold mb-1">Total Revenue Generated</span>
-                      <span className="text-3xl font-black text-emerald-400">
-                        ₹{eventBookings.reduce((sum, b) => {
-                          const isPremium = (() => {
-                            try {
-                              const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
-                              return Array.isArray(ids) && ids.includes(b.stall_number);
-                            } catch { return false; }
-                          })();
-                          const price = isPremium ? selectedEventForBookings.premium_price : selectedEventForBookings.standard_price;
-                          return sum + (price || 0);
-                        }, 0).toLocaleString()}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                        <span className="block text-[10px] text-white/40 uppercase font-semibold">Total Stalls</span>
-                        <span className="text-lg font-bold text-white">{selectedEventForBookings.total_stalls}</span>
-                      </div>
-                      <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                        <span className="block text-[10px] text-white/40 uppercase font-semibold">Booked Stalls</span>
-                        <span className="text-lg font-bold text-indigo-400">{eventBookings.length}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
-                      <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Stall Tiers Configuration</p>
-                      
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-white/60">Standard Stall size:</span>
-                        <span className="font-bold text-white">{selectedEventForBookings.standard_stall_size || '10x10'}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm border-t border-white/5 pt-2">
-                        <span className="text-white/60">Standard Stall price:</span>
-                        <span className="font-bold text-emerald-400">₹{selectedEventForBookings.standard_price}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm border-t border-white/5 pt-2">
-                        <span className="text-white/60">Premium Stall size:</span>
-                        <span className="font-bold text-white">{selectedEventForBookings.premium_stall_size || '12x12'}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm border-t border-white/5 pt-2">
-                        <span className="text-white/60">Premium Stall price:</span>
-                        <span className="font-bold text-amber-400">₹{selectedEventForBookings.premium_price}</span>
-                      </div>
-                    </div>
-
-                    {/* Delete Event Button */}
-                    <button
-                      onClick={async () => {
-                        const confirmDelete = window.confirm(
-                          `Are you sure you want to delete "${selectedEventForBookings.name}"? This will cancel all bookings, pitches, and delete all associated chat messages. This action cannot be undone.`
-                        );
-                        if (!confirmDelete) return;
-                        
-                        try {
-                          const token = localStorage.getItem("token");
-                          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-                          const cleanApiUrl = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
-                          const res = await fetch(`${cleanApiUrl}/events/${selectedEventForBookings.id}`, {
-                            method: "DELETE",
-                            headers: {
-                              "Authorization": `Bearer ${token}`
-                            }
-                          });
-                          
-                          if (res.ok) {
-                            alert("Event deleted successfully!");
-                            setSelectedEventForBookings(null);
-                            // Refresh events list
-                            fetchEvents();
-                          } else {
-                            const errData = await res.json().catch(() => null);
-                            alert(errData?.detail || "Failed to delete event.");
-                          }
-                        } catch (err) {
-                          console.error("Failed to delete event", err);
-                          alert("An error occurred while deleting the event.");
-                        }
-                      }}
-                      className="w-full mt-4 py-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 transition-all text-sm font-semibold flex items-center justify-center gap-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete Event
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Form Modal Dropdown */}
-      <AnimatePresence>
-        {isModalOpen && (
+              {/* Form Modal Dropdown */}
+              <AnimatePresence>
+                {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -3270,90 +3268,107 @@ export default function OrganizerDashboard() {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Read-Only Event Details Modal */}
+      {/* Read-Only Event Details Modal */}
+      <AnimatePresence>
         {selectedEventDetails && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md"
           >
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 rounded-[2.5rem] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.6)] text-gray-900 dark:text-white">
+            <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/95 backdrop-blur-3xl shadow-[0_0_80px_rgba(168,85,247,0.25)] text-white flex flex-col scrollbar-hide">
+              {/* Floating ambient glow */}
+              <div className="absolute top-0 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+              {/* Close button */}
               <button 
                 onClick={() => setSelectedEventDetails(null)}
-                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-black/60 hover:bg-purple-500/20 border border-white/20 hover:border-purple-500/50 text-white/70 hover:text-white transition-all shadow-xl backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
               
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <span className="px-3 py-1 text-xs font-semibold rounded-full border bg-indigo-500/20 text-indigo-500 dark:text-indigo-300 border-indigo-500/30 inline-block">
-                    Live Event Info
+                <div>
+                  <span className="px-3.5 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 backdrop-blur-md uppercase inline-block mb-3 shadow-md">
+                    ★ EXPLORE LIVE FESTIVAL
                   </span>
-                  <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
-                    Explore <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 via-purple-555 to-cyan-500 bg-clip-text text-transparent drop-shadow-md`}>
-                      {selectedEventDetails.name}
-                    </span><br />
-                    like a pro.
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-12">
+                    {selectedEventDetails.name}
                   </h2>
-                  <p className="text-gray-500 dark:text-white/45 text-sm">Uploaded by other organizer</p>
+                  <p className="text-white/50 text-xs sm:text-sm mt-1">Uploaded by event organizer partner</p>
                 </div>
 
-                <SafeImage
-                  src={selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0])}
-                  alt={selectedEventDetails.name}
-                  aspectRatio="aspect-video"
-                  maxWDesktop=""
-                  roundedClass="rounded-2xl shadow-inner"
-                  fallbackIcon="store"
-                />
+                <div 
+                  onClick={() => setLightboxImage(selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0]))}
+                  className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black/40 cursor-pointer group shadow-xl"
+                >
+                  <SafeImage
+                    src={selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0])}
+                    alt={selectedEventDetails.name}
+                    aspectRatio="aspect-video"
+                    maxWDesktop=""
+                    roundedClass="rounded-none group-hover:scale-105 transition-transform duration-700"
+                    fallbackIcon="store"
+                  />
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
+                    <span className="text-white text-xs font-bold px-4 py-2 rounded-full bg-purple-500/90 shadow-2xl border border-white/20">
+                      Expand Full Photo 🔍
+                    </span>
+                  </div>
+                </div>
 
+                {/* Stall Specifications Matrix */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                  <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10">
-                    <p className="text-xs text-gray-500 dark:text-white/40 uppercase tracking-wider font-bold">Standard Stall</p>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">Price: ₹{selectedEventDetails.standard_price || "0"}</p>
-                    <p className="text-sm text-gray-600 dark:text-white/60 mt-1">Size: {selectedEventDetails.standard_stall_size || "10x10"}</p>
-                    <p className="text-sm text-gray-600 dark:text-white/60 mt-0.5">Loc: {selectedEventDetails.standard_stall_location || "Main Hall"}</p>
+                  <div className="p-5 rounded-2xl bg-white/5 border border-white/10 shadow-md">
+                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 inline-block mb-2">
+                      Standard Tier
+                    </span>
+                    <p className="text-2xl font-black text-white mt-1">₹{selectedEventDetails.standard_price || "0"}</p>
+                    <p className="text-xs text-white/60 mt-1 font-semibold">Dimensions: {selectedEventDetails.standard_stall_size || "10x10 ft"}</p>
+                    <p className="text-xs text-white/60 mt-0.5 font-semibold">Location: {selectedEventDetails.standard_stall_location || "Main Hall"}</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
-                    <p className="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-bold">★ Premium Stall</p>
-                    <p className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">Price: ₹{selectedEventDetails.premium_price || "0"}</p>
-                    <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1">Size: {selectedEventDetails.premium_stall_size || "12x12"}</p>
-                    <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-0.5">Loc: {selectedEventDetails.premium_stall_location || "VIP Area"}</p>
+                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 shadow-md">
+                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-block mb-2">
+                      ★ Premium Tier
+                    </span>
+                    <p className="text-2xl font-black text-amber-400 mt-1">₹{selectedEventDetails.premium_price || "0"}</p>
+                    <p className="text-xs text-amber-300/80 mt-1 font-semibold">Dimensions: {selectedEventDetails.premium_stall_size || "12x12 ft"}</p>
+                    <p className="text-xs text-amber-300/80 mt-0.5 font-semibold">Location: {selectedEventDetails.premium_stall_location || "VIP Zone"}</p>
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-gray-250 dark:border-white/10 text-sm">
-                  <div className="flex items-center gap-3">
-                    <CalendarDays className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-                    <span className="font-semibold">Date &amp; Time:</span> <span>{selectedEventDetails.date}</span>
+                <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-white/10 text-xs sm:text-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                    <CalendarDays className="w-4 h-4 text-purple-400" />
+                    <span className="font-semibold text-white/70">Date:</span> 
+                    <span className="font-bold text-white">{selectedEventDetails.date}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-fuchsia-500 dark:text-fuchsia-400" />
-                    <span className="font-semibold">Total Stalls:</span> <span>{selectedEventDetails.total_stalls} stalls</span>
+                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                    <Users className="w-4 h-4 text-pink-400" />
+                    <span className="font-semibold text-white/70">Stalls:</span> 
+                    <span className="font-bold text-white">{selectedEventDetails.total_stalls} Total</span>
                   </div>
                   {selectedEventDetails.maps_url && (
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
-                      <a 
-                        href={selectedEventDetails.maps_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-indigo-500 hover:underline inline-flex items-center gap-1 font-semibold"
-                      >
-                        View on Google Maps <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
+                    <a 
+                      href={selectedEventDetails.maps_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 px-4 py-2 rounded-xl border border-purple-500/40 font-bold transition-all hover:scale-105"
+                    >
+                      <MapPin className="w-4 h-4 text-purple-400" />
+                      <span>View Google Maps ↗</span>
+                    </a>
                   )}
                 </div>
 
                 <button
                   onClick={() => setSelectedEventDetails(null)}
-                  className="w-full py-4 mt-4 rounded-xl font-bold text-lg text-gray-700 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
+                  className="w-full py-4 mt-2 rounded-xl font-extrabold text-sm text-white bg-white/10 hover:bg-white/20 border border-white/15 transition-all cursor-pointer shadow-lg"
                 >
                   Close Details
                 </button>
@@ -3361,9 +3376,11 @@ export default function OrganizerDashboard() {
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Advance Payment Checkout Overlay */}
-        {checkoutPitch && (() => {
+      {/* Advance Payment Checkout Overlay */}
+        <AnimatePresence>
+          {checkoutPitch && (() => {
           const vendorBasePrice = checkoutPitch.offered_price;
           const calculatedAdvance = Math.round(vendorBasePrice * 0.3); // 30% advance
           const remainingBalance = vendorBasePrice - calculatedAdvance;

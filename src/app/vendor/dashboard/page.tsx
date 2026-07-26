@@ -2165,89 +2165,117 @@ export default function VendorDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md"
           >
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] border border-white/10 bg-[#0A0A0A]/95 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col"
+              className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/95 backdrop-blur-3xl shadow-[0_0_80px_rgba(236,72,153,0.2)] flex flex-col scrollbar-hide"
             >
-              {/* Close button */}
+              {/* Floating ambient glow spots */}
+              <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+              {/* Close button - Fixed top-right z-50 to never overlap text */}
               <button 
                 onClick={() => { setSelectedEvent(null); setSelectedStall(null); }}
-                className="absolute top-6 right-6 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-black/60 hover:bg-rose-500/20 border border-white/20 hover:border-rose-500/50 text-white/70 hover:text-white transition-all shadow-xl backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95"
               >
                 <X className="w-6 h-6" />
               </button>
 
               {/* Hero Banner Section */}
-              <div className="relative w-full h-64 md:h-80 overflow-hidden bg-black/40 border-b border-white/10 shrink-0">
+              <div className="relative w-full h-72 sm:h-80 md:h-96 overflow-hidden bg-black/50 border-b border-white/10 shrink-0 group">
                 <SafeImage
                   src={selectedEvent.banner_url || (getImageUrls(selectedEvent)[0])}
                   alt={selectedEvent.name}
                   aspectRatio="w-full h-full"
                   maxWDesktop="none"
-                  roundedClass="rounded-none"
+                  roundedClass="rounded-none group-hover:scale-105 transition-transform duration-700 cursor-pointer"
                   fallbackIcon="store"
                 />
-                {/* Gradient Overlay for aesthetic look */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-black/40 z-10" />
+                <div 
+                  onClick={() => setLightboxImage(selectedEvent.banner_url || (getImageUrls(selectedEvent)[0]))}
+                  className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/50 to-black/40 cursor-pointer" 
+                />
                 
-                {/* Event Title over Hero Banner */}
-                <div className="absolute bottom-6 left-8 right-8 z-20">
-                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 backdrop-blur-md uppercase tracking-wider mb-3 inline-block">Exhibition</span>
-                  <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">{selectedEvent.name}</h2>
-                  <div className="flex flex-wrap items-center gap-4 mt-2 text-white/70 text-sm">
-                    <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                      <CalendarDays className="w-4 h-4 text-rose-400 animate-pulse" />
-                      <span className="font-semibold">{selectedEvent.date}</span>
+                {/* Event Header Overlay */}
+                <div className="absolute bottom-6 left-6 sm:left-8 right-16 sm:right-20 z-20 pointer-events-none">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="px-3 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-pink-500/30 to-purple-500/30 text-pink-300 border border-pink-500/40 backdrop-blur-md uppercase shadow-lg">
+                      ★ FESTOPIYA EVENT MATRIX
+                    </span>
+                    <span className="px-3 py-1 text-[11px] font-semibold tracking-wider rounded-full bg-white/10 text-white/80 border border-white/15 backdrop-blur-md uppercase">
+                      {selectedEvent.total_stalls || 0} Total Stalls
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-4">
+                    {selectedEvent.name}
+                  </h2>
+
+                  {/* Metadata Chips */}
+                  <div className="flex flex-wrap items-center gap-3 mt-4 text-white/80 text-xs sm:text-sm pointer-events-auto">
+                    <div className="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-md">
+                      <CalendarDays className="w-4 h-4 text-pink-400 animate-pulse" />
+                      <span className="font-semibold text-white">{selectedEvent.date}</span>
                     </div>
+
                     {selectedEvent.maps_url ? (
                       <a 
                         href={selectedEvent.maps_url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 px-3 py-1.5 rounded-xl backdrop-blur-sm transition-all duration-300 font-semibold"
+                        className="flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/40 text-cyan-300 px-3.5 py-1.5 rounded-xl backdrop-blur-md transition-all duration-300 font-semibold shadow-md hover:scale-105"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MapPin className="w-4 h-4 text-rose-400" />
-                        <span>View on Maps</span>
+                        <MapPin className="w-4 h-4 text-cyan-400" />
+                        <span>View Live Map ↗</span>
                       </a>
                     ) : (
-                      <div className="flex items-center gap-1.5 bg-black/35 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                        <MapPin className="w-4 h-4 text-rose-400" />
-                        <span className="font-semibold">{selectedEvent.standard_stall_location || "TBD"}</span>
+                      <div className="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-md">
+                        <MapPin className="w-4 h-4 text-cyan-400" />
+                        <span className="font-semibold text-white">{selectedEvent.standard_stall_location || "Venue TBD"}</span>
                       </div>
                     )}
+
+                    <div className="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-xl border border-white/10 backdrop-blur-md shadow-md">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span className="font-semibold text-amber-300">Standard ₹{selectedEvent.standard_price || 0} • Premium ₹{selectedEvent.premium_price || 0}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row flex-1">
-                {/* Left Side: Map Area & Gallery */}
-                <div className="flex-1 p-8 border-b md:border-b-0 md:border-r border-white/10">
-                  <div className="mb-6">
-                    <p className="text-white/75 font-semibold text-lg mb-1">Interactive Stall Map</p>
-                    <p className="text-white/50 text-sm">Select an available stall on the map below to book.</p>
+              {/* Main Content Body */}
+              <div className="flex flex-col lg:flex-row flex-1 z-20">
+                {/* Left Column: Interactive Map & Photo Gallery */}
+                <div className="flex-1 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-white/10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <LayoutGrid className="w-5 h-5 text-pink-400" />
+                        Interactive Stall Blueprint
+                      </h3>
+                      <p className="text-white/50 text-xs sm:text-sm mt-0.5">Click an available stall tile on the blueprint map to pitch your offer.</p>
+                    </div>
                   </div>
                   
-                  {/* Stall Map Container */}
-                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 shadow-[inset_0_4px_24px_rgba(0,0,0,0.9)]">
-                    {/* Tech blueprint Grid overlay */}
-                    <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-                    <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '8px 8px' }}></div>
-                    {/* Vignette effect */}
+                  {/* Stall Map Grid Container */}
+                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[inset_0_4px_30px_rgba(0,0,0,0.9)]">
+                    {/* Tech Blueprint Grid background */}
+                    <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(rgba(236,72,153,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(236,72,153,0.15) 1px, transparent 1px)', backgroundSize: '28px 28px' }}></div>
+                    <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '7px 7px' }}></div>
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#09090b_95%)] pointer-events-none" />
                     
-                    {/* Interactive Stalls Overlay */}
+                    {/* Interactive Stall Nodes */}
                     {stalls.map((stall) => (
                       <motion.button
                         key={stall.id}
                         onClick={() => {
                           if (stall.status !== 'available') return;
                           setSelectedStall(stall.id);
-                          // Auto-set tier based on organizer's designation
                           const type = stall.isPremium ? 'Premium' : 'Standard';
                           setStallType(type);
                           setOfferedPrice(
@@ -2257,57 +2285,63 @@ export default function VendorDashboard() {
                           );
                         }}
                         disabled={stall.status === 'booked'}
-                        whileHover={stall.status === 'available' ? { scale: 1.05, zIndex: 10 } : {}}
-                        whileTap={stall.status === 'available' ? { scale: 0.95 } : {}}
+                        whileHover={stall.status === 'available' ? { scale: 1.08, zIndex: 30 } : {}}
+                        whileTap={stall.status === 'available' ? { scale: 0.92 } : {}}
                         style={{ top: stall.top, left: stall.left }}
-                        className={`absolute w-[15%] h-[15%] rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] backdrop-blur-md transition-all duration-300
+                        className={`absolute w-[15%] h-[15%] rounded-xl border flex flex-col items-center justify-center font-bold text-xs backdrop-blur-md transition-all duration-300 cursor-pointer shadow-lg
                           ${stall.status === 'booked'
-                            ? 'bg-red-950/30 border-red-900 text-red-700/50 opacity-45 cursor-not-allowed'
+                            ? 'bg-red-950/40 border-red-900/60 text-red-700/50 opacity-40 cursor-not-allowed'
                             : selectedStall === stall.id
-                              ? 'bg-rose-500/30 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.65)] z-20 hover:scale-105'
+                              ? 'bg-rose-500/40 border-rose-400 text-white shadow-[0_0_25px_rgba(244,63,94,0.8)] z-30 scale-105'
                               : stall.isPremium
-                                ? 'bg-zinc-900/50 border-amber-500 text-amber-400 cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]'
-                                : 'bg-zinc-900/50 border-green-500 text-green-400 cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]'
+                                ? 'bg-amber-950/40 border-amber-500/70 text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]'
+                                : 'bg-emerald-950/40 border-emerald-500/70 text-emerald-300 hover:shadow-[0_0_20px_rgba(34,197,94,0.5)]'
                           }
                         `}
                       >
-                        <span>{stall.id}</span>
+                        <span className="font-extrabold">{stall.id}</span>
                         {stall.isPremium && stall.status !== 'booked' && selectedStall !== stall.id && (
-                          <span className="text-[8px] leading-none text-amber-300">★</span>
+                          <span className="text-[9px] leading-none text-amber-300 font-bold">★</span>
                         )}
                       </motion.button>
                     ))}
                     
-                    {/* Legend */}
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-6 p-3 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-white/5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
-                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Available</span>
+                    {/* Blueprint Legend */}
+                    <div className="absolute bottom-3 left-3 right-3 flex flex-wrap justify-center gap-4 sm:gap-6 p-2.5 rounded-xl bg-zinc-950/85 backdrop-blur-xl border border-white/10 shadow-lg">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#22c55e]"></div>
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-300 uppercase tracking-wider">Available</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
-                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Premium</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-300 uppercase tracking-wider">★ Premium</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-red-700 shadow-[0_0_8px_rgba(185,28,28,0.4)] opacity-50"></div>
-                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Booked</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-700 shadow-[0_0_8px_rgba(185,28,28,0.4)] opacity-50"></div>
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-300 uppercase tracking-wider">Booked</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></div>
-                        <span className="text-[10px] md:text-xs font-semibold tracking-wider text-gray-400 uppercase">Selected</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></div>
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-300 uppercase tracking-wider">Selected</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Details/Gallery Section */}
-                  <div className="mt-8 pt-8 border-t border-white/10">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <LayoutGrid className="w-5 h-5 text-rose-400" />
-                      Event Gallery
-                    </h3>
-                    <p className="text-white/60 text-sm mb-4">
-                      Browse photos from the venue organizer.
-                    </p>
+                  {/* Photo Gallery Showcase */}
+                  <div className="mt-8 pt-6 border-t border-white/10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                          <Store className="w-5 h-5 text-cyan-400" />
+                          Event Photos & Venue Gallery
+                        </h4>
+                        <p className="text-white/50 text-xs">Tap any image to expand full resolution view.</p>
+                      </div>
+                      <span className="px-3 py-1 text-xs font-bold rounded-full bg-white/5 text-white/70 border border-white/10">
+                        {getImageUrls(selectedEvent).length} Photos
+                      </span>
+                    </div>
+
                     {getImageUrls(selectedEvent).length > 0 ? (
                       <div 
                         ref={galleryRef}
@@ -2315,7 +2349,7 @@ export default function VendorDashboard() {
                         onMouseLeave={handleMouseLeave}
                         onMouseUp={handleMouseUp}
                         onMouseMove={handleMouseMove}
-                        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none scrollbar-hide pb-2"
+                        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none pb-2 scrollbar-hide"
                         style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
                       >
                         {getImageUrls(selectedEvent).map((url: string, idx: number) => (
@@ -2326,167 +2360,196 @@ export default function VendorDashboard() {
                                 setLightboxImage(url);
                               }
                             }}
-                            className="flex-none w-2/3 sm:w-1/2 md:w-1/3 aspect-video snap-start relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 group/gallery hover:border-rose-500/30 transition-all cursor-pointer"
+                            className="flex-none w-60 sm:w-72 aspect-video snap-start relative rounded-2xl overflow-hidden border border-white/15 bg-white/5 group/gallery hover:border-pink-500/50 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]"
                           >
                             <SafeImage
                               src={url}
                               alt={`${selectedEvent.name} Gallery ${idx + 1}`}
                               aspectRatio="aspect-video"
                               maxWDesktop=""
-                              roundedClass="rounded-none pointer-events-none"
+                              roundedClass="rounded-none pointer-events-none group-hover/gallery:scale-110 transition-transform duration-500"
                               fallbackIcon="store"
                             />
-                            {/* Hover overlay hint */}
+                            <div className="absolute top-2 left-2 z-10 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-black/60 text-white/90 border border-white/20 backdrop-blur-md">
+                              Photo {idx + 1}
+                            </div>
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/gallery:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
-                              <span className="text-white text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-500/80 shadow-md">Click to Expand</span>
+                              <span className="text-white text-xs font-bold px-3.5 py-1.5 rounded-full bg-rose-500/90 shadow-xl border border-white/20">
+                                Expand Photo 🔍
+                              </span>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="p-6 rounded-2xl border border-dashed border-white/10 text-center text-white/40 text-sm">
-                        No gallery images uploaded for this event.
+                      <div className="p-8 rounded-2xl border border-dashed border-white/10 text-center text-white/40 text-xs">
+                        No extra gallery photos uploaded by the organizer.
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Right Side: Booking Panel */}
-                <div className="w-full md:w-80 p-8 flex flex-col bg-white/[0.02]">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-                  <h3 className="text-xl font-bold text-white">Stall Details</h3>
-                  <button 
-                    onClick={() => {
-                      setChatContext({
-                        eventId: selectedEvent.id,
-                        receiverId: selectedEvent.organizer_id,
-                        title: `Organizer of ${selectedEvent.name}`
-                      });
-                      setIsChatOpen(true);
-                    }}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
-                  >
-                    <MessageSquare className="w-4 h-4 text-rose-400" /> Message
-                  </button>
-                </div>
-                
-                {selectedStall ? (
-                  <AnimatePresence mode="wait">
-                    {!isBooked ? (
-                      <motion.div 
-                        key="booking-form"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="flex-1 flex flex-col"
-                      >
-                        <div className="space-y-6 flex-1">
-                          <div>
-                            <span className="block text-sm text-white/50 mb-1">Stall Number</span>
-                            <span className="text-3xl font-black text-rose-400">#{selectedStall}</span>
-                          </div>
-                          
-                          {/* Stall tier chosen on the card — show it here as read-only badge */}
-                          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${
-                            stallType === 'Premium'
-                              ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                          }`}>
-                            <span>{stallType === 'Premium' ? '★' : '◉'}</span>
-                            <span>{stallType} Stall</span>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                              <span className="block text-[10px] text-white/40 uppercase font-semibold">Stall Size</span>
-                              <span className="text-sm font-bold text-white">
-                                {stallType === 'Premium' 
-                                  ? (selectedEvent.premium_stall_size || '12x12') 
-                                  : (selectedEvent.standard_stall_size || '10x10')}
-                              </span>
-                            </div>
-                            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-                              <span className="block text-[10px] text-white/40 uppercase font-semibold">Location</span>
-                              <span className="text-sm font-bold text-white truncate block">
-                                {stallType === 'Premium' 
-                                  ? (selectedEvent.premium_stall_location || 'VIP Area') 
-                                  : (selectedEvent.standard_stall_location || 'Main Hall')}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm text-white/50 mb-1">Your Pitch Price (₹)</label>
-                            <input 
-                              type="number" 
-                              value={offeredPrice}
-                              onChange={e => setOfferedPrice(e.target.value)}
-                              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder:text-white/20 outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/50 transition-all shadow-inner"
-                            />
-                            <p className="text-xs text-white/40 mt-1">
-                              Default prices: Standard ₹{selectedEvent.standard_price || 0}, Premium ₹{selectedEvent.premium_price || 0}
-                            </p>
-                          </div>
-                          
-                          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                            <p className="text-sm text-rose-200">
-                              Submit your pitch. The organizer will review your offer and can accept or counter.
-                            </p>
-                          </div>
-                        </div>
-
-                        {bookingError && (
-                          <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                            <AlertCircle className="w-5 h-5 shrink-0" />
-                            <p>{bookingError}</p>
-                          </div>
-                        )}
-
-                        <motion.button
-                          onClick={handlePitch}
-                          disabled={isBookingLoading}
-                          whileHover={isBookingLoading ? {} : { scale: 1.05 }}
-                          whileTap={isBookingLoading ? {} : { scale: 0.95 }}
-                          className={`mt-6 w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all
-                            ${isBookingLoading 
-                              ? 'bg-rose-500/50 text-white/50 cursor-not-allowed' 
-                              : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.4)]'
-                            }
-                          `}
-                        >
-                          {isBookingLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Pitch This Stall"}
-                        </motion.button>
-                      </motion.div>
-                    ) : (
-                      <motion.div 
-                        key="success-message"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex-1 flex flex-col items-center justify-center text-center py-10"
-                      >
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1, rotate: 360 }}
-                          transition={{ type: "spring", damping: 15 }}
-                        >
-                          <CheckCircle2 className="w-20 h-20 text-emerald-400 mb-4" />
-                        </motion.div>
-                        <h4 className="text-2xl font-bold text-white mb-2">Pitch Submitted!</h4>
-                        <p className="text-white/60">
-                          Your pitch for Stall #{selectedStall} at {selectedEvent.name} has been sent to the organizer. Check your Active Pitches to negotiate!
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                    <Store className="w-16 h-16 text-white/20 mb-4" />
-                    <p className="text-white/60">Select an available stall from the map to view details and book.</p>
+                {/* Right Column: Stall Pitch & Booking Details Panel */}
+                <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col bg-white/[0.02]">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-amber-400" />
+                      Stall Pitch Hub
+                    </h3>
+                    <button 
+                      onClick={() => {
+                        setChatContext({
+                          eventId: selectedEvent.id,
+                          receiverId: selectedEvent.organizer_id,
+                          title: `Organizer of ${selectedEvent.name}`
+                        });
+                        setIsChatOpen(true);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white/90 hover:text-white transition-all flex items-center gap-1.5 text-xs font-bold shadow-md cursor-pointer hover:scale-105"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-rose-400" /> Message Organizer
+                    </button>
                   </div>
-                )}
+                  
+                  {selectedStall ? (
+                    <AnimatePresence mode="wait">
+                      {!isBooked ? (
+                        <motion.div 
+                          key="booking-form"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          className="flex-1 flex flex-col"
+                        >
+                          <div className="space-y-5 flex-1">
+                            <div className="flex items-center justify-between bg-black/40 p-4 rounded-2xl border border-white/10">
+                              <div>
+                                <span className="block text-xs text-white/50 font-semibold uppercase">Selected Stall</span>
+                                <span className="text-3xl font-black text-rose-400 drop-shadow-md">#{selectedStall}</span>
+                              </div>
+                              <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${
+                                stallType === 'Premium'
+                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                                  : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 shadow-[0_0_12px_rgba(34,197,94,0.3)]'
+                              }`}>
+                                <span>{stallType === 'Premium' ? '★' : '◉'}</span>
+                                <span>{stallType} Stall</span>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Stall Size</span>
+                                <span className="text-sm font-bold text-white mt-0.5 block">
+                                  {stallType === 'Premium' 
+                                    ? (selectedEvent.premium_stall_size || '12x12 ft') 
+                                    : (selectedEvent.standard_stall_size || '10x10 ft')}
+                                </span>
+                              </div>
+                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Location Zone</span>
+                                <span className="text-sm font-bold text-white truncate block mt-0.5">
+                                  {stallType === 'Premium' 
+                                    ? (selectedEvent.premium_stall_location || 'VIP Zone') 
+                                    : (selectedEvent.standard_stall_location || 'Main Floor')}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-white/70 uppercase tracking-wider mb-2">
+                                Enter Your Pitch Price (₹)
+                              </label>
+                              <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold text-lg">₹</span>
+                                <input 
+                                  type="number" 
+                                  value={offeredPrice}
+                                  onChange={e => setOfferedPrice(e.target.value)}
+                                  className="w-full pl-9 pr-4 py-3 rounded-xl bg-black/60 border border-white/20 text-white font-bold text-lg placeholder:text-white/20 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all shadow-inner"
+                                  placeholder="0"
+                                />
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setOfferedPrice(selectedEvent.standard_price?.toString() || '0')}
+                                  className="flex-1 py-1 text-[11px] font-semibold rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 transition-all"
+                                >
+                                  Standard (₹{selectedEvent.standard_price || 0})
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setOfferedPrice(selectedEvent.premium_price?.toString() || '0')}
+                                  className="flex-1 py-1 text-[11px] font-semibold rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition-all"
+                                >
+                                  Premium (₹{selectedEvent.premium_price || 0})
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-purple-500/15 border border-rose-500/30">
+                              <p className="text-xs text-rose-200 leading-relaxed font-medium">
+                                💡 Submit your pitch directly. The event organizer will receive instant notification to review or negotiate.
+                              </p>
+                            </div>
+                          </div>
+
+                          {bookingError && (
+                            <div className="mt-4 flex items-start gap-2 p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-semibold">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                              <p>{bookingError}</p>
+                            </div>
+                          )}
+
+                          <motion.button
+                            onClick={handlePitch}
+                            disabled={isBookingLoading}
+                            whileHover={isBookingLoading ? {} : { scale: 1.03 }}
+                            whileTap={isBookingLoading ? {} : { scale: 0.97 }}
+                            className={`mt-6 w-full py-4 rounded-xl font-extrabold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xl
+                              ${isBookingLoading 
+                                ? 'bg-rose-500/50 text-white/50 cursor-not-allowed' 
+                                : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.5)]'
+                              }
+                            `}
+                          >
+                            {isBookingLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Pitch This Stall Now 🚀"}
+                          </motion.button>
+                        </motion.div>
+                      ) : (
+                        <motion.div 
+                          key="success-message"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="flex-1 flex flex-col items-center justify-center text-center py-10"
+                        >
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1, rotate: 360 }}
+                            transition={{ type: "spring", damping: 15 }}
+                          >
+                            <CheckCircle2 className="w-20 h-20 text-emerald-400 mb-4 drop-shadow-[0_0_20px_rgba(52,211,153,0.5)]" />
+                          </motion.div>
+                          <h4 className="text-2xl font-black text-white mb-2">Pitch Submitted!</h4>
+                          <p className="text-white/70 text-sm leading-relaxed">
+                            Your offer for Stall #{selectedStall} at {selectedEvent.name} is delivered to the organizer!
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                      <Store className="w-14 h-14 text-white/20 mb-3 animate-bounce" />
+                      <h4 className="text-sm font-bold text-white mb-1">No Stall Selected</h4>
+                      <p className="text-white/50 text-xs leading-relaxed">
+                        Tap any green or gold stall tile on the blueprint map to view details and submit your pitch.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
