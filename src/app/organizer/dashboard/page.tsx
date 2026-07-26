@@ -2203,10 +2203,8 @@ export default function OrganizerDashboard() {
                             </span>
                           </div>
 
-                          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-xl break-words pr-4">
-                            <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
-                              {selectedEventForBookings.name}
-                            </span>
+                          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-4">
+                            {selectedEventForBookings.name}
                           </h2>
 
                           {/* Metadata Chips */}
@@ -2243,11 +2241,11 @@ export default function OrganizerDashboard() {
                         <div className="flex-1 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-white/10">
                           <div className="flex items-center justify-between mb-6">
                             <div>
-                              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                <Users className="w-5 h-5 text-indigo-400" />
-                                <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
-                                  Reserved Stall Vendors ({eventBookings.length})
-                                </span>
+                              <h3 className="text-lg font-bold text-white flex items-center gap-1.5">
+                                <Users className="w-5 h-5 text-indigo-400 mr-0.5" />
+                                <span>Reserved</span>
+                                <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">Stall</span>
+                                <span>Vendors ({eventBookings.length})</span>
                               </h3>
                               <p className="text-white/50 text-xs sm:text-sm mt-0.5">Review booked vendors, pitches, and communicate directly.</p>
                             </div>
@@ -2325,11 +2323,11 @@ export default function OrganizerDashboard() {
                           <div className="mt-8 pt-6 border-t border-white/10">
                             <div className="flex items-center justify-between mb-4">
                               <div>
-                                <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                                  <Store className="w-5 h-5 text-indigo-400" />
-                                  <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
-                                    Event Photos & Venue Gallery
-                                  </span>
+                                <h4 className="text-lg font-bold text-white flex items-center gap-1.5">
+                                  <Store className="w-5 h-5 text-indigo-400 mr-0.5" />
+                                  <span>Event Photos &</span>
+                                  <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">Venue</span>
+                                  <span>Gallery</span>
                                 </h4>
                                 <p className="text-white/50 text-xs">Tap any photo to view full screen preview.</p>
                               </div>
@@ -2387,11 +2385,11 @@ export default function OrganizerDashboard() {
 
                         {/* Right Column: Analytics & Summary Panel */}
                         <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col bg-white/[0.02] shrink-0">
-                          <h3 className="text-lg font-bold text-white border-b border-white/10 pb-4 mb-6 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-indigo-400" />
-                            <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
-                              Event Analytics Summary
-                            </span>
+                          <h3 className="text-lg font-bold text-white border-b border-white/10 pb-4 mb-6 flex items-center gap-1.5">
+                            <Sparkles className="w-5 h-5 text-indigo-400 mr-0.5" />
+                            <span>Event</span>
+                            <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">Analytics</span>
+                            <span>Summary</span>
                           </h3>
                           
                           <div className="space-y-4 flex-1">
