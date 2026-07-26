@@ -1965,25 +1965,34 @@ export default function OrganizerDashboard() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-6 md:p-10 pb-10 text-gray-900 dark:text-white relative z-10">
+            <div className="flex-1 rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/90 backdrop-blur-3xl p-6 md:p-10 pb-10 text-white relative z-10 overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.15)]">
+              {/* Ambient Glows */}
+              <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+
               {/* Settings Header */}
-              <div className="mb-10">
+              <div className="mb-10 relative z-10">
                 <div className="flex items-center gap-4 mb-2">
-                  <div className="p-3 rounded-2xl bg-indigo-500/20 border border-indigo-500/20">
+                  <div className="p-3.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.25)]">
                     <Settings className="w-7 h-7 text-indigo-400 animate-spin-slow" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h2>
-                    <p className="text-gray-500 dark:text-white/50 mt-0.5">Update your public organizer profile information.</p>
+                    <h2 className="text-3xl font-extrabold text-white flex items-center gap-1.5">
+                      <span>Profile</span>
+                      <span className={`${yellowtail.className} text-4xl md:text-5xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
+                        Settings
+                      </span>
+                    </h2>
+                    <p className="text-white/60 text-sm mt-0.5">Update your public organizer profile details and event parameters.</p>
                   </div>
                 </div>
               </div>
 
-              <form onSubmit={handleSaveSettings} className="max-w-2xl space-y-6">
+              <form onSubmit={handleSaveSettings} className="max-w-2xl space-y-6 relative z-10">
 
                 {/* Event Name */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
                     <CalendarDays className="w-4 h-4 text-indigo-400" />
                     Primary Event Name
                   </label>
@@ -1992,14 +2001,14 @@ export default function OrganizerDashboard() {
                     type="text"
                     value={profileData.display_name}
                     onChange={e => setProfileData({ ...profileData, display_name: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/70 focus:ring-4 focus:ring-indigo-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                     placeholder="e.g. Festopiya Carnival 2026"
                   />
                 </div>
 
                 {/* College/Organization */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
                     <Building2 className="w-4 h-4 text-indigo-400" />
                     College / Organization
                   </label>
@@ -2008,14 +2017,14 @@ export default function OrganizerDashboard() {
                     type="text"
                     value={profileData.company_name}
                     onChange={e => setProfileData({ ...profileData, company_name: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/70 focus:ring-4 focus:ring-indigo-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                     placeholder="e.g. Teegala Krishna Reddy Engineering College (TKREC)"
                   />
                 </div>
 
                 {/* Username */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
                     <UserCircle className="w-4 h-4 text-indigo-400" />
                     Username
                   </label>
@@ -2024,15 +2033,15 @@ export default function OrganizerDashboard() {
                     type="text"
                     value={profileData.username}
                     onChange={e => setProfileData({ ...profileData, username: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/70 focus:ring-4 focus:ring-indigo-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                     placeholder="e.g. host_john"
                   />
                 </div>
 
                 {/* Expected Crowd */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
-                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
                     Expected Crowd
                   </label>
                   <input
@@ -2040,15 +2049,15 @@ export default function OrganizerDashboard() {
                     type="text"
                     value={profileData.category}
                     onChange={e => setProfileData({ ...profileData, category: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-indigo-500/70 focus:ring-4 focus:ring-indigo-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                     placeholder="e.g. 5,000+ students, 10k+ foot traffic"
                   />
                 </div>
 
                 {/* Bio */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
-                    <FileText className="w-4 h-4 text-fuchsia-400" />
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
+                    <FileText className="w-4 h-4 text-purple-400" />
                     Bio
                   </label>
                   <textarea
@@ -2056,25 +2065,25 @@ export default function OrganizerDashboard() {
                     rows={4}
                     value={profileData.bio}
                     onChange={e => setProfileData({ ...profileData, bio: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-fuchsia-500/60 focus:ring-2 focus:ring-fuchsia-500/20 transition-all shadow-inner backdrop-blur-sm resize-none"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-purple-500/70 focus:ring-4 focus:ring-purple-500/15 transition-all shadow-inner backdrop-blur-md resize-none font-medium"
                     placeholder="Tell vendors about your college fests, theme, and crowd demographics..."
                   />
                 </div>
 
                 {/* Instagram URL */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
                     <AtSign className="w-4 h-4 text-pink-400" />
                     Instagram URL
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-white/30 text-sm pointer-events-none">instagram.com/</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">instagram.com/</span>
                     <input
                       id="organizer-instagram"
                       type="url"
                       value={profileData.instagram_url}
                       onChange={e => setProfileData({ ...profileData, instagram_url: e.target.value })}
-                      className="w-full pl-[7.5rem] pr-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-pink-500/60 focus:ring-2 focus:ring-pink-500/20 transition-all shadow-inner backdrop-blur-sm"
+                      className="w-full pl-[7.5rem] pr-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-pink-500/70 focus:ring-4 focus:ring-pink-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                       placeholder="https://instagram.com/yourhandle"
                     />
                   </div>
@@ -2082,8 +2091,8 @@ export default function OrganizerDashboard() {
 
                 {/* Website URL */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-white/70 pl-1">
-                    <Globe className="w-4 h-4 text-emerald-400" />
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
+                    <Globe className="w-4 h-4 text-cyan-400" />
                     Website URL
                   </label>
                   <input
@@ -2091,7 +2100,7 @@ export default function OrganizerDashboard() {
                     type="url"
                     value={profileData.website_url}
                     onChange={e => setProfileData({ ...profileData, website_url: e.target.value })}
-                    className="w-full px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner backdrop-blur-sm"
+                    className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 text-white placeholder:text-white/25 outline-none focus:border-cyan-500/70 focus:ring-4 focus:ring-cyan-500/15 transition-all shadow-inner backdrop-blur-md font-medium"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
@@ -2103,7 +2112,7 @@ export default function OrganizerDashboard() {
                       initial={{ opacity: 0, y: 8, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                      className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm font-medium"
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                     >
                       <CheckCircle2 className="w-5 h-5 shrink-0" />
                       Profile saved successfully!
@@ -2118,7 +2127,7 @@ export default function OrganizerDashboard() {
                       initial={{ opacity: 0, y: 8, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                      className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-300 text-sm font-medium"
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-300 text-sm font-bold shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                     >
                       <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
                       {saveError}
@@ -2131,21 +2140,21 @@ export default function OrganizerDashboard() {
                   id="organizer-save-profile"
                   type="submit"
                   disabled={isSavingProfile}
-                  className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
+                  className={`w-full py-4 rounded-2xl font-extrabold text-lg flex items-center justify-center gap-3 transition-all cursor-pointer ${
                     isSavingProfile
                       ? 'bg-indigo-500/20 text-white/40 cursor-not-allowed border border-indigo-500/10'
-                      : 'bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white shadow-[0_0_30px_rgba(99,102,241,0.35)] hover:shadow-[0_0_40px_rgba(99,102,241,0.55)] hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-[0_0_30px_rgba(99,102,241,0.35)] hover:shadow-[0_0_40px_rgba(99,102,241,0.55)] hover:scale-[1.01] active:scale-[0.98]'
                   }`}
                 >
                   {isSavingProfile
-                            ? <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
-                            : <><Save className="w-5 h-5" /> Save Profile</>
-                          }
-                        </button>
+                    ? <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                    : <><Save className="w-5 h-5" /> Save Profile</>
+                  }
+                </button>
 
-                      </form>
-                    </div>
-                  )}
+              </form>
+            </div>
+          )}
                   
                 </div>
               </section>
