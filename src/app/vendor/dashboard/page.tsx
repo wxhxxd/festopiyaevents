@@ -2211,8 +2211,10 @@ export default function VendorDashboard() {
                     </span>
                   </div>
 
-                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-4">
-                    {selectedEvent.name}
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-xl break-words pr-4">
+                    <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
+                      {selectedEvent.name}
+                    </span>
                   </h2>
 
                   {/* Metadata Chips */}
@@ -2256,7 +2258,9 @@ export default function VendorDashboard() {
                     <div>
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <LayoutGrid className="w-5 h-5 text-pink-400" />
-                        Interactive Stall Blueprint
+                        <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                          Interactive Stall Blueprint
+                        </span>
                       </h3>
                       <p className="text-white/50 text-xs sm:text-sm mt-0.5">Click an available stall tile on the blueprint map to pitch your offer.</p>
                     </div>
@@ -2333,7 +2337,9 @@ export default function VendorDashboard() {
                       <div>
                         <h4 className="text-lg font-bold text-white flex items-center gap-2">
                           <Store className="w-5 h-5 text-cyan-400" />
-                          Event Photos & Venue Gallery
+                          <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                            Event Photos & Venue Gallery
+                          </span>
                         </h4>
                         <p className="text-white/50 text-xs">Tap any image to expand full resolution view.</p>
                       </div>
@@ -2394,7 +2400,9 @@ export default function VendorDashboard() {
                   <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-amber-400" />
-                      Stall Pitch Hub
+                      <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                        Stall Pitch Hub
+                      </span>
                     </h3>
                     <button 
                       onClick={() => {

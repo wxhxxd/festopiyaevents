@@ -2203,8 +2203,10 @@ export default function OrganizerDashboard() {
                             </span>
                           </div>
 
-                          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-4">
-                            {selectedEventForBookings.name}
+                          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-xl break-words pr-4">
+                            <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
+                              {selectedEventForBookings.name}
+                            </span>
                           </h2>
 
                           {/* Metadata Chips */}
@@ -2243,7 +2245,9 @@ export default function OrganizerDashboard() {
                             <div>
                               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                 <Users className="w-5 h-5 text-indigo-400" />
-                                Reserved Stall Vendors ({eventBookings.length})
+                                <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                                  Reserved Stall Vendors ({eventBookings.length})
+                                </span>
                               </h3>
                               <p className="text-white/50 text-xs sm:text-sm mt-0.5">Review booked vendors, pitches, and communicate directly.</p>
                             </div>
@@ -2323,7 +2327,9 @@ export default function OrganizerDashboard() {
                               <div>
                                 <h4 className="text-lg font-bold text-white flex items-center gap-2">
                                   <Store className="w-5 h-5 text-indigo-400" />
-                                  Event Photos & Venue Gallery
+                                  <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                                    Event Photos & Venue Gallery
+                                  </span>
                                 </h4>
                                 <p className="text-white/50 text-xs">Tap any photo to view full screen preview.</p>
                               </div>
@@ -2383,7 +2389,9 @@ export default function OrganizerDashboard() {
                         <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col bg-white/[0.02] shrink-0">
                           <h3 className="text-lg font-bold text-white border-b border-white/10 pb-4 mb-6 flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-indigo-400" />
-                            Event Analytics Summary
+                            <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent font-extrabold">
+                              Event Analytics Summary
+                            </span>
                           </h3>
                           
                           <div className="space-y-4 flex-1">
@@ -3296,8 +3304,10 @@ export default function OrganizerDashboard() {
                   <span className="px-3.5 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 backdrop-blur-md uppercase inline-block mb-3 shadow-md">
                     ★ EXPLORE LIVE FESTIVAL
                   </span>
-                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-xl break-words pr-12">
-                    {selectedEventDetails.name}
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-xl break-words pr-12">
+                    <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
+                      {selectedEventDetails.name}
+                    </span>
                   </h2>
                   <p className="text-white/50 text-xs sm:text-sm mt-1">Uploaded by event organizer partner</p>
                 </div>
