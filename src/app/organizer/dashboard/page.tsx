@@ -1966,24 +1966,16 @@ export default function OrganizerDashboard() {
 
           {activeTab === 'settings' && (
             <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-[#09090b] p-6 md:p-10 pb-10 text-white relative z-10 overflow-hidden shadow-2xl">
-              {/* Single Color Top Gradient */}
-              <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-indigo-500/15 via-purple-500/5 to-transparent pointer-events-none" />
-
               {/* Settings Header */}
               <div className="mb-10 relative z-10">
-                <div className="flex items-center gap-4 mb-2">
-                  <div className="p-3.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.25)]">
-                    <Settings className="w-7 h-7 text-indigo-400 animate-spin-slow" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-extrabold text-white flex items-center gap-1.5">
-                      <span>Profile</span>
-                      <span className={`${yellowtail.className} text-4xl md:text-5xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
-                        Settings
-                      </span>
-                    </h2>
-                    <p className="text-white/60 text-sm mt-0.5">Update your public organizer profile details and event parameters.</p>
-                  </div>
+                <div className="mb-2">
+                  <h2 className="text-3xl font-extrabold text-white flex items-center gap-1.5">
+                    <span>Profile</span>
+                    <span className={`${yellowtail.className} text-4xl md:text-5xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
+                      Settings
+                    </span>
+                  </h2>
+                  <p className="text-white/60 text-sm mt-0.5">Update your public organizer profile details and event parameters.</p>
                 </div>
               </div>
 
