@@ -1965,7 +1965,7 @@ export default function OrganizerDashboard() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-[#09090b] p-6 md:p-10 pb-10 text-white relative z-10 overflow-hidden shadow-2xl">
+            <div className="flex-1 p-2 md:p-6 pb-10 text-white relative z-10">
               {/* Settings Header */}
               <div className="mb-10 relative z-10">
                 <div className="mb-2">
