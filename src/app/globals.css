@@ -2,8 +2,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #121212;
+  --background: #0c0c0e;
+  --foreground: #ffffff;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -30,26 +31,21 @@
   font-family: 'Geist Mono', monospace;
 }
 
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0c0c0e;
-    --foreground: #ffffff;
-  }
-}
-
 html,
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background: transparent;
-  color: var(--foreground);
+  background: #0c0c0e;
+  color: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
+  background: #0c0c0e;
+  color: #ffffff;
+  color-scheme: dark;
 }
 
 /* ── Liquid Glass Effect ─────────────────────────────────────── */
