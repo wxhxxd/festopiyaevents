@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LayoutDashboard } from "lucide-react";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
+import { getStoredToken, getStoredRole } from "@/lib/auth";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userDashboardHref, setUserDashboardHref] = useState("/auth");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -22,6 +25,18 @@ export default function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    const role = getStoredRole();
+    if (token) {
+      setIsLoggedIn(true);
+      setUserDashboardHref(role === "Organizer" ? "/organizer/dashboard" : "/vendor/dashboard");
+    } else {
+      setIsLoggedIn(false);
+      setUserDashboardHref("/auth");
+    }
   }, []);
 
   const navLinks = [
@@ -75,13 +90,22 @@ export default function Navbar() {
 
           {/* Desktop Action CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/auth">
+            <Link href={userDashboardHref}>
               <button
                 type="button"
                 className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-indigo-500/20 border border-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-white/20 active:scale-95 shadow-lg shadow-pink-500/10 cursor-pointer"
               >
-                <span>Start Cooking</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                {isLoggedIn ? (
+                  <>
+                    <LayoutDashboard className="h-4 w-4 text-pink-400" />
+                    <span>Go to Dashboard</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Start Cooking</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
               </button>
             </Link>
           </div>
@@ -148,12 +172,21 @@ export default function Navbar() {
           </div>
           <div className="pt-2">
             <Link
-              href="/auth"
+              href={userDashboardHref}
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full text-center rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 px-5 py-3 text-base font-semibold text-white shadow-lg"
             >
-              <span>Get Started</span>
-              <ArrowRight className="h-4 w-4" />
+              {isLoggedIn ? (
+                <>
+                  <LayoutDashboard className="h-5 w-5" />
+                  <span>Go to Dashboard</span>
+                </>
+              ) : (
+                <>
+                  <span>Get Started</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </Link>
           </div>
         </div>

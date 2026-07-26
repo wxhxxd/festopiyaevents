@@ -4,6 +4,7 @@ import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from "fram
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 import UiverseLoader from "@/components/UiverseLoader";
+import { clearAuthCredentials, getStoredToken, getStoredRole, getStoredCompanyName, setAuthCredentials } from "@/lib/auth";
 import { 
   LayoutDashboard, 
   CalendarDays, 
@@ -769,15 +770,13 @@ export default function OrganizerDashboard() {
   const settingsFetched = useRef(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = getStoredToken();
+    const role = getStoredRole();
+    const companyName = getStoredCompanyName();
     if (!token) {
       router.push("/auth");
     } else {
-      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
-      if (role) {
-        document.cookie = `role=${role}; path=/; max-age=86400; SameSite=Lax`;
-      }
+      setAuthCredentials(token, role || "Organizer", companyName || "");
     }
   }, [router]);
 
@@ -1201,11 +1200,7 @@ export default function OrganizerDashboard() {
           </button>
           <button 
             onClick={() => { 
-              localStorage.removeItem("token"); 
-              localStorage.removeItem("company_name"); 
-              localStorage.removeItem("role"); 
-              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              clearAuthCredentials();
               router.push("/auth"); 
             }}
             className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-500/10 dark:hover:bg-red-500/15 text-gray-500 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 hover:border-red-200 dark:hover:border-red-500/30 transition-all flex items-center justify-center cursor-pointer"
@@ -1318,11 +1313,7 @@ export default function OrganizerDashboard() {
           <div className="hidden md:block mt-auto pt-6 border-t border-gray-200 dark:border-white/10">
             <button 
               onClick={() => { 
-                localStorage.removeItem("token"); 
-                localStorage.removeItem("company_name"); 
-                localStorage.removeItem("role"); 
-                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                clearAuthCredentials();
                 router.push("/auth"); 
               }}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-all duration-300 group cursor-pointer"

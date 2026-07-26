@@ -1,13 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Building2, ArrowRight, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
+import { setAuthCredentials, getStoredToken, getStoredRole } from "@/lib/auth";
 
 export default function AuthPage() {
   const router = useRouter();
+
+  // ── Auto-redirect if user is already logged in ─────────────────
+  useEffect(() => {
+    const token = getStoredToken();
+    const storedRole = getStoredRole();
+    if (token && storedRole) {
+      if (storedRole === "Organizer") {
+        router.replace("/organizer/dashboard");
+      } else {
+        router.replace("/vendor/dashboard");
+      }
+    }
+  }, [router]);
 
   // ── Role (drives signup payload + top toggle) ─────────────────
   const [role, setRole] = useState<"Vendor" | "Organizer">("Vendor");
@@ -47,12 +61,7 @@ export default function AuthPage() {
           throw new Error(data.detail || "Failed to log in");
         }
 
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("company_name", data.company_name);
-        localStorage.setItem("role", data.role);
-        
-        document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `role=${data.role}; path=/; max-age=86400; SameSite=Lax`;
+        setAuthCredentials(data.access_token, data.role, data.company_name);
 
         if (data.role === "Organizer") router.push("/organizer/dashboard");
         else router.push("/vendor/dashboard");
@@ -79,12 +88,7 @@ export default function AuthPage() {
         const loginData = await loginRes.json();
         if (!loginRes.ok) throw new Error(loginData.detail || "Login failed");
 
-        localStorage.setItem("token", loginData.access_token);
-        localStorage.setItem("company_name", loginData.company_name);
-        localStorage.setItem("role", loginData.role);
-        
-        document.cookie = `token=${loginData.access_token}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `role=${loginData.role}; path=/; max-age=86400; SameSite=Lax`;
+        setAuthCredentials(loginData.access_token, loginData.role, loginData.company_name);
 
         if (loginData.role === "Organizer") router.push("/organizer/dashboard");
         else router.push("/vendor/dashboard");
