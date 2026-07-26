@@ -1965,10 +1965,9 @@ export default function OrganizerDashboard() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/90 backdrop-blur-3xl p-6 md:p-10 pb-10 text-white relative z-10 overflow-hidden shadow-[0_0_80px_rgba(99,102,241,0.15)]">
-              {/* Ambient Glows */}
-              <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-              <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="flex-1 rounded-[2.5rem] border border-white/10 bg-[#09090b] p-6 md:p-10 pb-10 text-white relative z-10 overflow-hidden shadow-2xl">
+              {/* Single Color Top Gradient */}
+              <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-indigo-500/15 via-purple-500/5 to-transparent pointer-events-none" />
 
               {/* Settings Header */}
               <div className="mb-10 relative z-10">
