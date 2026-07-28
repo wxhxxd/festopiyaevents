@@ -1375,51 +1375,58 @@ export default function VendorDashboard() {
                           </div>
                         )}
 
-                        {/* ── Fast Filling Section (Stacked vertically down the page) ── */}
+                        {/* ── Fast Filling Section (Full-Cover Posters Stacked Vertically) ── */}
                         {(selectedCategory === "all" || selectedCategory === "fast_filling") && fastFillingEvents.length > 0 && eventFilter === 'active' && (
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                               <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
                                 Fast Filling
                               </h3>
                             </div>
 
-                            {/* Horizontal Cards Row */}
-                            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-                              {fastFillingEvents.map((event) => (
-                                <div
-                                  key={"fast-" + event.id}
-                                  onClick={() => {
-                                    setSelectedEvent(event);
-                                    setSelectedStall(null);
-                                    setBookingError(null);
-                                  }}
-                                  className="flex-none w-56 sm:w-64 snap-start rounded-2xl border border-white/10 bg-zinc-950/80 p-3 hover:border-pink-500/50 transition-all duration-200 group cursor-pointer"
-                                >
-                                  {/* Cover Photo with Date strictly in top right corner */}
-                                  <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden mb-2.5 bg-black/40">
+                            {/* Horizontal Cards Row of Full Cover Posters */}
+                            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                              {fastFillingEvents.map((event) => {
+                                const { day, month } = parseEventDate(event.date);
+                                return (
+                                  <div
+                                    key={"fast-" + event.id}
+                                    onClick={() => {
+                                      setSelectedEvent(event);
+                                      setSelectedStall(null);
+                                      setBookingError(null);
+                                    }}
+                                    className="relative flex-none w-[260px] sm:w-[280px] h-[380px] sm:h-[420px] rounded-[2.2rem] border border-white/10 overflow-hidden group cursor-pointer shadow-xl bg-zinc-950 snap-start flex flex-col justify-end"
+                                  >
+                                    {/* Full Cover Poster Image */}
                                     <img
                                       src={event.banner_url || (Array.isArray(event.image_urls) ? event.image_urls[0] : event.image_url) || "/default-banner.png"}
                                       alt={event.name}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 z-0"
                                     />
-                                    {/* Date Top Right */}
-                                    <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-sm text-[11px] font-semibold text-white shadow-md">
-                                      {event.date ? event.date.split(",")[0] : "Upcoming"}
-                                    </div>
-                                  </div>
 
-                                  {/* Title & Price Only */}
-                                  <div className="space-y-1 px-0.5">
-                                    <h4 className="text-sm font-bold text-white line-clamp-1 group-hover:text-pink-400 transition-colors">
-                                      {event.name}
-                                    </h4>
-                                    <div className="text-xs text-gray-400">
-                                      Stalls from <strong className="text-emerald-400 font-extrabold">₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}</strong>
+                                    {/* Bottom Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 transition-opacity duration-300 z-10" />
+
+                                    {/* Top Right: Date Badge (e.g. 31 JUL) */}
+                                    <div className="absolute top-6 right-6 z-20 flex flex-col items-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+                                      <span className="text-3xl sm:text-4xl font-black leading-none tracking-tighter">{day}</span>
+                                      <span className="text-[11px] sm:text-xs font-black tracking-widest uppercase mt-0.5 text-gray-200">{month}</span>
+                                    </div>
+
+                                    {/* Bottom Left: Event Title & Location Overlay */}
+                                    <div className="relative z-20 p-6 text-left space-y-1">
+                                      <h4 className="text-lg sm:text-xl font-black text-white leading-tight tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:text-pink-400 transition-colors duration-300 line-clamp-2">
+                                        {event.name}
+                                      </h4>
+                                      <p className="text-xs font-bold text-gray-300 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] flex items-center gap-1.5 pt-0.5">
+                                        <span className="inline-block w-2 h-2 rounded-full bg-pink-500 shrink-0"></span>
+                                        <span className="truncate">{event.standard_stall_location || "MAIN HALL"}</span>
+                                      </p>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
@@ -1431,50 +1438,57 @@ export default function VendorDashboard() {
                           if (catEvents.length === 0) return null;
 
                           return (
-                            <div key={catName} className="space-y-3">
+                            <div key={catName} className="space-y-4">
                               {/* Simple category header title */}
-                              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                                 <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
                                   {catName}
                                 </h3>
                               </div>
 
-                              {/* Horizontal Cards Row */}
-                              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-                                {catEvents.map((event) => (
-                                  <div
-                                    key={event.id}
-                                    onClick={() => {
-                                      setSelectedEvent(event);
-                                      setSelectedStall(null);
-                                      setBookingError(null);
-                                    }}
-                                    className="flex-none w-56 sm:w-64 snap-start rounded-2xl border border-white/10 bg-zinc-950/80 p-3 hover:border-pink-500/50 transition-all duration-200 group cursor-pointer"
-                                  >
-                                    {/* Cover Photo with Date strictly in top right corner */}
-                                    <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden mb-2.5 bg-black/40">
+                              {/* Horizontal Cards Row of Full Cover Posters */}
+                              <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                                {catEvents.map((event) => {
+                                  const { day, month } = parseEventDate(event.date);
+                                  return (
+                                    <div
+                                      key={event.id}
+                                      onClick={() => {
+                                        setSelectedEvent(event);
+                                        setSelectedStall(null);
+                                        setBookingError(null);
+                                      }}
+                                      className="relative flex-none w-[260px] sm:w-[280px] h-[380px] sm:h-[420px] rounded-[2.2rem] border border-white/10 overflow-hidden group cursor-pointer shadow-xl bg-zinc-950 snap-start flex flex-col justify-end"
+                                    >
+                                      {/* Full Cover Poster Image */}
                                       <img
                                         src={event.banner_url || (Array.isArray(event.image_urls) ? event.image_urls[0] : event.image_url) || "/default-banner.png"}
                                         alt={event.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 z-0"
                                       />
-                                      {/* Date Top Right */}
-                                      <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-sm text-[11px] font-semibold text-white shadow-md">
-                                        {event.date ? event.date.split(",")[0] : "Upcoming"}
-                                      </div>
-                                    </div>
 
-                                    {/* Title & Price Only */}
-                                    <div className="space-y-1 px-0.5">
-                                      <h4 className="text-sm font-bold text-white line-clamp-1 group-hover:text-pink-400 transition-colors">
-                                        {event.name}
-                                      </h4>
-                                      <div className="text-xs text-gray-400">
-                                        Stalls from <strong className="text-emerald-400 font-extrabold">₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}</strong>
+                                      {/* Bottom Gradient Overlay */}
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 transition-opacity duration-300 z-10" />
+
+                                      {/* Top Right: Date Badge (e.g. 31 JUL) */}
+                                      <div className="absolute top-6 right-6 z-20 flex flex-col items-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+                                        <span className="text-3xl sm:text-4xl font-black leading-none tracking-tighter">{day}</span>
+                                        <span className="text-[11px] sm:text-xs font-black tracking-widest uppercase mt-0.5 text-gray-200">{month}</span>
+                                      </div>
+
+                                      {/* Bottom Left: Event Title & Location Overlay */}
+                                      <div className="relative z-20 p-6 text-left space-y-1">
+                                        <h4 className="text-lg sm:text-xl font-black text-white leading-tight tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:text-pink-400 transition-colors duration-300 line-clamp-2">
+                                          {event.name}
+                                        </h4>
+                                        <p className="text-xs font-bold text-gray-300 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] flex items-center gap-1.5 pt-0.5">
+                                          <span className="inline-block w-2 h-2 rounded-full bg-pink-500 shrink-0"></span>
+                                          <span className="truncate">{event.standard_stall_location || "MAIN HALL"}</span>
+                                        </p>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           );
