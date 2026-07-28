@@ -109,24 +109,19 @@ export default function AuthPage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4">
 
-      <div
-        dangerouslySetInnerHTML={{
-          __html: `
-            <video
-              src="/club-bg.mp4.mp4"
-              autoplay
-              loop
-              muted
-              playsinline
-              webkit-playsinline
-              preload="auto"
-              class="fixed top-0 left-0 w-full h-full object-cover -z-20"
-            ></video>
-          `
-        }}
+      {/* ── Background Video ───────────────────────────────────── */}
+      <video
+        src="/club-bg.mp4.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden="true"
+        className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
       />
-      {/* Semi-transparent overlay — absolute so it shares the same stacking context */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/40 -z-10" />
+
+      {/* ── Dark Semi-transparent Overlay ─────────────────────── */}
+      <div className="fixed inset-0 w-full h-full bg-black/40 z-0 pointer-events-none" />
 
       {/* ── Role Toggle Switch ───────────────────────────────── */}
       <motion.div
