@@ -8,24 +8,29 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const role = request.cookies.get('role')?.value;
 
+  const isValidToken = Boolean(token && token !== 'undefined' && token !== 'null' && token.trim() !== '');
+  const isValidRole = Boolean(role && (role === 'Vendor' || role === 'Organizer'));
+
   // Intercept requests to /vendor/* and /organizer/*
   const isVendorPath = path.startsWith('/vendor');
   const isOrganizerPath = path.startsWith('/organizer');
 
   if (isVendorPath || isOrganizerPath) {
-    // If not authenticated, redirect to /auth
-    if (!token) {
-      return NextResponse.redirect(new URL('/auth', request.url));
+    // If not authenticated or token/role is invalid, redirect to /auth and clear bad cookies
+    if (!isValidToken || !isValidRole) {
+      const response = NextResponse.redirect(new URL('/auth', request.url));
+      response.cookies.delete('token');
+      response.cookies.delete('role');
+      response.cookies.delete('company_name');
+      return response;
     }
 
     // Strict Role-Based Access Control
     if (isVendorPath && role !== 'Vendor') {
-      // If a non-vendor (e.g. Organizer) tries to access /vendor, redirect to /organizer/dashboard
       return NextResponse.redirect(new URL('/organizer/dashboard', request.url));
     }
 
     if (isOrganizerPath && role !== 'Organizer') {
-      // If a non-organizer (e.g. Vendor) tries to access /organizer, redirect to /vendor/dashboard
       return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
     }
   }

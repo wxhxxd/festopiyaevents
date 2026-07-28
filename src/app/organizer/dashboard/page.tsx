@@ -773,11 +773,11 @@ export default function OrganizerDashboard() {
     const token = getStoredToken();
     const role = getStoredRole();
     const companyName = getStoredCompanyName();
-    if (!token) {
+    if (!token || role !== "Organizer") {
       clearAuthCredentials();
-      router.push("/auth");
+      router.replace("/auth");
     } else {
-      setAuthCredentials(token, role || "Organizer", companyName || "");
+      setAuthCredentials(token, role, companyName || "");
     }
   }, [router]);
 
@@ -887,21 +887,36 @@ export default function OrganizerDashboard() {
   };
 
   useEffect(() => {
+    const token = getStoredToken();
+    if (!token) {
+      clearAuthCredentials();
+      router.replace("/auth");
+      return;
+    }
     fetchEvents();
     fetchAllEvents();
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
-        headers: { "Authorization": `Bearer ${token}` }
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    })
+      .then(async r => {
+        if (!r.ok) {
+          clearAuthCredentials();
+          router.replace("/auth");
+          return null;
+        }
+        return r.json();
       })
-        .then(r => r.json())
-        .then(data => {
+      .then(data => {
+        if (data && data.id) {
           setMyUserId(data.id);
           fetchMyProfile(data.id);
-        })
-        .catch(err => console.error("Failed to fetch user me", err));
-    }
-  }, []);
+        } else if (data) {
+          clearAuthCredentials();
+          router.replace("/auth");
+        }
+      })
+      .catch(err => console.error("Failed to fetch user me", err));
+  }, [router]);
 
   // Auto-initialize chat if redirected from profile page with query parameters
   useEffect(() => {

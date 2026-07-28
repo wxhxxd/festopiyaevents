@@ -31,17 +31,23 @@ export function setAuthCredentials(token: string, role: string, companyName: str
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token") || getCookie("token");
+  const token = localStorage.getItem("token") || getCookie("token");
+  if (!token || token === "undefined" || token === "null" || token.trim() === "") return null;
+  return token;
 }
 
 export function getStoredRole(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("role") || getCookie("role");
+  const role = localStorage.getItem("role") || getCookie("role");
+  if (!role || role === "undefined" || role === "null" || role.trim() === "") return null;
+  return role;
 }
 
 export function getStoredCompanyName(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("company_name") || getCookie("company_name");
+  const company = localStorage.getItem("company_name") || getCookie("company_name");
+  if (!company || company === "undefined" || company === "null" || company.trim() === "") return null;
+  return company;
 }
 
 export function clearAuthCredentials() {

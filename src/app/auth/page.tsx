@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Building2, ArrowRight, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
-import { setAuthCredentials, getStoredToken, getStoredRole } from "@/lib/auth";
+import { setAuthCredentials, getStoredToken, getStoredRole, clearAuthCredentials } from "@/lib/auth";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -14,12 +14,14 @@ export default function AuthPage() {
   useEffect(() => {
     const token = getStoredToken();
     const storedRole = getStoredRole();
-    if (token && storedRole) {
+    if (token && storedRole && (storedRole === "Organizer" || storedRole === "Vendor")) {
       if (storedRole === "Organizer") {
         router.replace("/organizer/dashboard");
       } else {
         router.replace("/vendor/dashboard");
       }
+    } else if (token || storedRole) {
+      clearAuthCredentials();
     }
   }, [router]);
 
