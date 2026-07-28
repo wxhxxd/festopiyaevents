@@ -99,12 +99,14 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     };
   }, []);
 
+  const isAnimatingRef = useRef(false);
+
   const startAutoPlay = useCallback(() => {
     if (autoPlayTimer.current) clearInterval(autoPlayTimer.current);
     autoPlayTimer.current = setInterval(() => {
       handleGo("next");
     }, 4500);
-  }, [total, current, animating]);
+  }, [total, current]);
 
   const stopAutoPlay = useCallback(() => {
     if (autoPlayTimer.current) {
@@ -114,7 +116,8 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
   }, []);
 
   const handleGo = useCallback((dir: "next" | "prev") => {
-    if (total <= 1) return;
+    if (total <= 1 || isAnimatingRef.current) return;
+    isAnimatingRef.current = true;
     setAnimating(true);
     setDirection(dir);
     
@@ -163,6 +166,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
         overwrite: "auto",
         onComplete: () => {
           setAnimating(false);
+          isAnimatingRef.current = false;
         }
       }
     );
@@ -214,10 +218,12 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     let lastTime = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      if (isAnimatingRef.current) return;
+
       const now = Date.now();
-      if (now - lastTime < 450) return; // Snappy 450ms cooldown
+      if (now - lastTime < 700) return; // Smooth 700ms inertia cooldown for laptop mouse wheel
       
-      if (Math.abs(e.deltaY) > 5) {
+      if (Math.abs(e.deltaY) > 15) {
         handleGo(e.deltaY > 0 ? "next" : "prev");
         lastTime = now;
       }
@@ -227,6 +233,7 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     let isSwiping = false;
 
     const onTouchStart = (e: TouchEvent) => {
+      if (isAnimatingRef.current) return;
       touchStartY = e.touches[0].clientY;
       isSwiping = true;
     };
@@ -237,11 +244,11 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (!isSwiping) return;
+      if (!isSwiping || isAnimatingRef.current) return;
       isSwiping = false;
 
       const now = Date.now();
-      if (now - lastTime < 400) return; // Responsive 400ms swipe cooldown
+      if (now - lastTime < 500) return;
 
       const diff = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(diff) < 20) return;
