@@ -1263,17 +1263,17 @@ export default function VendorDashboard() {
                 const pastEvents = searchedEvents.filter(e => isEventExpired(e.date));
                 const filteredEvents = eventFilter === 'active' ? activeEvents : pastEvents;
 
-                // Category list definition
+                // Simple category list without emojis or extra badges
                 const categoryList = [
-                  { id: "all", label: "All Events", icon: "✨" },
-                  { id: "fast_filling", label: "Fast Filling", icon: "🔥", badge: "HOT" },
-                  { id: "College Fest", label: "College Fests", icon: "🎓" },
-                  { id: "Food & Flea", label: "Food & Flea", icon: "🍔" },
-                  { id: "Music & Concerts", label: "Music & Concerts", icon: "🎵" },
-                  { id: "Tech & Gaming", label: "Tech & Gaming", icon: "🎮" },
-                  { id: "Exhibition & Trade", label: "Exhibitions & Trade", icon: "🎪" },
-                  { id: "Sports & Fitness", label: "Sports & Fitness", icon: "⚽" },
-                  { id: "Nightlife & Parties", label: "Nightlife & Parties", icon: "🎉" },
+                  { id: "all", label: "All" },
+                  { id: "fast_filling", label: "Fast Filling" },
+                  { id: "College Fest", label: "College Fest" },
+                  { id: "Food & Flea", label: "Food & Flea" },
+                  { id: "Music & Concerts", label: "Music & Concerts" },
+                  { id: "Tech & Gaming", label: "Tech & Gaming" },
+                  { id: "Exhibition & Trade", label: "Exhibition & Trade" },
+                  { id: "Sports & Fitness", label: "Sports & Fitness" },
+                  { id: "Nightlife & Parties", label: "Nightlife & Parties" },
                 ];
 
                 // Events matching selected category pill
@@ -1286,45 +1286,41 @@ export default function VendorDashboard() {
                 // Fast filling events
                 const fastFillingEvents = activeEvents.filter((e) => (e.total_stalls || 0) > 0);
 
-                // Group active events by category for BookMyShow / District style rows
+                // Categories to render vertically down the page
                 const categoriesToDisplay = ["College Fest", "Food & Flea", "Tech & Gaming", "Music & Concerts", "Exhibition & Trade", "Sports & Fitness", "Nightlife & Parties"];
 
                 return (
-                  <div id="discover-events-section" className="max-w-7xl mx-auto mt-12 space-y-12">
+                  <div id="discover-events-section" className="max-w-7xl mx-auto mt-8 space-y-10">
                     
-                    {/* Top Search, Active/Past Toggle & Section Title */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-black/10 dark:border-white/10 pb-6">
-                      <div>
-                        <h2 className="text-2xl md:text-4xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                          <Ticket className="text-pink-400 w-8 h-8" />
-                          <span>{eventFilter === 'active' ? 'Discover Events' : 'Past Event Archive'}</span>
-                        </h2>
-                        <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Browse verified high-traffic college fests &amp; flea markets open for stall booking.</p>
-                      </div>
+                    {/* Top Header: Search & Active/Past Toggle */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                      <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                        {eventFilter === 'active' ? 'Events' : 'Past Events'}
+                      </h2>
                       
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <div className="relative w-full sm:w-64">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                           <input
                             type="text"
-                            placeholder="Search by fest, city, hall..."
+                            placeholder="Search events..."
                             value={eventSearchQuery}
                             onChange={(e) => setEventSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-pink-500 transition-all"
+                            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-400 outline-none focus:border-pink-500 transition-all"
                           />
                         </div>
-                        <div className="flex bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
+                        <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
                           <button
                             type="button"
                             onClick={() => setEventFilter('active')}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-gradient-to-r from-pink-500 to-indigo-600 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${eventFilter === 'active' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                           >
                             Active ({activeEvents.length})
                           </button>
                           <button
                             type="button"
                             onClick={() => setEventFilter('past')}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-gradient-to-r from-pink-500 to-indigo-600 text-white shadow-md' : 'text-gray-555 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'}`}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${eventFilter === 'past' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                           >
                             Past ({pastEvents.length})
                           </button>
@@ -1332,26 +1328,20 @@ export default function VendorDashboard() {
                       </div>
                     </div>
 
-                    {/* ── Category Filter Pills Bar (BookMyShow / District Style) ── */}
-                    <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
+                    {/* ── Simple Category Filter Pills Bar ── */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide flex-nowrap">
                       {categoryList.map((cat) => (
                         <button
                           key={cat.id}
                           type="button"
                           onClick={() => setSelectedCategory(cat.id)}
-                          className={`px-4 py-2.5 rounded-full text-xs font-bold transition-all duration-300 shrink-0 flex items-center gap-2 border cursor-pointer ${
+                          className={`px-4 py-2 rounded-full text-xs font-semibold shrink-0 transition-all border cursor-pointer ${
                             selectedCategory === cat.id
-                              ? "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 border-white/30 text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] scale-105"
-                              : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
+                              ? "bg-pink-600 border-pink-500 text-white shadow-md"
+                              : "bg-white/5 border-white/10 text-gray-300 hover:border-white/20 hover:text-white"
                           }`}
                         >
-                          <span className="text-sm">{cat.icon}</span>
-                          <span>{cat.label}</span>
-                          {cat.badge && (
-                            <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-[9px] font-black text-white uppercase tracking-wider animate-pulse">
-                              {cat.badge}
-                            </span>
-                          )}
+                          {cat.label}
                         </button>
                       ))}
                     </div>
@@ -1359,17 +1349,17 @@ export default function VendorDashboard() {
                     {loading ? (
                       <div className="flex flex-col items-center justify-center py-20">
                         <UiverseLoader />
-                        <p className="text-gray-500 dark:text-white/60 font-medium text-lg mt-4">Loading events from database...</p>
+                        <p className="text-gray-400 font-medium text-sm mt-4">Loading events...</p>
                       </div>
                     ) : categoryFilteredEvents.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02]">
-                        <Ticket className="w-12 h-12 text-gray-400 dark:text-white/20 mb-4" />
-                        <p className="text-gray-550 dark:text-white/60 font-medium text-lg">
-                          No events found matching your filter criteria.
+                      <div className="flex flex-col items-center justify-center py-16 border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
+                        <Ticket className="w-10 h-10 text-gray-500 mb-3" />
+                        <p className="text-gray-400 font-medium text-sm">
+                          No events found matching criteria.
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-16">
+                      <div className="space-y-12">
                         
                         {/* Featured 3D Slider */}
                         {selectedCategory === "all" && eventFilter === 'active' && (
@@ -1385,28 +1375,18 @@ export default function VendorDashboard() {
                           </div>
                         )}
 
-                        {/* ── FAST FILLING 🔥 Showcase Row ───────────────────── */}
+                        {/* ── Fast Filling Section (Stacked vertically down the page) ── */}
                         {(selectedCategory === "all" || selectedCategory === "fast_filling") && fastFillingEvents.length > 0 && eventFilter === 'active' && (
-                          <div className="relative rounded-3xl border border-rose-500/30 bg-gradient-to-r from-rose-950/30 via-purple-950/20 to-zinc-950 p-6 md:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(244,63,94,0.15)] overflow-hidden">
-                            <div className="flex items-center justify-between mb-6">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400">
-                                  <Flame className="w-6 h-6 animate-bounce" />
-                                </div>
-                                <div>
-                                  <h3 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
-                                    <span>Fast Filling Stalls</span>
-                                    <span className="px-2.5 py-0.5 rounded-full bg-rose-500/30 border border-rose-500/50 text-rose-300 text-xs font-bold tracking-wide animate-pulse">
-                                      ⚡ High Demand
-                                    </span>
-                                  </h3>
-                                  <p className="text-xs sm:text-sm text-gray-400 mt-0.5">Stall bookings are closing fast! Secure your physical booth before slots fill up.</p>
-                                </div>
-                              </div>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+                                Fast Filling
+                              </h3>
+                              <span className="text-xs text-rose-400 font-semibold">Limited Stalls Left</span>
                             </div>
 
-                            {/* Fast Filling Horizontal Carousel */}
-                            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                            {/* Horizontal Cards Row */}
+                            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
                               {fastFillingEvents.map((event) => (
                                 <div
                                   key={"fast-" + event.id}
@@ -1415,45 +1395,35 @@ export default function VendorDashboard() {
                                     setSelectedStall(null);
                                     setBookingError(null);
                                   }}
-                                  className="flex-none w-72 sm:w-80 snap-start rounded-2xl border border-white/15 bg-zinc-950/80 p-4 backdrop-blur-md hover:border-rose-500/60 hover:shadow-[0_0_30px_rgba(244,63,94,0.3)] transition-all duration-300 group cursor-pointer"
+                                  className="flex-none w-60 sm:w-64 snap-start rounded-2xl border border-white/10 bg-zinc-950/80 p-3 hover:border-pink-500/50 transition-all duration-200 group cursor-pointer"
                                 >
-                                  <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3.5 bg-black/40">
+                                  {/* Photo with Date strictly in top right corner */}
+                                  <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-black/40">
                                     <img
                                       src={event.banner_url || (Array.isArray(event.image_urls) ? event.image_urls[0] : event.image_url) || "/default-banner.png"}
                                       alt={event.name}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
-                                    <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-rose-600/90 text-white font-extrabold text-[10px] uppercase tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1">
-                                      <Flame className="w-3 h-3" />
-                                      <span>Fast Filling</span>
+                                    {/* Date Top Right */}
+                                    <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-sm text-[11px] font-semibold text-white shadow-md">
+                                      {event.date ? event.date.split(",")[0] : "Upcoming"}
                                     </div>
-                                    <div className="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/80 text-white font-bold text-xs backdrop-blur-md">
-                                      {event.total_stalls} Stalls Left
+                                    <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-rose-600/90 text-white font-extrabold text-[10px] uppercase">
+                                      Fast Filling
                                     </div>
                                   </div>
 
-                                  <div className="space-y-2">
+                                  {/* Details */}
+                                  <div className="space-y-1.5 px-0.5">
                                     <div className="text-[11px] font-bold text-pink-400 uppercase tracking-wider">
                                       {getEventCategory(event)}
                                     </div>
-                                    <h4 className="text-base font-bold text-white group-hover:text-pink-400 transition-colors line-clamp-1">
+                                    <h4 className="text-sm font-bold text-white line-clamp-1 group-hover:text-pink-400 transition-colors">
                                       {event.name}
                                     </h4>
-                                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                      <CalendarDays className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                                      <span className="truncate">{event.date || "Date TBA"}</span>
-                                    </div>
-                                    
-                                    <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                                      <div>
-                                        <span className="text-[10px] text-gray-400 block uppercase">Stalls From</span>
-                                        <span className="text-sm font-black text-emerald-400">
-                                          ₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}
-                                        </span>
-                                      </div>
-                                      <button className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white text-xs font-bold shadow-md group-hover:scale-105 transition-all">
-                                        Book Stall 🚀
-                                      </button>
+                                    <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/10">
+                                      <span>Stalls from <strong className="text-emerald-400 font-extrabold">₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}</strong></span>
+                                      <span className="text-[11px] text-gray-400 font-semibold">{event.total_stalls || 0} left</span>
                                     </div>
                                   </div>
                                 </div>
@@ -1462,41 +1432,26 @@ export default function VendorDashboard() {
                           </div>
                         )}
 
-                        {/* ── Categorized Horizontal Rows (BookMyShow / District Style) ── */}
+                        {/* ── Categorized Sections Stacked One Under Another ── */}
                         {categoriesToDisplay.map((catName) => {
                           const catEvents = filteredEvents.filter((e) => getEventCategory(e) === catName);
                           if (catEvents.length === 0 && selectedCategory !== "all" && selectedCategory !== catName) return null;
                           if (catEvents.length === 0) return null;
 
-                          const catIcons: Record<string, string> = {
-                            "College Fest": "🎓",
-                            "Food & Flea": "🍔",
-                            "Music & Concerts": "🎵",
-                            "Tech & Gaming": "🎮",
-                            "Exhibition & Trade": "🎪",
-                            "Sports & Fitness": "⚽",
-                            "Nightlife & Parties": "🎉",
-                          };
-
                           return (
-                            <div key={catName} className="space-y-4 pt-2">
-                              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{catIcons[catName] || "✨"}</span>
-                                  <div>
-                                    <h3 className="text-xl md:text-2xl font-bold text-white">
-                                      {catName} Events
-                                    </h3>
-                                    <p className="text-xs text-gray-400">Explore top rated {catName.toLowerCase()} opportunities for stall bookings.</p>
-                                  </div>
-                                </div>
-                                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300">
-                                  {catEvents.length} Active
+                            <div key={catName} className="space-y-4">
+                              {/* Simple category header title without icons */}
+                              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                                <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+                                  {catName}
+                                </h3>
+                                <span className="text-xs text-gray-400 font-medium">
+                                  {catEvents.length} {catEvents.length === 1 ? 'Event' : 'Events'}
                                 </span>
                               </div>
 
-                              {/* Horizontal Card Carousel */}
-                              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                              {/* Horizontal Cards Row */}
+                              <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
                                 {catEvents.map((event) => (
                                   <div
                                     key={event.id}
@@ -1505,42 +1460,32 @@ export default function VendorDashboard() {
                                       setSelectedStall(null);
                                       setBookingError(null);
                                     }}
-                                    className="flex-none w-64 sm:w-72 snap-start rounded-2xl border border-white/10 bg-zinc-950/60 p-3.5 backdrop-blur-md hover:border-pink-500/50 hover:shadow-[0_0_25px_rgba(236,72,153,0.25)] transition-all duration-300 group cursor-pointer"
+                                    className="flex-none w-60 sm:w-64 snap-start rounded-2xl border border-white/10 bg-zinc-950/80 p-3 hover:border-pink-500/50 transition-all duration-200 group cursor-pointer"
                                   >
-                                    <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-3 bg-black/40">
+                                    {/* Photo with Date strictly in top right corner */}
+                                    <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-black/40">
                                       <img
                                         src={event.banner_url || (Array.isArray(event.image_urls) ? event.image_urls[0] : event.image_url) || "/default-banner.png"}
                                         alt={event.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                       />
-                                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 border border-white/20 text-white font-bold text-[10px] backdrop-blur-md">
-                                        {catName}
+                                      {/* Date Top Right */}
+                                      <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-sm text-[11px] font-semibold text-white shadow-md">
+                                        {event.date ? event.date.split(",")[0] : "Upcoming"}
                                       </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                      <h4 className="text-base font-bold text-white group-hover:text-pink-400 transition-colors line-clamp-1">
+                                    {/* Details */}
+                                    <div className="space-y-1.5 px-0.5">
+                                      <div className="text-[11px] font-bold text-pink-400 uppercase tracking-wider">
+                                        {catName}
+                                      </div>
+                                      <h4 className="text-sm font-bold text-white line-clamp-1 group-hover:text-pink-400 transition-colors">
                                         {event.name}
                                       </h4>
-                                      <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                        <CalendarDays className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                                        <span className="truncate">{event.date || "Date TBA"}</span>
-                                      </div>
-                                      <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                        <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                                        <span className="truncate">{event.standard_stall_location || "Hyderabad"}</span>
-                                      </div>
-
-                                      <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                                        <div>
-                                          <span className="text-[10px] text-gray-400 block uppercase">Stalls From</span>
-                                          <span className="text-sm font-black text-emerald-400">
-                                            ₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}
-                                          </span>
-                                        </div>
-                                        <button className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-pink-500 text-white text-xs font-bold border border-white/20 group-hover:border-pink-500 transition-all">
-                                          View Stalls 📍
-                                        </button>
+                                      <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-white/10">
+                                        <span>Stalls from <strong className="text-emerald-400 font-extrabold">₹{event.standard_price ? event.standard_price.toLocaleString() : "1,500"}</strong></span>
+                                        <span className="text-[11px] text-gray-400 font-semibold">{event.total_stalls || 0} Stalls</span>
                                       </div>
                                     </div>
                                   </div>

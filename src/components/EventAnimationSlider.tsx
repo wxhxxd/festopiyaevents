@@ -219,26 +219,12 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     return () => stopAutoPlay();
   }, [current, total, events, getRelativeStep, getSlideProps, startAutoPlay, stopAutoPlay]);
 
-  // Fast responsive Wheel & Touch Scroll Events
+  // Touch Swipe Events (Mouse wheel scrolling disabled to preserve natural page scroll)
   useEffect(() => {
     if (total === 0 || !sliderRef.current) return;
 
     const sliderEl = sliderRef.current;
-
     let lastTime = 0;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      if (isAnimatingRef.current) return;
-
-      const now = Date.now();
-      if (now - lastTime < 700) return; // Smooth 700ms inertia cooldown for laptop mouse wheel
-      
-      if (Math.abs(e.deltaY) > 15) {
-        handleGo(e.deltaY > 0 ? "next" : "prev");
-        lastTime = now;
-      }
-    };
-
     let touchStartY = 0;
     let isSwiping = false;
 
@@ -246,11 +232,6 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       if (isAnimatingRef.current) return;
       touchStartY = e.touches[0].clientY;
       isSwiping = true;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isSwiping) return;
-      e.preventDefault();
     };
 
     const onTouchEnd = (e: TouchEvent) => {
@@ -267,15 +248,11 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       lastTime = now;
     };
 
-    sliderEl.addEventListener("wheel", onWheel, { passive: false });
     sliderEl.addEventListener("touchstart", onTouchStart, { passive: true });
-    sliderEl.addEventListener("touchmove", onTouchMove, { passive: false });
     sliderEl.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
-      sliderEl.removeEventListener("wheel", onWheel);
       sliderEl.removeEventListener("touchstart", onTouchStart);
-      sliderEl.removeEventListener("touchmove", onTouchMove);
       sliderEl.removeEventListener("touchend", onTouchEnd);
     };
   }, [total, handleGo]);
