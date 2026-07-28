@@ -1347,24 +1347,26 @@ export default function OrganizerDashboard() {
         <div className="max-w-7xl mx-auto h-full flex flex-col">
           
           {activeTab === 'events' && (
-            <div className="min-h-screen text-gray-900 dark:text-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10">
+            <div className="w-full text-gray-900 dark:text-white p-2 sm:p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] relative z-10 pb-36">
 
               {/* ── Hero 2-col grid ──────────────────────────────── */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-6 md:mt-10">
 
                 {/* Left — Welcome & headline */}
                 <div>
                   {/* Headline */}
-                  <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
+                  <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
                     Manage <br />
-                    <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md`}>
-                      your festivals
+                    <span className="inline-block my-1 pr-6 pb-2 overflow-visible">
+                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md pr-6 pb-2 inline-block overflow-visible`}>
+                        your festivals
+                      </span>
                     </span><br />
                     like a pro.
                   </h1>
 
                   {/* Subtext */}
-                  <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 max-w-md leading-relaxed">
+                  <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mt-4 sm:mt-6 max-w-md leading-relaxed">
                     Your central hub to launch new events, review vendor pitches, and lock in deals.
                   </p>
                 </div>

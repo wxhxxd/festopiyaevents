@@ -17,10 +17,23 @@
 
 .font-yellowtail {
   font-family: 'Yellowtail', cursive;
+  line-height: 1.25;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .font-caveat {
   font-family: 'Caveat', cursive;
+  line-height: 1.25;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+[class*="bg-clip-text"] {
+  -webkit-background-clip: text;
+  background-clip: text;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .font-geist-sans {
