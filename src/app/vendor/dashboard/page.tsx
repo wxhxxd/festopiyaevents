@@ -310,6 +310,32 @@ interface PitchData {
   organizer_id?: number;
 }
 
+const parseEventDate = (dateString: string) => {
+  if (!dateString) return { day: "20", month: "JUL" };
+  try {
+    const cleanString = dateString.replace(" at ", " ");
+    const d = new Date(cleanString);
+    if (!isNaN(d.getTime())) {
+      const day = d.getDate().toString().padStart(2, "0");
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      const month = months[d.getMonth()];
+      return { day, month };
+    }
+    
+    const parts = dateString.split(" ");
+    if (parts.length >= 2) {
+      let month = parts[0].toUpperCase().substring(0, 3);
+      let day = parts[1].replace(",", "");
+      month = month.replace(/[^A-Z]/g, "");
+      if (day.length === 1) day = "0" + day;
+      return { day, month };
+    }
+  } catch (e) {
+    console.error("Date parse error", e);
+  }
+  return { day: "20", month: "JUL" };
+};
+
 function VendorEventCard({ event, onClick }: { event: any, onClick: () => void }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -326,32 +352,6 @@ function VendorEventCard({ event, onClick }: { event: any, onClick: () => void }
     mouseX.set(0);
     mouseY.set(0);
   }
-
-  const parseEventDate = (dateString: string) => {
-    if (!dateString) return { day: "20", month: "JUL" };
-    try {
-      const cleanString = dateString.replace(" at ", " ");
-      const d = new Date(cleanString);
-      if (!isNaN(d.getTime())) {
-        const day = d.getDate().toString().padStart(2, "0");
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const month = months[d.getMonth()];
-        return { day, month };
-      }
-      
-      const parts = dateString.split(" ");
-      if (parts.length >= 2) {
-        let month = parts[0].toUpperCase().substring(0, 3);
-        let day = parts[1].replace(",", "");
-        month = month.replace(/[^A-Z]/g, "");
-        if (day.length === 1) day = "0" + day;
-        return { day, month };
-      }
-    } catch (e) {
-      console.error("Date parse error", e);
-    }
-    return { day: "20", month: "JUL" };
-  };
 
   const { day, month } = parseEventDate(event.date);
 
