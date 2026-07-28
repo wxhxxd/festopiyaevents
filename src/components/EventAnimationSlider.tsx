@@ -128,6 +128,13 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     setCurrent(nextIdx);
   }, [current, total]);
 
+  const getTitleFontSizeClass = (name: string) => {
+    const len = name.length;
+    if (len > 30) return "text-lg sm:text-2xl md:text-3xl lg:text-4xl";
+    if (len > 18) return "text-xl sm:text-3xl md:text-4xl lg:text-5xl";
+    return "text-2xl sm:text-4xl md:text-5xl lg:text-6xl";
+  };
+
   // Handle title text stagger animation inside useEffect
   useEffect(() => {
     if (total === 0 || !titleContainerRef.current) return;
@@ -140,20 +147,23 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     // Clear old text container
     titleEl.innerHTML = "";
     
-    // Create line container
-    const lineDiv = document.createElement("div");
-    lineDiv.style.cssText = "display: inline-block; position: relative;";
-    
-    [...activeEventName].forEach((char) => {
-      const span = document.createElement("span");
-      span.textContent = char === " " ? "\u00A0" : char;
-      span.style.cssText = "display: inline-block; will-change: transform;";
-      lineDiv.appendChild(span);
+    // Group characters by word so words NEVER break in half mid-word
+    const words = activeEventName.split(" ");
+    words.forEach((word) => {
+      const wordSpan = document.createElement("span");
+      wordSpan.style.cssText = "display: inline-block; white-space: nowrap; margin-right: 0.3em; margin-bottom: 0.1em;";
+      
+      [...word].forEach((char) => {
+        const charSpan = document.createElement("span");
+        charSpan.textContent = char;
+        charSpan.style.cssText = "display: inline-block; will-change: transform;";
+        wordSpan.appendChild(charSpan);
+      });
+      
+      titleEl.appendChild(wordSpan);
     });
-    
-    titleEl.appendChild(lineDiv);
 
-    const chars = lineDiv.querySelectorAll("span");
+    const chars = titleEl.querySelectorAll("span > span");
     gsap.fromTo(
       chars,
       { y: h * dirSign * 0.7, opacity: 0 },
@@ -295,11 +305,11 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
       />
 
       {/* Left side: Name */}
-      <div className="w-[45%] flex items-center justify-start z-10 pl-2 sm:pl-8">
+      <div className="w-[45%] md:w-[50%] flex items-center justify-start z-10 pl-2 sm:pl-8 pr-2">
         <h2 
           ref={titleContainerRef}
           onClick={() => onEventClick(activeEvent)}
-          className="font-black text-white hover:text-pink-400 transition-colors duration-300 cursor-pointer uppercase tracking-tight leading-none text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl select-none"
+          className={`font-black text-white hover:text-pink-400 transition-colors duration-300 cursor-pointer tracking-tight leading-tight select-none max-h-[380px] overflow-hidden ${getTitleFontSizeClass(activeEvent?.name || "")}`}
           aria-live="polite"
         >
           {activeEvent?.name}
