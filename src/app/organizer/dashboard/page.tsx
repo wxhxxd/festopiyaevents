@@ -403,6 +403,7 @@ export default function OrganizerDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [eventName, setEventName] = useState("");
+  const [eventCategory, setEventCategory] = useState("College Fest");
   const [eventDate, setEventDate] = useState("");
   const [rawEventDate, setRawEventDate] = useState("");
   const [totalStalls, setTotalStalls] = useState("");
@@ -1073,7 +1074,7 @@ export default function OrganizerDashboard() {
 
   const isStepValid = (step: number) => {
     if (step === 1) {
-      return eventName.trim() !== "" && rawEventDate !== "";
+      return eventName.trim() !== "" && rawEventDate !== "" && eventCategory.trim() !== "";
     }
     if (step === 2) {
       const stallsNum = parseInt(totalStalls);
@@ -1120,6 +1121,7 @@ export default function OrganizerDashboard() {
 
       const formData = new FormData();
       formData.append('name', eventName);
+      formData.append('category', eventCategory);
       formData.append('date', eventDate);
       formData.append('total_stalls', totalStalls.toString());
       formData.append('standard_price', standardPrice.toString());
@@ -1156,6 +1158,7 @@ export default function OrganizerDashboard() {
       
       // Clear form
       setEventName("");
+      setEventCategory("College Fest");
       setEventDate("");
       setRawEventDate("");
       setTotalStalls("");
@@ -2596,6 +2599,38 @@ export default function OrganizerDashboard() {
                                 onChange={e => handleDateChange(e.target.value)}
                                 className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner dark:[color-scheme:dark]"
                               />
+                            </div>
+
+                            <div className="space-y-2 col-span-1 md:col-span-2 pt-2">
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1 flex items-center justify-between">
+                                <span>Event Category</span>
+                                <span className="text-xs text-pink-500 dark:text-pink-400 font-bold uppercase tracking-wider">Select Category</span>
+                              </label>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                {[
+                                  { label: "College Fest", icon: "🎓" },
+                                  { label: "Food & Flea", icon: "🍔" },
+                                  { label: "Music & Concerts", icon: "🎵" },
+                                  { label: "Tech & Gaming", icon: "🎮" },
+                                  { label: "Exhibition & Trade", icon: "🎪" },
+                                  { label: "Sports & Fitness", icon: "⚽" },
+                                  { label: "Nightlife & Parties", icon: "🎉" },
+                                ].map((cat) => (
+                                  <button
+                                    key={cat.label}
+                                    type="button"
+                                    onClick={() => setEventCategory(cat.label)}
+                                    className={`px-3 py-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                                      eventCategory === cat.label
+                                        ? "bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 border-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] scale-[1.02]"
+                                        : "bg-black/5 dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/60 hover:border-white/20 hover:text-white"
+                                    }`}
+                                  >
+                                    <span>{cat.icon}</span>
+                                    <span className="truncate">{cat.label}</span>
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </motion.div>
