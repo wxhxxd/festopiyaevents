@@ -671,6 +671,7 @@ export default function VendorDashboard() {
     const role = getStoredRole();
     const companyName = getStoredCompanyName();
     if (!token) {
+      clearAuthCredentials();
       router.push("/auth");
     } else {
       setAuthCredentials(token, role || "Vendor", companyName || "");
@@ -678,8 +679,9 @@ export default function VendorDashboard() {
   }, [router]);
 
   const getHeaders = () => {
-    const token = localStorage.getItem("token");
+    const token = getStoredToken();
     if (!token) {
+      clearAuthCredentials();
       router.push("/auth");
       return null;
     }

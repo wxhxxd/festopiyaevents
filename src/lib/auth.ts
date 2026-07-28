@@ -47,13 +47,36 @@ export function getStoredCompanyName(): string | null {
 export function clearAuthCredentials() {
   if (typeof window === "undefined") return;
   
-  // Clear localStorage
+  // 1. Clear localStorage & sessionStorage
   localStorage.removeItem("token");
   localStorage.removeItem("role");
   localStorage.removeItem("company_name");
+  try {
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("company_name");
+  } catch (e) {}
 
-  // Clear Cookies
-  document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-  document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-  document.cookie = "company_name=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+  // 2. Comprehensive Cookie Clearing (handles SameSite=Lax, max-age=0, paths, domains)
+  const keys = ["token", "role", "company_name"];
+  const paths = ["/", "/auth", "/organizer", "/vendor"];
+  const hostname = window.location.hostname;
+
+  keys.forEach((key) => {
+    // Standard clear with max-age=0 and SameSite=Lax
+    document.cookie = `${key}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    document.cookie = `${key}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+
+    // Path variations
+    paths.forEach((p) => {
+      document.cookie = `${key}=; path=${p}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      document.cookie = `${key}=; path=${p}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    });
+
+    // Domain variations if hostname exists
+    if (hostname) {
+      document.cookie = `${key}=; path=/; domain=${hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      document.cookie = `${key}=; path=/; domain=.${hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    }
+  });
 }

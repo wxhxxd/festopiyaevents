@@ -774,6 +774,7 @@ export default function OrganizerDashboard() {
     const role = getStoredRole();
     const companyName = getStoredCompanyName();
     if (!token) {
+      clearAuthCredentials();
       router.push("/auth");
     } else {
       setAuthCredentials(token, role || "Organizer", companyName || "");
@@ -781,8 +782,9 @@ export default function OrganizerDashboard() {
   }, [router]);
 
   const getHeaders = () => {
-    const token = localStorage.getItem("token");
+    const token = getStoredToken();
     if (!token) {
+      clearAuthCredentials();
       router.push("/auth");
       return null;
     }
