@@ -1390,23 +1390,27 @@ def update_pitch(
 
 @app.get("/pitches/", response_model=List[PitchResponse])
 def get_pitches(
-    event_id: Optional[int] = None,
+    event_id: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     query = db.query(Pitch)
     if current_user.role == "Vendor":
         query = query.filter(Pitch.vendor_id == current_user.id)
+    elif current_user.role == "Organizer":
+        query = query.join(Event, Pitch.event_id == Event.id).filter(Event.organizer_id == current_user.id)
+        if event_id:
+            query = query.filter(Pitch.event_id == event_id)
     elif event_id:
         query = query.filter(Pitch.event_id == event_id)
+
     pitches = query.all()
     for p in pitches:
         if p.vendor:
-            p.vendor_name = p.vendor.company_name
+            p.vendor_name = p.vendor.display_name or p.vendor.company_name or p.vendor.business_name
         if p.event:
             p.event_name = p.event.name
             p.organizer_id = p.event.organizer_id
-        # The stall_number is already in the object, but pydantic will handle it
     return pitches
 
 @app.get("/pitches/for-chat", response_model=Optional[PitchResponse])
