@@ -1782,21 +1782,14 @@ export default function OrganizerDashboard() {
                 <>
                   {/* 1. Header Profile Container */}
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-14 pb-6">
-                    {/* Left: Avatar with Instagram Story Border & Note */}
+                    {/* Left: Avatar with Story Border & Note */}
                     <div className="relative shrink-0 flex flex-col items-center">
-                      <div className="absolute -top-3 left-1/2 -translate-y-full -translate-x-1/2 z-20 pointer-events-none">
-                        <div className="px-3 py-1 rounded-2xl bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-md text-[11px] font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap flex items-center gap-1.5 animate-bounce" style={{ animationDuration: '4s' }}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                          <span>Hosting Next Fest 🎟️</span>
-                        </div>
-                      </div>
-
                       <div className="relative group/avatar">
                         <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-tr from-yellow-400 via-rose-500 to-purple-600 p-[3px] shadow-xl relative overflow-hidden">
                           {organizerProfile?.avatar_url ? (
                             <img 
                               src={getFullImageUrl(organizerProfile.avatar_url)} 
-                              alt={organizerProfile.display_name} 
+                              alt={organizerProfile.display_name || "Avatar"} 
                               className="w-full h-full rounded-full object-cover border-2 border-white dark:border-black shadow-inner"
                             />
                           ) : (
@@ -1862,25 +1855,18 @@ export default function OrganizerDashboard() {
                         ) : (
                           <div className="flex items-center gap-2">
                             <h2 className="text-xl md:text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
-                              {organizerProfile?.username || organizerProfile?.display_name?.toLowerCase().replace(/\s+/g, '_') || "festopiya"}
+                              {organizerProfile?.username || organizerProfile?.display_name?.toLowerCase().replace(/\s+/g, '_') || "profile"}
                             </h2>
-                            <CheckCircle2 className="w-5 h-5 text-sky-500 fill-sky-500 dark:text-black shrink-0" />
                           </div>
                         )}
 
-                        {/* Instagram Action Buttons */}
+                        {/* Action Buttons */}
                         <div className="flex items-center gap-2 mt-2 sm:mt-0">
                           <button 
                             onClick={() => setActiveTab("settings")}
                             className="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-900 dark:text-white text-sm font-semibold transition-all cursor-pointer"
                           >
                             Edit profile
-                          </button>
-                          <button 
-                            onClick={() => setActiveTab("settings")}
-                            className="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-900 dark:text-white text-sm font-semibold transition-all cursor-pointer"
-                          >
-                            View archive
                           </button>
                           <button 
                             onClick={() => setActiveTab("settings")}
@@ -1892,32 +1878,33 @@ export default function OrganizerDashboard() {
                         </div>
                       </div>
 
-                      {/* Row 2: Instagram Inline Text Stats */}
+                      {/* Row 2: Dynamic Inline Text Stats */}
                       <div className="flex items-center gap-8 text-sm md:text-base py-1">
                         <span>
                           <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.media?.length || 0}</strong>{" "}
                           <span className="text-gray-600 dark:text-gray-300">posts</span>
                         </span>
                         <span>
-                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.events?.length || 1}</strong>{" "}
+                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.events?.length || 0}</strong>{" "}
                           <span className="text-gray-600 dark:text-gray-300">events</span>
                         </span>
                         <span>
-                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.follower_count || 385}</strong>{" "}
+                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.follower_count || 0}</strong>{" "}
                           <span className="text-gray-600 dark:text-gray-300">followers</span>
                         </span>
                       </div>
 
-                      {/* Row 3: Name, Category, Bio, Links */}
+                      {/* Row 3: Real User Bio & Details */}
                       <div className="text-xs md:text-sm text-gray-800 dark:text-gray-200 space-y-1">
-                        <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{organizerProfile?.display_name || "Organizer Name"}</p>
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">Event Planner & Festival Host</p>
+                        {organizerProfile?.display_name && (
+                          <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{organizerProfile.display_name}</p>
+                        )}
                         <p className="whitespace-pre-line leading-relaxed max-w-lg">
-                          {organizerProfile?.bio || "Reimagining how events come to life. 🎟️\nThe ultimate marketplace matching the best festivals with the best vendors..."}
+                          {organizerProfile?.bio || "No biography added yet. Update your details in settings."}
                         </p>
                         
                         <div className="flex flex-wrap items-center gap-3 pt-1">
-                          {organizerProfile?.website_url ? (
+                          {organizerProfile?.website_url && (
                             <a 
                               href={organizerProfile.website_url.startsWith("http") ? organizerProfile.website_url : `https://${organizerProfile.website_url}`} 
                               target="_blank" 
@@ -1927,23 +1914,13 @@ export default function OrganizerDashboard() {
                               <ExternalLink className="w-3.5 h-3.5" />
                               {organizerProfile.website_url.replace(/^https?:\/\//, '')}
                             </a>
-                          ) : (
-                            <a 
-                              href="https://festopiya.com" 
-                              target="_blank" 
-                              rel="noreferrer"
-                              className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              festopiya.com
-                            </a>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 2. Story Highlights / Upload Section */}
+                  {/* 2. Story Highlights Bar (New Upload Only) */}
                   <div className="py-4 border-t border-b border-gray-200 dark:border-zinc-800">
                     <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide py-1">
                       <label className="flex flex-col items-center gap-1.5 cursor-pointer shrink-0 group">
@@ -1963,18 +1940,6 @@ export default function OrganizerDashboard() {
                           className="hidden"
                         />
                       </label>
-
-                      {/* Default Highlights */}
-                      <div className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 shadow-sm transition-transform group-hover:scale-105">
-                          <div className="w-full h-full rounded-full bg-white dark:bg-black p-1 flex items-center justify-center">
-                            <div className="w-full h-full rounded-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center text-xl">
-                              🎉
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Fests</span>
-                      </div>
                     </div>
 
                     {uploadFile && (
@@ -2005,23 +1970,11 @@ export default function OrganizerDashboard() {
                     )}
                   </div>
 
-                  {/* 3. Navigation Tabs Bar */}
+                  {/* 3. Navigation Tabs Bar (POSTS only) */}
                   <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase">
                     <button className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer">
                       <LayoutGrid className="w-4 h-4" />
                       <span>POSTS</span>
-                    </button>
-                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-                      <Film className="w-4 h-4" />
-                      <span>REELS</span>
-                    </button>
-                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-                      <Bookmark className="w-4 h-4" />
-                      <span>SAVED</span>
-                    </button>
-                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-                      <Tag className="w-4 h-4" />
-                      <span>TAGGED</span>
                     </button>
                   </div>
 

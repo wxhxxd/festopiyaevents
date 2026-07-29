@@ -195,7 +195,6 @@ export default function ProfileClient() {
                 <h2 className="text-xl md:text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
                   {profile.username || profile.display_name?.toLowerCase().replace(/\s+/g, '_')}
                 </h2>
-                <CheckCircle2 className="w-5 h-5 text-sky-500 fill-sky-500 dark:text-black shrink-0" />
               </div>
 
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
@@ -209,32 +208,36 @@ export default function ProfileClient() {
               </div>
             </div>
 
-            {/* Inline Text Stats */}
+            {/* Dynamic Inline Text Stats */}
             <div className="flex items-center gap-8 text-sm md:text-base py-1">
               <span>
                 <strong className="font-semibold text-gray-900 dark:text-white">{profile.media?.length || 0}</strong>{" "}
                 <span className="text-gray-600 dark:text-gray-300">posts</span>
               </span>
               <span>
-                <strong className="font-semibold text-gray-900 dark:text-white">385</strong>{" "}
+                <strong className="font-semibold text-gray-900 dark:text-white">{profile.follower_count || 0}</strong>{" "}
                 <span className="text-gray-600 dark:text-gray-300">followers</span>
               </span>
               <span>
-                <strong className="font-semibold text-gray-900 dark:text-white">0</strong>{" "}
-                <span className="text-gray-600 dark:text-gray-300">following</span>
+                <strong className="font-semibold text-gray-900 dark:text-white">{profile.total_likes || 0}</strong>{" "}
+                <span className="text-gray-600 dark:text-gray-300">likes</span>
               </span>
             </div>
 
-            {/* Bio & Details */}
+            {/* Real User Bio & Details */}
             <div className="text-xs md:text-sm text-gray-800 dark:text-gray-200 space-y-1">
-              <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{profile.display_name || profile.business_name}</p>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">{profile.category || profile.role || "Event Vendor"}</p>
+              {(profile.display_name || profile.business_name) && (
+                <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{profile.display_name || profile.business_name}</p>
+              )}
+              {profile.category && (
+                <p className="text-gray-500 dark:text-gray-400 font-medium">{profile.category}</p>
+              )}
               <p className="whitespace-pre-line leading-relaxed max-w-lg">
-                {profile.bio || "Reimagining how events come to life. 🎟️\nThe ultimate marketplace matching the best festivals with the best vendors..."}
+                {profile.bio || "No biography added yet."}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                {profile.website_url ? (
+                {profile.website_url && (
                   <a 
                     href={profile.website_url.startsWith("http") ? profile.website_url : `https://${profile.website_url}`} 
                     target="_blank" 
@@ -243,16 +246,6 @@ export default function ProfileClient() {
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     {profile.website_url.replace(/^https?:\/\//, '')}
-                  </a>
-                ) : (
-                  <a 
-                    href="https://festopiya.com" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    festopiya.com
                   </a>
                 )}
                 {profile.instagram_url && (
@@ -271,23 +264,11 @@ export default function ProfileClient() {
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
+        {/* Navigation Tabs Bar (POSTS only) */}
         <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase mt-4">
           <button className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer">
             <LayoutGrid className="w-4 h-4" />
             <span>POSTS</span>
-          </button>
-          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-            <Film className="w-4 h-4" />
-            <span>REELS</span>
-          </button>
-          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-            <Bookmark className="w-4 h-4" />
-            <span>SAVED</span>
-          </button>
-          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
-            <Tag className="w-4 h-4" />
-            <span>TAGGED</span>
           </button>
         </div>
 
