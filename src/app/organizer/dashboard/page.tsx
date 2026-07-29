@@ -862,7 +862,14 @@ export default function OrganizerDashboard() {
       if (!headers) return;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/`, { headers });
       const data = await res.json();
-      setPitches(Array.isArray(data) ? data : []);
+      if (Array.isArray(data)) {
+        // Filter pitches to only include those belonging to events created by this organizer
+        const myEventIds = events.map(e => String(e.id));
+        const filteredPitches = data.filter(pitch => myEventIds.includes(String(pitch.event_id)));
+        setPitches(filteredPitches);
+      } else {
+        setPitches([]);
+      }
     } catch (err) {
       console.error("Failed to fetch pitches", err);
     } finally {
