@@ -1244,7 +1244,7 @@ export default function OrganizerDashboard() {
           <nav className="flex flex-row md:flex-col items-center justify-around md:justify-start w-full md:w-auto md:flex-1 gap-1.5 md:gap-2 flex-nowrap md:space-y-2">
             {[
               { icon: CalendarDays, label: "Events", tab: "events", icon3d: "/calender3d.png" },
-              { icon: Users, label: "Vendor Hub", tab: "vendors", icon3d: "/profile3d.png" },
+              { icon: Users, label: "Vendor Hub", tab: "vendors", icon3d: "/vendorhub3d.png" },
               { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png" },
               { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png", hideMobile: true },
             ].map((item, i) => {

@@ -1066,7 +1066,7 @@ export default function VendorDashboard() {
               { icon: Search, label: "Find Events", tab: "find_events", icon3d: "/calender3d.png" },
               { icon: Store, label: "My Stalls", tab: "my_stalls", icon3d: "/home3d.png" },
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches", icon3d: "/pitch3d.png" },
-              { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/profile3d.png" },
+              { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/organizer3d.png" },
               { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png" },
               { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png", hideMobile: true },
             ].map((item, i) => {
