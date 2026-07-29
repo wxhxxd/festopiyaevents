@@ -39,7 +39,10 @@ import {
   Shield,
   CreditCard,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Film,
+  Bookmark,
+  Tag
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -1767,211 +1770,291 @@ export default function OrganizerDashboard() {
           )}
 
 
+          {/* ── Instagram-Style Profile Tab ─────────────────── */}
           {activeTab === 'profile' && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 backdrop-blur-xl p-4 md:p-8 pb-10 flex flex-col gap-8 text-gray-900 dark:text-white relative z-10">
+            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-white dark:bg-black p-4 md:p-10 flex flex-col gap-6 text-gray-900 dark:text-white relative z-10 max-w-4xl mx-auto w-full">
               {isProfileLoading && !organizerProfile ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <UiverseLoader />
-                  <p className="text-white/60 mt-4">Loading Profile...</p>
+                  <p className="text-gray-500 dark:text-white/60 mt-4">Loading Profile...</p>
                 </div>
               ) : (
                 <>
-                  {/* Profile Header */}
-                  <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-white/10">
-                    <div className="relative shrink-0 group/avatar">
-                      <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] relative overflow-hidden">
-                        {organizerProfile?.avatar_url ? (
-                          <img 
-                            src={getFullImageUrl(organizerProfile.avatar_url)} 
-                            alt={organizerProfile.display_name} 
-                            className="w-full h-full rounded-full object-cover border border-black/40 shadow-inner"
-                          />
-                        ) : (
-                          <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black shadow-inner border border-black/40">
-                            {organizerProfile?.display_name?.charAt(0) || "O"}
-                          </div>
-                        )}
-                        
-                        {/* Change DP Camera/Upload Overlay */}
-                        <label className="absolute inset-0 rounded-full bg-black/75 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-black uppercase tracking-wider gap-1.5 backdrop-blur-[1px]">
-                          <UploadCloud className="w-5 h-5 text-indigo-400 animate-pulse" />
-                          <span>Change DP</span>
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleAvatarUpload}
-                            className="hidden"
-                          />
-                        </label>
+                  {/* 1. Header Profile Container */}
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-14 pb-6">
+                    {/* Left: Avatar with Instagram Story Border & Note */}
+                    <div className="relative shrink-0 flex flex-col items-center">
+                      <div className="absolute -top-3 left-1/2 -translate-y-full -translate-x-1/2 z-20 pointer-events-none">
+                        <div className="px-3 py-1 rounded-2xl bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-md text-[11px] font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap flex items-center gap-1.5 animate-bounce" style={{ animationDuration: '4s' }}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                          <span>Hosting Next Fest 🎟️</span>
+                        </div>
                       </div>
-                      <span className="absolute bottom-1 right-1 px-2.5 py-0.5 text-[10px] font-black uppercase rounded-full bg-indigo-500 text-white border-2 border-black tracking-wide shadow-md pointer-events-none">
-                        Organizer
-                      </span>
+
+                      <div className="relative group/avatar">
+                        <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-tr from-yellow-400 via-rose-500 to-purple-600 p-[3px] shadow-xl relative overflow-hidden">
+                          {organizerProfile?.avatar_url ? (
+                            <img 
+                              src={getFullImageUrl(organizerProfile.avatar_url)} 
+                              alt={organizerProfile.display_name} 
+                              className="w-full h-full rounded-full object-cover border-2 border-white dark:border-black shadow-inner"
+                            />
+                          ) : (
+                            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black border-2 border-white dark:border-black">
+                              {organizerProfile?.display_name?.charAt(0) || "O"}
+                            </div>
+                          )}
+                          
+                          {/* Change DP Camera Overlay */}
+                          <label className="absolute inset-0 rounded-full bg-black/70 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white text-[10px] font-bold uppercase tracking-wider gap-1 backdrop-blur-[2px]">
+                            <UploadCloud className="w-6 h-6 text-indigo-400" />
+                            <span>Change Photo</span>
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={handleAvatarUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-                      <div>
-                        <div className="flex flex-col md:flex-row items-center gap-3">
-                          {isEditingName ? (
-                            <form 
-                              onSubmit={async (e) => {
-                                e.preventDefault();
-                                if (!editNameValue.trim()) return;
-                                try {
-                                  const token = localStorage.getItem("token");
-                                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
-                                    method: "PUT",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                      "Authorization": `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({ company_name: editNameValue })
-                                  });
-                                  if (res.ok) {
-                                    setIsEditingName(false);
-                                    if (myUserId) fetchMyProfile(myUserId);
-                                  }
-                                } catch (err) {
-                                  console.error("Failed to save organization name", err);
+                    {/* Right: Username, Buttons, Inline Stats, Bio */}
+                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 w-full">
+                      {/* Row 1: Username & Action Buttons */}
+                      <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full justify-center md:justify-start">
+                        {isEditingName ? (
+                          <form 
+                            onSubmit={async (e) => {
+                              e.preventDefault();
+                              if (!editNameValue.trim()) return;
+                              try {
+                                const token = localStorage.getItem("token");
+                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+                                  method: "PUT",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${token}`
+                                  },
+                                  body: JSON.stringify({ company_name: editNameValue })
+                                });
+                                if (res.ok) {
+                                  setIsEditingName(false);
+                                  if (myUserId) fetchMyProfile(myUserId);
                                 }
-                              }}
-                              className="flex items-center gap-2"
-                            >
-                              <input 
-                                type="text"
-                                value={editNameValue}
-                                onChange={(e) => setEditNameValue(e.target.value)}
-                                className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-indigo-500/40 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 text-lg font-bold"
-                                autoFocus
-                              />
-                              <button type="submit" className="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold hover:bg-indigo-500/30 transition-all">Save</button>
-                              <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/50 border border-black/10 dark:border-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/10 transition-all">Cancel</button>
-                            </form>
-                          ) : (
-                            <>
-                              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{organizerProfile?.display_name || "Organizer Name"}</h2>
-                              <button 
-                                onClick={() => {
-                                  setEditNameValue(organizerProfile?.display_name || "");
-                                  setIsEditingName(true);
-                                }}
-                                className="px-2.5 py-1 text-[10px] font-black uppercase rounded-full bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white border border-black/10 dark:border-white/10 transition-all"
-                              >
-                                Edit Name
-                              </button>
-                            </>
-                          )}
-                          <div className="flex gap-2">
-                            {organizerProfile?.instagram_url && (
-                              <a 
-                                href={organizerProfile.instagram_url.startsWith("http") ? organizerProfile.instagram_url : `https://instagram.com/${organizerProfile.instagram_url}`} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-pink-500/10 text-gray-500 dark:text-white/60 hover:text-pink-400 border border-black/10 dark:border-white/10 hover:border-pink-500/30 transition-all"
-                              >
-                                <AtSign className="w-4 h-4" />
-                              </a>
-                            )}
-                            {organizerProfile?.website_url && (
-                              <a 
-                                href={organizerProfile.website_url.startsWith("http") ? organizerProfile.website_url : `https://${organizerProfile.website_url}`} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:bg-indigo-500/10 text-gray-500 dark:text-white/60 hover:text-indigo-400 border border-black/10 dark:border-white/10 hover:border-indigo-500/30 transition-all"
-                              >
-                                <Globe className="w-4 h-4" />
-                              </a>
-                            )}
+                              } catch (err) {
+                                console.error("Failed to save organization name", err);
+                              }
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <input 
+                              type="text"
+                              value={editNameValue}
+                              onChange={(e) => setEditNameValue(e.target.value)}
+                              className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-zinc-800 border border-indigo-500 text-gray-900 dark:text-white outline-none text-base font-semibold"
+                              autoFocus
+                            />
+                            <button type="submit" className="px-3 py-1 rounded-lg bg-indigo-500 text-white text-xs font-semibold hover:bg-indigo-600 transition-all">Save</button>
+                            <button type="button" onClick={() => setIsEditingName(false)} className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs font-semibold hover:bg-gray-300 dark:hover:bg-zinc-700 transition-all">Cancel</button>
+                          </form>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-xl md:text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
+                              {organizerProfile?.username || organizerProfile?.display_name?.toLowerCase().replace(/\s+/g, '_') || "festopiya"}
+                            </h2>
+                            <CheckCircle2 className="w-5 h-5 text-sky-500 fill-sky-500 dark:text-black shrink-0" />
                           </div>
+                        )}
+
+                        {/* Instagram Action Buttons */}
+                        <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                          <button 
+                            onClick={() => setActiveTab("settings")}
+                            className="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-900 dark:text-white text-sm font-semibold transition-all cursor-pointer"
+                          >
+                            Edit profile
+                          </button>
+                          <button 
+                            onClick={() => setActiveTab("settings")}
+                            className="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-900 dark:text-white text-sm font-semibold transition-all cursor-pointer"
+                          >
+                            View archive
+                          </button>
+                          <button 
+                            onClick={() => setActiveTab("settings")}
+                            className="p-2 rounded-lg bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-900 dark:text-white transition-all cursor-pointer"
+                            title="Settings"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
                         </div>
-                        <p className="text-gray-500 dark:text-white/50 text-sm mt-2 max-w-xl leading-relaxed">
-                          {organizerProfile?.bio || "No biography added yet. Optimize your profile details inside the settings tab!"}
-                        </p>
                       </div>
 
-                      {/* Stats Section / Events created */}
-                      <div className="flex gap-6 mt-2">
-                        <div className="px-5 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md text-center">
-                          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">
-                            {organizerProfile?.events?.length || 0}
-                          </p>
-                          <p className="text-[10px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-widest mt-0.5">Events Created</p>
+                      {/* Row 2: Instagram Inline Text Stats */}
+                      <div className="flex items-center gap-8 text-sm md:text-base py-1">
+                        <span>
+                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.media?.length || 0}</strong>{" "}
+                          <span className="text-gray-600 dark:text-gray-300">posts</span>
+                        </span>
+                        <span>
+                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.events?.length || 1}</strong>{" "}
+                          <span className="text-gray-600 dark:text-gray-300">events</span>
+                        </span>
+                        <span>
+                          <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.follower_count || 385}</strong>{" "}
+                          <span className="text-gray-600 dark:text-gray-300">followers</span>
+                        </span>
+                      </div>
+
+                      {/* Row 3: Name, Category, Bio, Links */}
+                      <div className="text-xs md:text-sm text-gray-800 dark:text-gray-200 space-y-1">
+                        <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{organizerProfile?.display_name || "Organizer Name"}</p>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">Event Planner & Festival Host</p>
+                        <p className="whitespace-pre-line leading-relaxed max-w-lg">
+                          {organizerProfile?.bio || "Reimagining how events come to life. 🎟️\nThe ultimate marketplace matching the best festivals with the best vendors..."}
+                        </p>
+                        
+                        <div className="flex flex-wrap items-center gap-3 pt-1">
+                          {organizerProfile?.website_url ? (
+                            <a 
+                              href={organizerProfile.website_url.startsWith("http") ? organizerProfile.website_url : `https://${organizerProfile.website_url}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              {organizerProfile.website_url.replace(/^https?:\/\//, '')}
+                            </a>
+                          ) : (
+                            <a 
+                              href="https://festopiya.com" 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              festopiya.com
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Media Feed Gallery Grid / Media Upload */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-4">
-                    {/* Drag-and-Drop Media Upload Zone */}
-                    <form onSubmit={handleMediaUpload} className="p-6 rounded-3xl bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-4 text-center">
-                      <div className="p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                        <UploadCloud className="w-8 h-8 animate-bounce" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white">Add Showcase Images</h4>
-                        <p className="text-xs text-gray-500 dark:text-white/40 mt-1">Upload pictures or setup views of your events</p>
-                      </div>
-                      
-                      <div className="w-full max-w-xs relative">
+                  {/* 2. Story Highlights / Upload Section */}
+                  <div className="py-4 border-t border-b border-gray-200 dark:border-zinc-800">
+                    <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide py-1">
+                      <label className="flex flex-col items-center gap-1.5 cursor-pointer shrink-0 group">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-dashed border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-900/60 flex items-center justify-center text-gray-500 dark:text-zinc-400 group-hover:border-indigo-500 group-hover:text-indigo-500 transition-all">
+                          <UploadCloud className="w-6 h-6" />
+                        </div>
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">New</span>
                         <input 
                           type="file" 
-                          id="organizer-media-file"
-                          accept="image/*"
+                          accept="image/*,video/*"
                           onChange={(e) => {
-                            if (e.target.files && e.target.files.length > 0) {
-                              setUploadFile(e.target.files[0]);
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setUploadFile(file);
                             }
                           }}
                           className="hidden"
                         />
-                        <label 
-                          htmlFor="organizer-media-file"
-                          className="w-full py-3 px-4 rounded-xl border border-black/10 dark:border-white/10 hover:border-indigo-500/30 bg-black/5 dark:bg-black/40 hover:bg-black/10 dark:hover:bg-black/60 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
-                        >
-                          {uploadFile ? uploadFile.name : "Select Image File"}
-                        </label>
-                      </div>
+                      </label>
 
-                      {uploadFile && (
-                        <button
-                          type="submit"
-                          disabled={isUploading}
-                          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white text-xs font-bold flex items-center gap-2 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
-                        >
-                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload to Gallery"}
-                        </button>
-                      )}
-                    </form>
-
-                    {/* 3-Column Instagram-Style Media Feed Grid */}
-                    <div className="space-y-4">
-                      <p className="text-xs font-black text-gray-550 dark:text-white/40 uppercase tracking-widest pl-1">Gallery Showcase Feed</p>
-                      
-                      {organizerProfile?.media?.length === 0 ? (
-                        <div className="py-12 border border-dashed border-black/10 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01] flex flex-col items-center justify-center text-center">
-                          <Store className="w-10 h-10 text-gray-300 dark:text-white/15 mb-3" />
-                          <p className="text-gray-400 dark:text-white/30 text-xs">No media uploaded yet. Start sharing event setups!</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-3 gap-3">
-                          {organizerProfile?.media?.map((post: any) => (
-                            <div 
-                              key={post.id} 
-                              onClick={() => setSelectedMedia(post)}
-                              className="aspect-square rounded-xl overflow-hidden border border-white/10 bg-black relative group cursor-pointer hover:border-indigo-500/50 transition-all"
-                            >
-                              <img 
-                                src={getFullImageUrl(post.media_url)} 
-                                alt="Showcase" 
-                                className="w-full h-full object-cover opacity-85 group-hover:scale-105 transition-all duration-300"
-                              />
+                      {/* Default Highlights */}
+                      <div className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 shadow-sm transition-transform group-hover:scale-105">
+                          <div className="w-full h-full rounded-full bg-white dark:bg-black p-1 flex items-center justify-center">
+                            <div className="w-full h-full rounded-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center text-xl">
+                              🎉
                             </div>
-                          ))}
+                          </div>
                         </div>
-                      )}
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Fests</span>
+                      </div>
                     </div>
+
+                    {uploadFile && (
+                      <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <UploadCloud className="w-5 h-5 text-indigo-500 animate-pulse" />
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">Ready to Post: {uploadFile.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Add to your event gallery</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={handleMediaUpload}
+                            disabled={isUploading}
+                            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold shadow hover:opacity-90 transition-all flex items-center gap-1.5"
+                          >
+                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Post"}
+                          </button>
+                          <button
+                            onClick={() => setUploadFile(null)}
+                            className="px-3 py-1.5 rounded-lg bg-gray-200 dark:bg-zinc-800 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-zinc-700"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* 3. Navigation Tabs Bar */}
+                  <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase">
+                    <button className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer">
+                      <LayoutGrid className="w-4 h-4" />
+                      <span>POSTS</span>
+                    </button>
+                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+                      <Film className="w-4 h-4" />
+                      <span>REELS</span>
+                    </button>
+                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+                      <Bookmark className="w-4 h-4" />
+                      <span>SAVED</span>
+                    </button>
+                    <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+                      <Tag className="w-4 h-4" />
+                      <span>TAGGED</span>
+                    </button>
+                  </div>
+
+                  {/* 4. Instagram 3-Column Posts Feed Grid */}
+                  {organizerProfile?.media?.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50">
+                      <div className="w-16 h-16 rounded-full border-2 border-gray-900 dark:border-white flex items-center justify-center mb-4">
+                        <Store className="w-8 h-8 text-gray-900 dark:text-white" />
+                      </div>
+                      <p className="text-gray-900 dark:text-white text-xl font-bold">No Posts Yet</p>
+                      <p className="text-gray-500 dark:text-zinc-400 text-xs mt-1">Upload event photos or media to showcase your past fests.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1 md:gap-4">
+                      {organizerProfile?.media?.map((post: any) => (
+                        <div 
+                          key={post.id}
+                          onClick={() => setSelectedMedia(post)}
+                          className="aspect-square relative overflow-hidden bg-zinc-900 cursor-pointer group shadow-sm rounded-sm md:rounded-md"
+                        >
+                          <img 
+                            src={getFullImageUrl(post.media_url)} 
+                            alt="Showcase" 
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
+                            <Heart className="w-5 h-5 text-white fill-white" />
+                            <span className="text-base tracking-wide">{post.like_count || 0}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>

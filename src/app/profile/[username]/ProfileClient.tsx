@@ -14,7 +14,12 @@ import {
   Sparkles,
   Play,
   X,
-  Heart
+  Heart,
+  CheckCircle2,
+  LayoutGrid,
+  Film,
+  Bookmark,
+  ExternalLink
 } from "lucide-react";
 
 const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
@@ -161,152 +166,167 @@ export default function ProfileClient() {
         </div>
       </div>
 
-      {/* Main Glassmorphic Profile Card */}
-      <div className="relative z-10 w-full max-w-5xl bg-gray-50/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl mb-8">
+      {/* Main Glassmorphic Instagram Profile Card */}
+      <div className="relative z-10 w-full max-w-4xl bg-white dark:bg-black border border-gray-200 dark:border-zinc-800 rounded-3xl p-6 md:p-10 shadow-2xl mb-8">
         
         {/* Profile Header Details */}
-        <div className="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-gray-200 dark:border-white/10">
-          <div className="relative shrink-0">
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-fuchsia-500 p-[3px] overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-14 pb-8">
+          {/* Avatar with Story Ring */}
+          <div className="relative shrink-0 flex flex-col items-center">
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-tr from-yellow-400 via-rose-500 to-purple-600 p-[3px] shadow-xl relative overflow-hidden">
               {profile.avatar_url ? (
                 <img 
                   src={getFullImageUrl(profile.avatar_url)} 
                   alt={profile.display_name} 
-                  className="w-full h-full rounded-full object-cover border border-black/40 shadow-inner"
+                  className="w-full h-full rounded-full object-cover border-2 border-white dark:border-black shadow-inner"
                 />
               ) : (
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black shadow-inner border border-black/40">
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-white text-5xl font-black border-2 border-white dark:border-black">
                   {profile.display_name?.charAt(0) || "U"}
                 </div>
               )}
             </div>
-            <span className={`absolute bottom-1 right-1 px-2.5 py-0.5 text-[9px] font-black uppercase rounded-full border-2 border-black tracking-wide shadow-md ${
-              profile.role === "Organizer" ? "bg-indigo-500 text-white" : "bg-fuchsia-500 text-white"
-            }`}>
-              {profile.role}
-            </span>
           </div>
 
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-            <div>
-              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{profile.display_name || "User Profile"}</h2>
-              <p className="text-gray-500 dark:text-white/40 text-sm mt-0.5">@{profile.username}</p>
-            </div>
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 w-full">
+            {/* Header Row: Username & Message Button */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full justify-center md:justify-start">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl md:text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
+                  {profile.username || profile.display_name?.toLowerCase().replace(/\s+/g, '_')}
+                </h2>
+                <CheckCircle2 className="w-5 h-5 text-sky-500 fill-sky-500 dark:text-black shrink-0" />
+              </div>
 
-            {/* Tags / Info */}
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-              {profile.business_name && (
-                <span className="px-3.5 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold flex items-center gap-1.5 text-gray-700 dark:text-white/80">
-                  <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                  {profile.business_name}
-                </span>
-              )}
-              {profile.category && (
-                <span className="px-3.5 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-semibold flex items-center gap-1.5 text-gray-700 dark:text-white/80">
-                  <Tag className="w-3.5 h-3.5 text-fuchsia-400" />
-                  {profile.category}
-                </span>
-              )}
-            </div>
-
-            {/* Social Links */}
-            <div className="flex items-center gap-3">
-              {profile.instagram_url && (
-                <a 
-                  href={profile.instagram_url.startsWith("http") ? profile.instagram_url : `https://instagram.com/${profile.instagram_url}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-pink-500/10 border border-gray-200 dark:border-white/10 hover:border-pink-500/30 text-gray-500 dark:text-white/60 hover:text-pink-600 dark:hover:text-pink-400 flex items-center justify-center transition-all cursor-pointer"
+              <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                <button
+                  onClick={handleMessageUser}
+                  className="px-5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow"
                 >
-                  <Instagram className="w-4 h-4" />
-                </a>
-              )}
-              {profile.website_url && (
-                <a 
-                  href={profile.website_url.startsWith("http") ? profile.website_url : `https://${profile.website_url}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-emerald-500/10 border border-gray-200 dark:border-white/10 hover:border-emerald-500/30 text-gray-500 dark:text-white/60 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center justify-center transition-all cursor-pointer"
-                >
-                  <Globe className="w-4 h-4" />
-                </a>
-              )}
+                  <MessageSquare className="w-4 h-4" />
+                  Message
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* MESSAGE BUTTON - Glassmorphism Style */}
-          <div className="shrink-0 flex items-center justify-center pt-4 md:pt-0">
-            <button
-              onClick={handleMessageUser}
-              className="bg-black/5 dark:bg-white/10 backdrop-blur-md border border-gray-200/50 dark:border-white/20 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white/20 px-8 py-4 rounded-2xl font-bold text-base flex items-center gap-2.5 transition-all active:scale-95 shadow-lg shadow-black/10 dark:shadow-black/30 cursor-pointer"
-            >
-              <MessageSquare className="w-5 h-5 text-indigo-500 dark:text-indigo-300" />
-              Message
-            </button>
+            {/* Inline Text Stats */}
+            <div className="flex items-center gap-8 text-sm md:text-base py-1">
+              <span>
+                <strong className="font-semibold text-gray-900 dark:text-white">{profile.media?.length || 0}</strong>{" "}
+                <span className="text-gray-600 dark:text-gray-300">posts</span>
+              </span>
+              <span>
+                <strong className="font-semibold text-gray-900 dark:text-white">385</strong>{" "}
+                <span className="text-gray-600 dark:text-gray-300">followers</span>
+              </span>
+              <span>
+                <strong className="font-semibold text-gray-900 dark:text-white">0</strong>{" "}
+                <span className="text-gray-600 dark:text-gray-300">following</span>
+              </span>
+            </div>
+
+            {/* Bio & Details */}
+            <div className="text-xs md:text-sm text-gray-800 dark:text-gray-200 space-y-1">
+              <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{profile.display_name || profile.business_name}</p>
+              <p className="text-gray-500 dark:text-gray-400 font-medium">{profile.category || profile.role || "Event Vendor"}</p>
+              <p className="whitespace-pre-line leading-relaxed max-w-lg">
+                {profile.bio || "Reimagining how events come to life. 🎟️\nThe ultimate marketplace matching the best festivals with the best vendors..."}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                {profile.website_url ? (
+                  <a 
+                    href={profile.website_url.startsWith("http") ? profile.website_url : `https://${profile.website_url}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    {profile.website_url.replace(/^https?:\/\//, '')}
+                  </a>
+                ) : (
+                  <a 
+                    href="https://festopiya.com" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-sky-600 dark:text-sky-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    festopiya.com
+                  </a>
+                )}
+                {profile.instagram_url && (
+                  <a 
+                    href={profile.instagram_url.startsWith("http") ? profile.instagram_url : `https://instagram.com/${profile.instagram_url}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-pink-600 dark:text-pink-400 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <Instagram className="w-3.5 h-3.5" />
+                    @{profile.instagram_url.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '')}
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bio Section */}
-        <div className="py-8 border-b border-gray-200 dark:border-white/10">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">About</h3>
-          <p className="text-gray-650 dark:text-white/60 text-sm leading-relaxed max-w-3xl">
-            {profile.bio || "No biography details shared yet."}
-          </p>
+        {/* Navigation Tabs Bar */}
+        <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase mt-4">
+          <button className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer">
+            <LayoutGrid className="w-4 h-4" />
+            <span>POSTS</span>
+          </button>
+          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+            <Film className="w-4 h-4" />
+            <span>REELS</span>
+          </button>
+          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+            <Bookmark className="w-4 h-4" />
+            <span>SAVED</span>
+          </button>
+          <button className="py-3 flex items-center gap-2 text-gray-400 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer">
+            <Tag className="w-4 h-4" />
+            <span>TAGGED</span>
+          </button>
         </div>
 
-        {/* Media Showcase / Visual Setup Section */}
-        <div className="pt-8">
-          <div className="flex items-center gap-2.5 mb-6">
-            <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Visual Showcase</h3>
+        {/* 3-Column Posts Feed Grid */}
+        {profile.media?.length === 0 ? (
+          <div className="py-16 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center text-center mt-4">
+            <Store className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
+            <p className="text-gray-500 dark:text-zinc-400 text-sm">No posts shared yet.</p>
           </div>
-
-          {profile.media?.length === 0 ? (
-            <div className="py-12 border border-dashed border-gray-200 dark:border-white/10 rounded-3xl bg-black/[0.01] dark:bg-white/[0.01] flex flex-col items-center justify-center text-center">
-              <Store className="w-12 h-12 text-gray-300 dark:text-white/20 mb-3" />
-              <p className="text-gray-500 dark:text-white/40 text-sm">No showcase visuals uploaded yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {profile.media?.map((post: any) => (
-                <div 
-                  key={post.id} 
-                  onClick={() => setSelectedMedia(post)}
-                  className="aspect-square rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black relative group cursor-pointer hover:border-indigo-500/50 transition-all"
-                >
-                  {post.media_type === "video" ? (
-                    <>
-                      <video 
-                        src={getFullImageUrl(post.media_url)} 
-                        className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-300" 
-                        muted 
-                        playsInline
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <div className="w-10 h-10 rounded-full bg-black/20 dark:bg-white/20 backdrop-blur-md border border-gray-200 dark:border-white/30 flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <img 
-                      src={getFullImageUrl(post.media_url)} 
-                      alt="Showcase post" 
-                      className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-300"
-                    />
-                  )}
-                  {/* Hover stats overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
-                      {post.like_count}
-                    </span>
-                  </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-1 md:gap-4 mt-4">
+            {profile.media?.map((post: any) => (
+              <div 
+                key={post.id} 
+                onClick={() => setSelectedMedia(post)}
+                className="aspect-square rounded-sm md:rounded-md overflow-hidden bg-zinc-900 relative group cursor-pointer shadow-sm"
+              >
+                {post.media_type === "video" ? (
+                  <video 
+                    src={getFullImageUrl(post.media_url)} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" 
+                    muted 
+                    playsInline
+                  />
+                ) : (
+                  <img 
+                    src={getFullImageUrl(post.media_url)} 
+                    alt="Showcase post" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                  />
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
+                  <Heart className="w-5 h-5 fill-white text-white" />
+                  <span className="text-base tracking-wide">{post.like_count || 0}</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Immersive Full-Screen Media Modal */}
