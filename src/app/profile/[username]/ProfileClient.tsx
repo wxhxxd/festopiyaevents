@@ -83,16 +83,24 @@ export default function ProfileClient() {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/${username}`, {
+        let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/${username}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
         });
         if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error("Profile not found");
+          // Fallback check by ID
+          const resById = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile-by-id/${username}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          if (resById.ok) {
+            const dataById = await resById.json();
+            setProfile(dataById);
+            return;
           }
-          throw new Error("Failed to load profile details");
+          throw new Error("Profile not found");
         }
         const data = await res.json();
         setProfile(data);

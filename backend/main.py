@@ -886,14 +886,23 @@ def get_user_profile_by_username(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.username.ilike(username.strip())).first()
+    target = username.strip()
+    user = db.query(User).filter(User.username.ilike(target)).first()
+    if not user:
+        user = db.query(User).filter(User.id == target).first()
+    if not user:
+        user = db.query(User).filter(
+            (User.display_name.ilike(target)) |
+            (User.company_name.ilike(target)) |
+            (User.business_name.ilike(target))
+        ).first()
     if not user:
         # Fallback for older users
         all_users = db.query(User).all()
         for u in all_users:
             base = u.email.split("@")[0] if u.email else "user"
             sanitized = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{u.id[:8]}"
-            if sanitized == username.strip().lower():
+            if sanitized == target.lower() or str(u.id) == target:
                 user = u
                 break
                 

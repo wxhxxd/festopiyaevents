@@ -1067,8 +1067,8 @@ export default function VendorDashboard() {
               { icon: Store, label: "My Stalls", tab: "my_stalls", icon3d: "/home3d.png" },
               { icon: ClipboardList, label: "My Pitches", tab: "my_pitches", icon3d: "/pitch3d.png" },
               { icon: Users, label: "Organizer Hub", tab: "organizers", icon3d: "/profile3d.png" },
-              { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png", hideMobile: true },
-              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png" },
+              { icon: UserCircle, label: "My Profile", tab: "profile", icon3d: "/profile3d.png" },
+              { icon: Settings, label: "Settings", tab: "settings", icon3d: "/gear3d2.png", hideMobile: true },
             ].map((item, i) => {
               if (item.hideMobile) {
                 return (
@@ -1798,7 +1798,7 @@ export default function VendorDashboard() {
                     {searchResults.map((org) => (
                       <div 
                         key={org.id} 
-                        onClick={() => router.push(`/profile/${org.username}`)}
+                        onClick={() => router.push(`/profile/${org.username || org.id}`)}
                         className="p-6 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-rose-500/50 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
                       >
                         <div className="flex items-start gap-4">
