@@ -1772,7 +1772,7 @@ export default function OrganizerDashboard() {
 
           {/* ── Instagram-Style Profile Tab ─────────────────── */}
           {activeTab === 'profile' && (
-            <div className="flex-1 rounded-2xl md:rounded-[2.5rem] border border-gray-200/50 dark:border-white/10 bg-white dark:bg-black p-4 md:p-10 flex flex-col gap-6 text-gray-900 dark:text-white relative z-10 max-w-4xl mx-auto w-full">
+            <div className="flex-1 p-4 md:p-8 flex flex-col gap-6 text-gray-900 dark:text-white relative z-10 max-w-4xl mx-auto w-full">
               {isProfileLoading && !organizerProfile ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <UiverseLoader />

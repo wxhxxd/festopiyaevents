@@ -166,8 +166,8 @@ export default function ProfileClient() {
         </div>
       </div>
 
-      {/* Main Glassmorphic Instagram Profile Card */}
-      <div className="relative z-10 w-full max-w-4xl bg-white dark:bg-black border border-gray-200 dark:border-zinc-800 rounded-3xl p-6 md:p-10 shadow-2xl mb-8">
+      {/* Main Instagram Profile Container */}
+      <div className="relative z-10 w-full max-w-4xl p-4 md:p-8 mb-8">
         
         {/* Profile Header Details */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-14 pb-8">
