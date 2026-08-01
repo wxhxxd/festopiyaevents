@@ -1018,7 +1018,7 @@ export default function VendorDashboard() {
         loop
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover z-50 pointer-events-none mix-blend-screen opacity-90"
+        className="fixed inset-0 w-full h-full object-cover z-50 pointer-events-none mix-blend-screen opacity-90 scale-[0.6] md:scale-75"
       />
       
       {/* Top Purple/Indigo Glow Gradient */}
