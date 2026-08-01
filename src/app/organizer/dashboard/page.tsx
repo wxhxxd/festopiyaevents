@@ -1366,12 +1366,12 @@ export default function OrganizerDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto mt-6 md:mt-10">
 
                 {/* Left — Welcome & headline */}
-                <div>
+                <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
                   {/* Headline */}
                   <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white">
                     Manage <br />
-                    <span className="inline-block my-1 pr-6 pb-2 overflow-visible">
-                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md pr-6 pb-2 inline-block overflow-visible`}>
+                    <span className="inline-block my-1 pb-2 overflow-visible">
+                      <span className={`${yellowtail.className} bg-gradient-to-r from-pink-500 to-cyan-500 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent drop-shadow-md pb-2 px-1 inline-block overflow-visible`}>
                         your festivals
                       </span>
                     </span><br />
