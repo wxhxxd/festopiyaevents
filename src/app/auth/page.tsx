@@ -110,6 +110,7 @@ export default function AuthPage() {
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4">
 
       {/* ── Background Video ───────────────────────────────────── */}
+      <div className="fixed inset-0 w-full h-full bg-slate-950 z-0 pointer-events-none" />
       <video
         src="/club-bg.mp4.mp4"
         autoPlay
@@ -117,11 +118,8 @@ export default function AuthPage() {
         muted
         playsInline
         aria-hidden="true"
-        className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none mix-blend-screen opacity-90"
       />
-
-      {/* ── Dark Semi-transparent Overlay ─────────────────────── */}
-      <div className="fixed inset-0 w-full h-full bg-black/40 z-0 pointer-events-none" />
 
       {/* ── Role Toggle Switch ───────────────────────────────── */}
       <motion.div
