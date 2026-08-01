@@ -20,13 +20,10 @@ export default function LandingPage() {
 
       <main className="relative flex-1 w-full overflow-x-hidden">
 
-        {/* ── Background Overlay Container ─────────────────────── */}
-        <div className="fixed inset-0 w-full h-full bg-slate-950 z-0 pointer-events-none" />
-
         <div
           dangerouslySetInnerHTML={{
             __html: `
-              <!-- Desktop Video Background (Butterflies Overlay with Black BG Removed) -->
+              <!-- Desktop Video Background -->
               <video
                 src="/bg-video.mp4"
                 autoplay
@@ -34,10 +31,10 @@ export default function LandingPage() {
                 muted
                 playsinline
                 webkit-playsinline
-                class="hidden md:block fixed inset-0 w-full h-full object-cover z-0 pointer-events-none mix-blend-screen opacity-90"
+                class="hidden md:block fixed inset-0 w-full h-full object-cover z-0"
               ></video>
 
-              <!-- Mobile Video Background (Butterflies Overlay with Black BG Removed) -->
+              <!-- Mobile Video Background -->
               <video
                 src="/phoneveiw.mp4"
                 autoplay
@@ -45,11 +42,14 @@ export default function LandingPage() {
                 muted
                 playsinline
                 webkit-playsinline
-                class="block md:hidden fixed inset-0 w-full h-full object-cover z-0 pointer-events-none mix-blend-screen opacity-90"
+                class="block md:hidden fixed inset-0 w-full h-full object-cover z-0"
               ></video>
             `
           }}
         />
+
+        {/* ── Dark Overlay ────────────────────────────────────── */}
+        <div className="fixed inset-0 w-full h-full bg-black/50 z-0" />
 
         {/* ── Hero Section ────────────────────────────────────── */}
         <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[calc(100vh-80px)] px-6 py-12">
