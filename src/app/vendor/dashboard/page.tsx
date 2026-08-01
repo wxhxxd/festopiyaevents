@@ -1011,6 +1011,16 @@ export default function VendorDashboard() {
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white font-sans flex flex-col md:flex-row transition-colors duration-300">
+      {/* ── Butterfly Video Overlay ───────────────────────── */}
+      <video
+        src="/butterflies.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed inset-0 w-full h-full object-cover z-50 pointer-events-none mix-blend-screen opacity-90"
+      />
+      
       {/* Top Purple/Indigo Glow Gradient */}
       <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-[#f3efff] to-transparent dark:from-[#1e1035] dark:to-transparent pointer-events-none z-0" />
 
