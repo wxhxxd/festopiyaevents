@@ -1212,6 +1212,7 @@ export default function OrganizerDashboard() {
         loop
         muted
         playsInline
+        aria-hidden="true"
         className="fixed inset-0 w-full h-full object-cover z-50 pointer-events-none mix-blend-screen opacity-90"
       />
       

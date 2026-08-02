@@ -20,32 +20,26 @@ export default function LandingPage() {
 
       <main className="relative flex-1 w-full overflow-x-hidden">
 
-        <div
-          dangerouslySetInnerHTML={{
-            __html: `
-              <!-- Desktop Video Background -->
-              <video
-                src="/bg-video.mp4"
-                autoplay
-                loop
-                muted
-                playsinline
-                webkit-playsinline
-                class="hidden md:block fixed inset-0 w-full h-full object-cover z-0"
-              ></video>
+        {/* Desktop Video Background */}
+        <video
+          src="/bg-video.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden="true"
+          className="hidden md:block fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
 
-              <!-- Mobile Video Background -->
-              <video
-                src="/phoneveiw.mp4"
-                autoplay
-                loop
-                muted
-                playsinline
-                webkit-playsinline
-                class="block md:hidden fixed inset-0 w-full h-full object-cover z-0"
-              ></video>
-            `
-          }}
+        {/* Mobile Video Background */}
+        <video
+          src="/phoneveiw.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden="true"
+          className="block md:hidden fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
         />
 
         {/* ── Dark Overlay ────────────────────────────────────── */}
