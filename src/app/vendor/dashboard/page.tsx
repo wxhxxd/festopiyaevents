@@ -1014,12 +1014,9 @@ export default function VendorDashboard() {
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white font-sans flex flex-col md:flex-row transition-colors duration-300">
       {/* ── Butterfly Video Overlay ───────────────────────── */}
-      <video
-        src="/butterflies.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
+      <img
+        src="/butterflies.webp"
+        alt=""
         aria-hidden="true"
         className="fixed inset-0 w-full h-full object-cover z-50 pointer-events-none mix-blend-screen opacity-90"
       />
