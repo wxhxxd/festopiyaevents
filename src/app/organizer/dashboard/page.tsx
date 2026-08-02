@@ -3570,6 +3570,7 @@ export default function OrganizerDashboard() {
                   onClick={() => {
                     handleUpdatePitch(checkoutPitch.id, 'Accepted');
                     setCheckoutPitch(null);
+                    window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
                   }}
                   className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_0_rgba(236,72,153,0.3)]"
                 >

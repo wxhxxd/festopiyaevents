@@ -317,7 +317,10 @@ export default function AdminDashboardClient() {
                                 <div className="flex items-center justify-end gap-2">
                                   {/* Test Simulator Button to trigger pay.captured */}
                                   <button
-                                    onClick={() => handleSimulatePayment(booking.id)}
+                                    onClick={() => {
+                                      handleSimulatePayment(booking.id);
+                                      window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
+                                    }}
                                     className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-dashed border-amber-500/30 text-amber-400/80 hover:text-amber-400 hover:bg-amber-500/5 transition-all"
                                     title="Simulate payment.captured webhook"
                                   >
@@ -333,7 +336,10 @@ export default function AdminDashboardClient() {
                               )}
                               {isPaid && (
                                 <button
-                                  onClick={() => handleReleasePayout(booking.id)}
+                                  onClick={() => {
+                                    handleReleasePayout(booking.id);
+                                    window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
+                                  }}
                                   className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_4px_12px_0_rgba(236,72,153,0.25)]"
                                 >
                                   Release ₹1000 to Vendor
