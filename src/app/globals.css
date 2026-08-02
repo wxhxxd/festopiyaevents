@@ -63,6 +63,15 @@ body {
   color-scheme: dark;
 }
 
+/* ── Hide iOS Safari Play Button in Low Power Mode ──────────── */
+video::-webkit-media-controls {
+  display: none !important;
+}
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 /* ── Liquid Glass Effect ─────────────────────────────────────── */
 .liquid-glass {
   background: rgba(255, 255, 255, 0.01);
