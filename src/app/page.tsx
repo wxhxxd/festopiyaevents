@@ -27,6 +27,7 @@ export default function LandingPage() {
           loop
           muted
           playsInline
+          onEnded={(e) => { const v = e.target as HTMLVideoElement; v.play(); }}
           aria-hidden="true"
           className="absolute md:fixed inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-0 md:opacity-100 transition-opacity duration-500"
         />
@@ -38,6 +39,7 @@ export default function LandingPage() {
           loop
           muted
           playsInline
+          onEnded={(e) => { const v = e.target as HTMLVideoElement; v.play(); }}
           aria-hidden="true"
           className="fixed md:absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-100 md:opacity-0 transition-opacity duration-500"
         />

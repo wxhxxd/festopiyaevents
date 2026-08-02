@@ -31,21 +31,30 @@ export function setAuthCredentials(token: string, role: string, companyName: str
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  const token = localStorage.getItem("token") || getCookie("token");
+  let token = localStorage.getItem("token");
+  if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+    token = getCookie("token");
+  }
   if (!token || token === "undefined" || token === "null" || token.trim() === "") return null;
   return token;
 }
 
 export function getStoredRole(): string | null {
   if (typeof window === "undefined") return null;
-  const role = localStorage.getItem("role") || getCookie("role");
+  let role = localStorage.getItem("role");
+  if (!role || role === "undefined" || role === "null" || role.trim() === "") {
+    role = getCookie("role");
+  }
   if (!role || role === "undefined" || role === "null" || role.trim() === "") return null;
   return role;
 }
 
 export function getStoredCompanyName(): string | null {
   if (typeof window === "undefined") return null;
-  const company = localStorage.getItem("company_name") || getCookie("company_name");
+  let company = localStorage.getItem("company_name");
+  if (!company || company === "undefined" || company === "null" || company.trim() === "") {
+    company = getCookie("company_name");
+  }
   if (!company || company === "undefined" || company === "null" || company.trim() === "") return null;
   return company;
 }

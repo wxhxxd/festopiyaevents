@@ -380,6 +380,13 @@ class UserCreate(BaseModel):
     company_name: str
     role: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 class UserResponse(BaseModel):
     id: str
     email: str
@@ -604,8 +611,8 @@ app.add_middleware(SlowAPIMiddleware)
 # Email config — replace with real SMTP creds or use Gmail App Password
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
+SMTP_USER = os.getenv("SMTP_USER", "festopiya@gmail.com")
+SMTP_PASS = os.getenv("SMTP_PASS", "mjxpijchhxkbhtyr")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # Detect placeholder values so we don't attempt a doomed SMTP connection
@@ -646,6 +653,42 @@ def send_verification_email(email: str, token: str):
             server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(SMTP_USER, email, msg.as_string())
         print(f"[EMAIL] Sent verification email to {email}")
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e}")
+
+def send_reset_password_email(email: str, token: str):
+    """Send password reset email."""
+    link = f"{FRONTEND_URL}/reset-password?token={token}"
+
+    print(f"\n{'='*60}")
+    print(f"[FESTOPIYA] Password Reset link for {email}:")
+    print(f"  {link}")
+    print(f"{'='*60}\n")
+
+    if SMTP_USER in _PLACEHOLDER_CREDS or SMTP_PASS in _PLACEHOLDER_CREDS:
+        print("[EMAIL] SMTP not configured — using console link above.")
+        return
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Reset your Festopiya password"
+        msg["From"] = SMTP_USER
+        msg["To"] = email
+        html = f"""
+        <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0a0a0a;border-radius:16px;color:#fff">
+          <img src="{FRONTEND_URL}/logo.png" alt="Festopiya" style="height:48px;margin-bottom:24px" />
+          <h2 style="color:#a78bfa">Reset Your Password</h2>
+          <p style="color:#aaa">Click the button below to reset your Festopiya password. This link will expire in 15 minutes.</p>
+          <a href="{link}" style="display:inline-block;margin-top:16px;padding:14px 32px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;border-radius:12px;text-decoration:none;font-weight:bold">Reset Password</a>
+          <p style="color:#555;margin-top:24px;font-size:12px">If you didn't request a password reset, you can safely ignore this email.</p>
+        </div>
+        """
+        msg.attach(MIMEText(html, "html"))
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_USER, email, msg.as_string())
+        print(f"[EMAIL] Sent password reset email to {email}")
     except Exception as e:
         print(f"[EMAIL ERROR] {e}")
 
@@ -690,6 +733,49 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     user.verification_token = None
     db.commit()
     return {"message": "Email verified successfully! You can now log in."}
+
+@app.post("/forgot-password")
+@limiter.limit("5/minute")
+def forgot_password(request: Request, req: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if user:
+        token_data = {
+            "sub": user.email,
+            "type": "reset",
+            "hash": user.hashed_password[-10:] if user.hashed_password else ""
+        }
+        token = create_access_token(data=token_data, expires_delta=timedelta(minutes=15))
+        background_tasks.add_task(send_reset_password_email, user.email, token)
+    
+    return {"message": "If the email is registered, a password reset link has been sent."}
+
+@app.post("/reset-password")
+@limiter.limit("5/minute")
+def reset_password(request: Request, req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(req.token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        pwd_hash: str = payload.get("hash")
+        
+        if email is None or token_type != "reset":
+            raise HTTPException(status_code=400, detail="Invalid token")
+            
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+        
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    expected_hash = user.hashed_password[-10:] if user.hashed_password else ""
+    if pwd_hash != expected_hash:
+        raise HTTPException(status_code=400, detail="Token has already been used or is invalid")
+        
+    user.hashed_password = get_password_hash(req.new_password)
+    db.commit()
+    
+    return {"message": "Password updated successfully"}
 
 @app.post("/login", response_model=Token)
 @limiter.limit("5/minute")

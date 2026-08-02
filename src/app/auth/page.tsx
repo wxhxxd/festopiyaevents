@@ -35,6 +35,8 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // ── Submit handler ────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +47,16 @@ export default function AuthPage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
     try {
-      if (isLogin) {
+      if (isForgotPassword) {
+        const res = await fetch(`${apiUrl}/forgot-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to send reset link");
+        setSuccessMsg("Password reset link sent to your email. Please check your inbox!");
+      } else if (isLogin) {
         const formData = new URLSearchParams();
         formData.append("username", email);
         formData.append("password", password);
@@ -97,6 +108,7 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setSuccessMsg(null);
     } finally {
       setLoading(false);
     }
@@ -116,6 +128,7 @@ export default function AuthPage() {
         loop
         muted
         playsInline
+        onEnded={(e) => { const v = e.target as HTMLVideoElement; v.play(); }}
         aria-hidden="true"
         className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
       />
@@ -124,12 +137,13 @@ export default function AuthPage() {
       <div className="fixed inset-0 w-full h-full bg-black/40 z-0 pointer-events-none" />
 
       {/* ── Role Toggle Switch ───────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 mb-6 flex items-center gap-1 bg-black/30 backdrop-blur-md border border-white/20 rounded-full p-1 shadow-lg"
-      >
+      {!isForgotPassword && (
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative z-10 mb-6 flex items-center gap-1 bg-black/30 backdrop-blur-md border border-white/20 rounded-full p-1 shadow-lg"
+        >
         {(["Vendor", "Organizer"] as const).map((r) => (
           <button
             key={r}
@@ -150,7 +164,8 @@ export default function AuthPage() {
             </span>
           </button>
         ))}
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* ── Glass Auth Card ──────────────────────────────────── */}
       <motion.div
@@ -166,12 +181,13 @@ export default function AuthPage() {
             <FestopiyaBranding className="text-3xl" center={true} />
           </h1>
           <p className="text-white/60 text-sm mt-1">
-            {isLogin ? "Welcome back" : `Signing up as a ${role}`}
+            {isForgotPassword ? "Reset your password" : isLogin ? "Welcome back" : `Signing up as a ${role}`}
           </p>
         </div>
 
         {/* Log In / Sign Up tabs */}
-        <div className="flex p-1 bg-black/20 rounded-2xl border border-white/10 mb-6 relative">
+        {!isForgotPassword && (
+          <div className="flex p-1 bg-black/20 rounded-2xl border border-white/10 mb-6 relative">
           <motion.div
             layoutId="auth-tab"
             className="absolute inset-y-1 w-[calc(50%-4px)] bg-white/20 rounded-xl border border-white/20 shadow-md"
@@ -196,11 +212,12 @@ export default function AuthPage() {
             Sign Up
           </button>
         </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <AnimatePresence mode="popLayout">
-            {!isLogin && (
+            {!isLogin && !isForgotPassword && (
               <motion.div
                 key="company-field"
                 initial={{ opacity: 0, height: 0 }}
@@ -237,7 +254,8 @@ export default function AuthPage() {
           </div>
 
           {/* Password */}
-          <div className="relative">
+          {!isForgotPassword && (
+            <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="password"
@@ -248,8 +266,22 @@ export default function AuthPage() {
               placeholder="Password"
             />
           </div>
+          )}
 
-          {/* Error */}
+          {/* Forgot Password Link */}
+          {isLogin && !isForgotPassword && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => { setIsForgotPassword(true); setError(null); setSuccessMsg(null); }}
+                className="text-sm text-fuchsia-400 hover:text-fuchsia-300 transition-colors"
+              >
+                Forgot Password?
+              </button>
+            </div>
+          )}
+
+          {/* Error / Success Messages */}
           <AnimatePresence>
             {error && (
               <motion.div
@@ -261,6 +293,18 @@ export default function AuthPage() {
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <p>{error}</p>
+                </div>
+              </motion.div>
+            )}
+            {successMsg && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+                  <p>{successMsg}</p>
                 </div>
               </motion.div>
             )}
@@ -283,11 +327,24 @@ export default function AuthPage() {
               </div>
             ) : (
               <span className="relative z-10 flex items-center gap-2">
-                {isLogin ? "Sign In" : "Create Account"}
+                {isForgotPassword ? "Send Reset Link" : isLogin ? "Sign In" : "Create Account"}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             )}
           </button>
+
+          {/* Back to Login Link */}
+          {isForgotPassword && (
+            <div className="flex justify-center mt-4">
+              <button
+                type="button"
+                onClick={() => { setIsForgotPassword(false); setError(null); setSuccessMsg(null); }}
+                className="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                &larr; Back to Log In
+              </button>
+            </div>
+          )}
         </form>
       </motion.div>
     </main>
