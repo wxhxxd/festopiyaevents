@@ -2822,13 +2822,24 @@ export default function OrganizerDashboard() {
                                 />
                                 <span className="text-sm text-gray-900 dark:text-white font-medium">Organizer Pays Vendor<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">Organizer pays, attendees get free items</span></span>
                               </label>
+                              <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-black/5 dark:bg-black/40 cursor-pointer flex-1 transition-colors hover:border-indigo-500/30">
+                                <input 
+                                  type="radio" 
+                                  name="payment_model" 
+                                  value="both" 
+                                  checked={paymentModel === 'both'} 
+                                  onChange={() => setPaymentModel('both')} 
+                                  className="accent-indigo-500 w-4 h-4" 
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white font-medium">Both Models<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">Support both renting & free items</span></span>
+                              </label>
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                             <div className="space-y-2">
                               <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">
-                                {paymentModel === 'organizer_pays' ? 'Standard Budget Organizer Pays (₹)' : 'Standard Stall Price (₹)'}
+                                {paymentModel === 'organizer_pays' ? 'Standard Budget Organizer Pays (₹)' : paymentModel === 'both' ? 'Standard Stall Price / Budget (₹)' : 'Standard Stall Price (₹)'}
                               </label>
                               <input 
                                 type="number" 
@@ -2843,7 +2854,7 @@ export default function OrganizerDashboard() {
                             
                             <div className="space-y-2">
                               <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">
-                                ★ {paymentModel === 'organizer_pays' ? 'Premium Budget Organizer Pays (₹)' : 'Premium Stall Price (₹)'}
+                                ★ {paymentModel === 'organizer_pays' ? 'Premium Budget Organizer Pays (₹)' : paymentModel === 'both' ? 'Premium Stall Price / Budget (₹)' : 'Premium Stall Price (₹)'}
                               </label>
                               <input 
                                 type="number" 

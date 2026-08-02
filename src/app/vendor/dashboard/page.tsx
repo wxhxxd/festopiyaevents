@@ -2714,7 +2714,7 @@ export default function VendorDashboard() {
 
                             <div>
                               <label className="block text-xs font-bold text-white/70 uppercase tracking-wider mb-2">
-                                {selectedEvent.payment_model === 'organizer_pays' ? 'Enter Requested Budget (₹)' : 'Enter Your Pitch Price (₹)'}
+                                {selectedEvent.payment_model === 'organizer_pays' ? 'Enter Requested Budget (₹)' : selectedEvent.payment_model === 'both' ? 'Enter Pitch Price / Requested Budget (₹)' : 'Enter Your Pitch Price (₹)'}
                               </label>
                               <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold text-lg">₹</span>
@@ -2747,7 +2747,7 @@ export default function VendorDashboard() {
                             <div className="p-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-purple-500/15 border border-rose-500/30">
                               <p className="text-xs text-rose-200 leading-relaxed font-medium">
                                 💡 Submit your pitch directly. The event organizer will receive instant notification to review or negotiate. 
-                                {selectedEvent.payment_model === 'organizer_pays' ? ' You are requesting this budget from the organizer to provide free items.' : ''}
+                                {selectedEvent.payment_model === 'organizer_pays' ? ' You are requesting this budget from the organizer to provide free items.' : selectedEvent.payment_model === 'both' ? ' The organizer supports both renting and budget requests.' : ''}
                               </p>
                             </div>
                           </div>
