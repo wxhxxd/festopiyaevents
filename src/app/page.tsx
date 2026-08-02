@@ -28,7 +28,7 @@ export default function LandingPage() {
           muted
           playsInline
           aria-hidden="true"
-          className="hidden md:block fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          className="absolute md:fixed inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-0 md:opacity-100 transition-opacity duration-500"
         />
 
         {/* Mobile Video Background */}
@@ -39,7 +39,7 @@ export default function LandingPage() {
           muted
           playsInline
           aria-hidden="true"
-          className="block md:hidden fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          className="fixed md:absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-100 md:opacity-0 transition-opacity duration-500"
         />
 
         {/* ── Dark Overlay ────────────────────────────────────── */}
