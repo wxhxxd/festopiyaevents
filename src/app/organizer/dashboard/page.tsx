@@ -194,6 +194,7 @@ interface EventData {
   standard_stall_location?: string;
   premium_stall_location?: string;
   organizer_id?: number;
+  payment_model?: string;
 }
 
 interface PitchData {
@@ -412,6 +413,7 @@ export default function OrganizerDashboard() {
   const [totalStalls, setTotalStalls] = useState("");
   const [standardPrice, setStandardPrice] = useState("");
   const [premiumPrice, setPremiumPrice] = useState("");
+  const [paymentModel, setPaymentModel] = useState("vendor_pays"); // vendor_pays or organizer_pays
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventImages, setEventImages] = useState<File[]>([]);
   const [eventBanner, setEventBanner] = useState<File | null>(null);
@@ -1144,6 +1146,8 @@ export default function OrganizerDashboard() {
       if (mapsUrl) {
         formData.append('maps_url', mapsUrl);
       }
+      formData.append('payment_model', paymentModel);
+      
       if (eventBanner) {
         formData.append('banner', eventBanner);
       }
@@ -1182,6 +1186,7 @@ export default function OrganizerDashboard() {
       setPremiumStallSize("12x12");
       setStandardStallLocation("Main Hall");
       setPremiumStallLocation("VIP Area");
+      setPaymentModel("vendor_pays");
       
       // Show success
       setSuccessMsg(true);
@@ -1679,7 +1684,14 @@ export default function OrganizerDashboard() {
                             </div>
                             <div className="flex gap-2">
                               <button
-                                onClick={() => setCheckoutPitch(pitch)}
+                                onClick={() => {
+                                  const eventForPitch = allEvents.find(e => e.id === pitch.event_id) || events.find(e => e.id === pitch.event_id);
+                                  if (eventForPitch?.payment_model === 'organizer_pays') {
+                                    setCheckoutPitch(pitch);
+                                  } else {
+                                    handleUpdatePitch(pitch.id, 'Accepted');
+                                  }
+                                }}
                                 className="flex-1 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-sm font-bold border border-emerald-500/30 transition-all"
                               >
                                 ✓ Accept
@@ -2785,9 +2797,39 @@ export default function OrganizerDashboard() {
                             for booking.
                           </h2>
                           
+                          <div className="mb-6 space-y-3">
+                            <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Payment Model</label>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-black/5 dark:bg-black/40 cursor-pointer flex-1 transition-colors hover:border-indigo-500/30">
+                                <input 
+                                  type="radio" 
+                                  name="payment_model" 
+                                  value="vendor_pays" 
+                                  checked={paymentModel === 'vendor_pays'} 
+                                  onChange={() => setPaymentModel('vendor_pays')} 
+                                  className="accent-indigo-500 w-4 h-4" 
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white font-medium">Vendor Pays Organizer<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">Vendor rents stall, sells to attendees</span></span>
+                              </label>
+                              <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-black/5 dark:bg-black/40 cursor-pointer flex-1 transition-colors hover:border-indigo-500/30">
+                                <input 
+                                  type="radio" 
+                                  name="payment_model" 
+                                  value="organizer_pays" 
+                                  checked={paymentModel === 'organizer_pays'} 
+                                  onChange={() => setPaymentModel('organizer_pays')} 
+                                  className="accent-indigo-500 w-4 h-4" 
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white font-medium">Organizer Pays Vendor<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">Organizer pays, attendees get free items</span></span>
+                              </label>
+                            </div>
+                          </div>
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                             <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Standard Stall Price (₹)</label>
+                              <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">
+                                {paymentModel === 'organizer_pays' ? 'Standard Budget Organizer Pays (₹)' : 'Standard Stall Price (₹)'}
+                              </label>
                               <input 
                                 type="number" 
                                 required
@@ -2800,7 +2842,9 @@ export default function OrganizerDashboard() {
                             </div>
                             
                             <div className="space-y-2">
-                              <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Price (₹)</label>
+                              <label className="text-sm font-medium text-amber-600 dark:text-amber-400/80 pl-1">
+                                ★ {paymentModel === 'organizer_pays' ? 'Premium Budget Organizer Pays (₹)' : 'Premium Stall Price (₹)'}
+                              </label>
                               <input 
                                 type="number" 
                                 required

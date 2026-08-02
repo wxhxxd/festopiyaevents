@@ -44,7 +44,8 @@ import {
   ArrowRight,
   Trash2,
   Film,
-  Bookmark
+  Bookmark,
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -196,6 +197,7 @@ interface EventData {
   premium_stall_size?: string;
   standard_stall_location?: string;
   premium_stall_location?: string;
+  payment_model?: string;
 }
 
 const isEventExpired = (eventDateStr: string) => {
@@ -1702,6 +1704,22 @@ export default function VendorDashboard() {
                           </button>
                         </div>
 
+                        {/* Payment action — vendor pays advance to lock stall if vendor_pays */}
+                        {isAccepted && (!events.find(e => e.id === pitch.event_id)?.payment_model || events.find(e => e.id === pitch.event_id)?.payment_model === 'vendor_pays') && (
+                          <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
+                            <p className="text-xs text-emerald-300 font-semibold">Pitch accepted! Secure your stall:</p>
+                            <button
+                              onClick={() => {
+                                window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
+                              }}
+                              className="w-full py-2 rounded-xl bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(236,72,153,0.25)] transition-all flex items-center justify-center gap-2"
+                            >
+                              <CreditCard className="w-4 h-4" />
+                              Pay Advance
+                            </button>
+                          </div>
+                        )}
+
                         {/* Counter-offer action — vendor responds to organizer's counter */}
                         {isCounter && (
                           <div className="border-t border-white/10 pt-4 space-y-2">
@@ -2696,7 +2714,7 @@ export default function VendorDashboard() {
 
                             <div>
                               <label className="block text-xs font-bold text-white/70 uppercase tracking-wider mb-2">
-                                Enter Your Pitch Price (₹)
+                                {selectedEvent.payment_model === 'organizer_pays' ? 'Enter Requested Budget (₹)' : 'Enter Your Pitch Price (₹)'}
                               </label>
                               <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold text-lg">₹</span>
@@ -2728,7 +2746,8 @@ export default function VendorDashboard() {
                             
                             <div className="p-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-purple-500/15 border border-rose-500/30">
                               <p className="text-xs text-rose-200 leading-relaxed font-medium">
-                                💡 Submit your pitch directly. The event organizer will receive instant notification to review or negotiate.
+                                💡 Submit your pitch directly. The event organizer will receive instant notification to review or negotiate. 
+                                {selectedEvent.payment_model === 'organizer_pays' ? ' You are requesting this budget from the organizer to provide free items.' : ''}
                               </p>
                             </div>
                           </div>
