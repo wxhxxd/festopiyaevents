@@ -18,6 +18,7 @@ import os
 import shutil
 import json
 import secrets
+import sys
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -737,8 +738,13 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 @app.post("/forgot-password")
 @limiter.limit("5/minute")
 def forgot_password(request: Request, req: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    print(f"[DEBUG] /forgot-password called for email: '{req.email}'")
+    sys.stdout.flush()
+    
     user = db.query(User).filter(User.email == req.email).first()
     if user:
+        print(f"[DEBUG] User found! Queuing email task...")
+        sys.stdout.flush()
         token_data = {
             "sub": user.email,
             "type": "reset",
@@ -746,6 +752,9 @@ def forgot_password(request: Request, req: ForgotPasswordRequest, background_tas
         }
         token = create_access_token(data=token_data, expires_delta=timedelta(minutes=15))
         background_tasks.add_task(send_reset_password_email, user.email, token)
+    else:
+        print(f"[DEBUG] User NOT found for email: '{req.email}'")
+        sys.stdout.flush()
     
     return {"message": "If the email is registered, a password reset link has been sent."}
 
