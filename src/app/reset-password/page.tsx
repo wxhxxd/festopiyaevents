@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -67,6 +67,95 @@ export default function ResetPasswordPage() {
   const inputCls =
     "w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-300 focus:outline-none focus:bg-white/10 focus:border-white/30 transition-all";
 
+  if (success) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center text-center space-y-4 py-4"
+      >
+        <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
+          <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Password Reset!</h2>
+        <p className="text-white/60 text-sm">Your password has been successfully updated. Redirecting you to login...</p>
+      </motion.div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* New Password */}
+      <div className="relative">
+        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <input
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={inputCls}
+          placeholder="New Password"
+          minLength={6}
+        />
+      </div>
+
+      {/* Confirm Password */}
+      <div className="relative">
+        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <input
+          type="password"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className={inputCls}
+          placeholder="Confirm New Password"
+          minLength={6}
+        />
+      </div>
+
+      {/* Error Message */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <p>{error}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading || !token}
+        className="w-full mt-2 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+      >
+        <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
+        {loading ? (
+          <div className="newtons-cradle" style={{ "--uib-size": "24px" } as React.CSSProperties}>
+            <div className="newtons-cradle__dot"></div>
+            <div className="newtons-cradle__dot"></div>
+            <div className="newtons-cradle__dot"></div>
+            <div className="newtons-cradle__dot"></div>
+          </div>
+        ) : (
+          <span className="relative z-10 flex items-center gap-2">
+            Update Password
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </span>
+        )}
+      </button>
+    </form>
+  );
+}
+
+export default function ResetPasswordPage() {
   return (
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4 bg-black">
       {/* ── Background Video ───────────────────────────────────── */}
@@ -99,88 +188,9 @@ export default function ResetPasswordPage() {
           <p className="text-white/60 text-sm mt-1">Reset Your Password</p>
         </div>
 
-        {success ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center text-center space-y-4 py-4"
-          >
-            <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-            </div>
-            <h2 className="text-2xl font-bold text-white">Password Reset!</h2>
-            <p className="text-white/60 text-sm">Your password has been successfully updated. Redirecting you to login...</p>
-          </motion.div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* New Password */}
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputCls}
-                placeholder="New Password"
-                minLength={6}
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={inputCls}
-                placeholder="Confirm New Password"
-                minLength={6}
-              />
-            </div>
-
-            {/* Error Message */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <p>{error}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading || !token}
-              className="w-full mt-2 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden shadow-[0_0_20px_rgba(99,102,241,0.35)]"
-            >
-              <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-              {loading ? (
-                <div className="newtons-cradle" style={{ "--uib-size": "24px" } as React.CSSProperties}>
-                  <div className="newtons-cradle__dot"></div>
-                  <div className="newtons-cradle__dot"></div>
-                  <div className="newtons-cradle__dot"></div>
-                  <div className="newtons-cradle__dot"></div>
-                </div>
-              ) : (
-                <span className="relative z-10 flex items-center gap-2">
-                  Update Password
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              )}
-            </button>
-          </form>
-        )}
+        <Suspense fallback={<div className="text-white text-center py-4">Loading...</div>}>
+          <ResetPasswordForm />
+        </Suspense>
       </motion.div>
     </main>
   );
