@@ -204,7 +204,7 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60]"
           />
           
           <motion.div
@@ -212,47 +212,55 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-2xl border-l border-gray-200 dark:border-white/10 shadow-[-10px_0_50px_rgba(0,0,0,0.15)] dark:shadow-[-10px_0_50px_rgba(0,0,0,0.8)] z-[70] flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-black border-l border-[#262626] shadow-2xl z-[70] flex flex-col font-sans"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#262626] bg-black shrink-0">
               <div className="flex items-center gap-3">
                 {activeContext && !initialContext ? (
                   <button 
                     onClick={() => setActiveContext(null)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/20 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors mr-2"
+                    className="p-1.5 -ml-1.5 hover:bg-[#262626] rounded-full text-white transition-colors"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="w-6 h-6" />
                   </button>
                 ) : null}
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${fromColor} ${toColor} flex items-center justify-center shadow-lg ${shadowColor}`}>
-                  {activeContext ? <User className="text-white w-5 h-5" /> : <Inbox className="text-white w-5 h-5" />}
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                    {activeContext ? activeContext.title : "Messages Inbox"}
-                  </h3>
-                  <p className="text-gray-500 dark:text-white/50 text-xs">
-                    {activeContext ? "Private Conversation" : "Your active threads"}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 p-[2px]">
+                    <div className="w-full h-full bg-black rounded-full flex items-center justify-center border-2 border-black overflow-hidden">
+                      {activeContext ? (
+                        <span className="text-white text-xs font-bold uppercase">{activeContext.title.charAt(0)}</span>
+                      ) : (
+                        <Inbox className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <h3 className="text-base font-semibold text-white leading-tight">
+                      {activeContext ? activeContext.title : "Messages"}
+                    </h3>
+                    <span className="text-xs text-[#A8A8A8]">
+                      {activeContext ? "Active now" : "Your inbox"}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/20 text-gray-500 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="p-1.5 hover:bg-[#262626] rounded-full text-white transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Main Area */}
             {!activeContext ? (
               // Inbox Mode
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+              <div className="flex-1 overflow-y-auto p-0 scrollbar-hide bg-black">
                 {inboxLoading ? (
-                  <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 text-gray-400 dark:text-white/50 animate-spin" /></div>
+                  <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 text-[#A8A8A8] animate-spin" /></div>
                 ) : inboxItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-white/30">
+                  <div className="flex flex-col items-center justify-center h-full text-[#A8A8A8]">
                     <Inbox className="w-12 h-12 mb-3 opacity-50" />
                     <p>Your inbox is empty.</p>
                   </div>
@@ -269,14 +277,14 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                         receiverId: item.other_user_id,
                         title: role === "Vendor" ? `Organizer of ${item.event_name}` : `${item.vendor_name} (${item.event_name})`
                       })}
-                      className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all flex items-center gap-4 group"
+                      className="flex items-center gap-4 px-4 py-3 hover:bg-[#121212] cursor-pointer transition-colors"
                     >
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-black/5 to-black/10 dark:from-white/10 dark:to-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-lg font-bold text-gray-900 dark:text-white group-hover:border-${accentColor}-500/50 transition-colors`}>
-                        {item.other_user_name.charAt(0)}
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                        {item.other_user_name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <h4 className="text-gray-900 dark:text-white font-bold truncate">{item.other_user_name}</h4>
-                        <p className="text-sm text-gray-500 dark:text-white/50 truncate">{item.event_name}</p>
+                        <h4 className="text-white text-sm font-semibold truncate">{item.other_user_name}</h4>
+                        <p className="text-[#A8A8A8] text-sm truncate">{item.event_name}</p>
                       </div>
                     </motion.div>
                   ))
@@ -286,51 +294,49 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
               // Chat Mode
               <>
                 {pitch && (
-                  <div className="bg-black/5 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 p-4 shrink-0">
+                  <div className="bg-[#121212] border-b border-[#262626] p-4 shrink-0">
                     {pitch.status === "Accepted" ? (
-                      <div className="bg-emerald-500/20 border border-emerald-500/40 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-2">
-                          <span className="text-2xl text-emerald-400">✓</span>
-                        </div>
-                        <h4 className="text-xl font-bold text-emerald-300">DEAL SECURED</h4>
-                        <p className="text-emerald-100/70 font-medium text-lg">Final Price: ₹{pitch.offered_price}</p>
+                      <div className="bg-[#262626] border border-[#333] rounded-xl p-4 text-center">
+                        <span className="text-2xl">🤝</span>
+                        <h4 className="text-sm font-semibold text-white mt-2">DEAL SECURED</h4>
+                        <p className="text-[#A8A8A8] text-xs">Final Price: ₹{pitch.offered_price}</p>
                       </div>
                     ) : (
-                      <div className="bg-black/5 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-gray-700 dark:text-white/70 font-semibold text-sm uppercase tracking-wider">Live Offer</span>
-                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${pitch.status === 'Pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
+                      <div className="bg-[#262626] border border-[#333] rounded-xl p-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[#A8A8A8] text-xs font-semibold uppercase">Live Offer</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${pitch.status === 'Pending' ? 'bg-[#3797f0]/20 text-[#3797f0]' : 'bg-gray-700 text-gray-300'}`}>
                             {pitch.status}
                           </span>
                         </div>
                         <div className="flex justify-between items-end">
                           <div>
-                            <p className="text-xs text-gray-500 dark:text-white/50 mb-1">{pitch.stall_type} Stall</p>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-white">₹{pitch.offered_price}</p>
+                            <p className="text-[10px] text-[#A8A8A8] mb-0.5">{pitch.stall_type} Stall</p>
+                            <p className="text-lg font-bold text-white">₹{pitch.offered_price}</p>
                           </div>
                           
                           {((role === "Organizer" && pitch.status === "Pending") || 
                             (role === "Vendor" && pitch.status === "Counter_Offered")) && (
-                            <div className="flex flex-col items-end gap-2">
-                              <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-end gap-1.5">
+                              <div className="flex items-center gap-1.5">
                                 <input 
                                   type="number" 
                                   placeholder="Counter ₹" 
                                   value={counterPrice}
                                   onChange={e => setCounterPrice(e.target.value)}
-                                  className="w-24 bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-gray-900 dark:text-white text-sm outline-none focus:border-rose-500 dark:focus:border-rose-400/50"
+                                  className="w-20 bg-black border border-[#333] rounded px-2 py-1 text-white text-xs outline-none focus:border-[#3797f0]"
                                 />
                                 <button 
                                   onClick={() => updatePitch(role === "Organizer" ? "Counter_Offered" : "Pending", parseFloat(counterPrice))}
                                   disabled={!counterPrice}
-                                  className="px-3 py-1.5 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 text-gray-900 dark:text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                  className="px-2 py-1 bg-[#333] hover:bg-[#444] text-white rounded text-xs font-semibold disabled:opacity-50 transition-colors"
                                 >
                                   Counter
                                 </button>
                               </div>
                               <button 
                                 onClick={() => updatePitch("Accepted")}
-                                className="w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-bold transition-colors shadow-lg shadow-emerald-500/20"
+                                className="w-full px-2 py-1 bg-[#3797f0] hover:bg-[#287BC7] text-white rounded text-xs font-semibold transition-colors"
                               >
                                 Accept Offer
                               </button>
@@ -342,37 +348,47 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                   </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide relative">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide bg-black">
                   {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-white/30">
+                    <div className="flex flex-col items-center justify-center h-full text-[#A8A8A8]">
                       <MessageSquare className="w-12 h-12 mb-3 opacity-50" />
                       <p>No messages yet. Say hello!</p>
                     </div>
                   ) : (
-                    messages.map((msg) => {
+                    messages.map((msg, idx) => {
                       const isMe = msg.sender === currentUser;
+                      const showAvatar = !isMe && (idx === messages.length - 1 || messages[idx + 1]?.sender !== msg.sender);
+                      
                       return (
                         <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           key={msg.id} 
-                          className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                          className={`flex ${isMe ? "justify-end" : "justify-start"} items-end gap-2`}
                         >
-                          <span className="text-[10px] font-bold text-gray-400 dark:text-white/30 mb-1 px-1 tracking-wide uppercase">
-                            {msg.sender}
-                          </span>
-                          <div 
-                            className={`max-w-[85%] p-3.5 text-sm leading-relaxed ${
-                              isMe 
-                                ? `bg-gradient-to-br ${fromColor} ${toColor} text-white rounded-2xl rounded-tr-sm shadow-lg ${shadowColor}` 
-                                : "bg-black/5 dark:bg-white/10 border border-gray-250 dark:border-white/10 text-gray-900 dark:text-white/90 rounded-2xl rounded-tl-sm backdrop-blur-md"
-                            }`}
-                          >
-                            {msg.text}
+                          {!isMe && (
+                            <div className="w-7 h-7 shrink-0">
+                              {showAvatar ? (
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-[10px] font-bold text-white">
+                                  {msg.sender.charAt(0).toUpperCase()}
+                                </div>
+                              ) : null}
+                            </div>
+                          )}
+                          <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-[75%]`}>
+                            {showAvatar && !isMe && (
+                               <span className="text-[10px] font-semibold text-[#A8A8A8] mb-1 ml-1 truncate max-w-full">{msg.sender}</span>
+                            )}
+                            <div 
+                              className={`px-3.5 py-2.5 text-[15px] leading-relaxed break-words ${
+                                isMe 
+                                  ? "bg-[#3797f0] text-white rounded-3xl" 
+                                  : "bg-[#262626] text-white rounded-3xl"
+                              }`}
+                            >
+                              {msg.text}
+                            </div>
                           </div>
-                          <span className="text-[10px] text-gray-400 dark:text-white/30 mt-1.5 px-1">
-                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
                         </motion.div>
                       );
                     })
@@ -380,22 +396,29 @@ export default function ChatInterface({ isOpen, onClose, initialContext }: ChatI
                   <div ref={messagesEndRef} className="h-1" />
                 </div>
 
-                <form onSubmit={handleSend} className="p-4 border-t border-gray-200 dark:border-white/10 bg-black/5 dark:bg-white/5 relative">
-                  <div className="relative flex items-center">
+                <form onSubmit={handleSend} className="p-3 bg-black border-t border-[#262626]">
+                  <div className="relative flex items-center bg-[#262626] rounded-full px-1.5 py-1.5 focus-within:ring-1 focus-within:ring-[#3797f0]/50">
+                    <div className="w-8 h-8 rounded-full bg-[#3797f0] flex items-center justify-center shrink-0 ml-0.5">
+                       <User className="w-4 h-4 text-white" />
+                    </div>
                     <input 
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Message..."
-                      className={`w-full bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-full py-3.5 pl-5 pr-14 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none ${borderColor} focus:ring-1 ${ringColor} transition-all shadow-inner`}
+                      className="flex-1 bg-transparent px-3 py-1.5 text-white placeholder:text-[#A8A8A8] focus:outline-none text-[15px]"
                     />
-                    <button 
-                      type="submit"
-                      disabled={loading || !newMessage.trim()}
-                      className={`absolute right-2 w-10 h-10 rounded-full bg-gradient-to-r ${fromColor} ${toColor} flex items-center justify-center text-white ${hoverFromColor} ${hoverToColor} disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg ${shadowColor}`}
-                    >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-4 h-4 ml-[-2px]" />}
-                    </button>
+                    {newMessage.trim() ? (
+                      <button 
+                        type="submit"
+                        disabled={loading}
+                        className="text-[#3797f0] font-semibold text-[15px] px-3 py-1.5 hover:text-white transition-colors mr-1"
+                      >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send"}
+                      </button>
+                    ) : (
+                      <div className="px-3 py-1.5 opacity-0 text-[15px] pointer-events-none mr-1">Send</div>
+                    )}
                   </div>
                 </form>
               </>
