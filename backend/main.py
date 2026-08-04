@@ -122,6 +122,7 @@ class Event(Base):
     premium_stall_size = Column(String, default="12x12")
     standard_stall_location = Column(String, default="Main Hall")
     premium_stall_location = Column(String, default="VIP Area")
+    payment_model = Column(String, default="vendor_pays")
 
     organizer = relationship("User", back_populates="events")
     bookings = relationship("StallBooking", back_populates="event")
@@ -135,6 +136,8 @@ class StallBooking(Base):
     stall_number = Column(Integer)
     vendor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"))
     image_url = Column(String, nullable=True)
+    total_amount = Column(Float, default=0.0)
+    amount_paid = Column(Float, default=0.0)
 
     event = relationship("Event", back_populates="bookings")
     vendor = relationship("User", back_populates="bookings")
@@ -456,6 +459,8 @@ class StallBookingResponse(StallBookingBase):
     vendor_id: str
     vendor_name: Optional[str] = None
     image_url: Optional[str] = None
+    total_amount: Optional[float] = 0.0
+    amount_paid: Optional[float] = 0.0
     model_config = ConfigDict(from_attributes=True)
 
 class PitchBase(BaseModel):
@@ -1064,6 +1069,7 @@ def create_event(
     premium_stall_size: str = Form("12x12"),
     standard_stall_location: str = Form("Main Hall"),
     premium_stall_location: str = Form("VIP Area"),
+    payment_model: str = Form("vendor_pays"),
     maps_url: Optional[str] = Form(None),
     banner: Optional[UploadFile] = File(default=None),
     images: List[UploadFile] = File(default=[]),
@@ -1082,6 +1088,7 @@ def create_event(
         premium_stall_size=premium_stall_size,
         standard_stall_location=standard_stall_location,
         premium_stall_location=premium_stall_location,
+        payment_model=payment_model,
         maps_url=maps_url
     )
     db.add(db_event)
@@ -1307,10 +1314,22 @@ def book_stall(
     if existing_booking:
         raise HTTPException(status_code=400, detail="This stall is already booked for this event.")
         
+    # Determine total amount based on stall type
+    is_premium = False
+    try:
+        premium_ids = json.loads(event.premium_stall_ids or "[]")
+        if isinstance(premium_ids, list) and stall_number in premium_ids:
+            is_premium = True
+    except:
+        pass
+        
+    total_amount = event.premium_price if is_premium else event.standard_price
+
     db_booking = StallBooking(
         event_id=event_id,
         stall_number=stall_number,
-        vendor_id=current_user.id
+        vendor_id=current_user.id,
+        total_amount=total_amount
     )
     db.add(db_booking)
     db.commit()
@@ -1396,6 +1415,20 @@ def get_event_bookings(request: Request, event_id: str, skip: int = 0, limit: in
         b.image_url = image_url
     return bookings
 
+class PaymentRequest(BaseModel):
+    amount: float
+
+@app.post("/bookings/{booking_id}/pay")
+def pay_booking(booking_id: int, req: PaymentRequest, db: Session = Depends(get_db)):
+    booking = db.query(StallBooking).filter(StallBooking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    booking.amount_paid += req.amount
+    db.commit()
+    db.refresh(booking)
+    return {"status": "success", "amount_paid": booking.amount_paid, "total_amount": booking.total_amount}
+
 # ----------------- Pitch Endpoints -----------------
 @app.post("/pitches/", response_model=PitchResponse)
 def create_pitch(
@@ -1470,7 +1503,8 @@ def update_pitch(
                 db_booking = StallBooking(
                     event_id=pitch.event_id,
                     vendor_id=pitch.vendor_id,
-                    stall_number=pitch.stall_number
+                    stall_number=pitch.stall_number,
+                    total_amount=pitch.offered_price
                 )
                 db.add(db_booking)
         

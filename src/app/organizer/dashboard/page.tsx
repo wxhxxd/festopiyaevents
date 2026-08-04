@@ -413,14 +413,15 @@ export default function OrganizerDashboard() {
   const [totalStalls, setTotalStalls] = useState("");
   const [standardPrice, setStandardPrice] = useState("");
   const [premiumPrice, setPremiumPrice] = useState("");
+  const [premiumStallLocation, setPremiumStallLocation] = useState("");
   const [paymentModel, setPaymentModel] = useState("vendor_pays"); // vendor_pays or organizer_pays
+  const [providesInfrastructure, setProvidesInfrastructure] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventImages, setEventImages] = useState<File[]>([]);
   const [eventBanner, setEventBanner] = useState<File | null>(null);
   const [standardStallSize, setStandardStallSize] = useState("10x10");
   const [premiumStallSize, setPremiumStallSize] = useState("12x12");
   const [standardStallLocation, setStandardStallLocation] = useState("Main Hall");
-  const [premiumStallLocation, setPremiumStallLocation] = useState("VIP Area");
   const [mapsUrl, setMapsUrl] = useState("");
   const [eventFilter, setEventFilter] = useState<'active' | 'past'>('active');
   const [allEvents, setAllEvents] = useState<EventData[]>([]);
@@ -433,6 +434,7 @@ export default function OrganizerDashboard() {
   const [chatContext, setChatContext] = useState<ChatContext | null>(null);
   const [selectedEventForBookings, setSelectedEventForBookings] = useState<EventData | null>(null);
   const [checkoutPitch, setCheckoutPitch] = useState<PitchData | null>(null);
+  const [checkoutBooking, setCheckoutBooking] = useState<any | null>(null);
 
   // --- Gallery & Lightbox State & Refs ---
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -1143,6 +1145,8 @@ export default function OrganizerDashboard() {
       formData.append('premium_stall_size', premiumStallSize);
       formData.append('standard_stall_location', standardStallLocation);
       formData.append('premium_stall_location', premiumStallLocation);
+      formData.append('payment_model', paymentModel);
+      formData.append('provides_infrastructure', String(providesInfrastructure));
       if (mapsUrl) {
         formData.append('maps_url', mapsUrl);
       }
@@ -1185,8 +1189,9 @@ export default function OrganizerDashboard() {
       setStandardStallSize("10x10");
       setPremiumStallSize("12x12");
       setStandardStallLocation("Main Hall");
-      setPremiumStallLocation("VIP Area");
+      setPremiumStallLocation("");
       setPaymentModel("vendor_pays");
+      setProvidesInfrastructure(true);
       
       // Show success
       setSuccessMsg(true);
@@ -2318,7 +2323,9 @@ export default function OrganizerDashboard() {
                       <div className="flex flex-col lg:flex-row flex-1 z-20">
                         {/* Left Column: Bookings Matrix & Gallery */}
                         <div className="flex-1 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-white/10">
-                          <div className="flex items-center justify-between mb-6">
+                          {selectedEventForBookings.organizer_id === myUserId && (
+                            <div className="mb-8 border-b border-white/10 pb-8">
+                              <div className="flex items-center justify-between mb-6">
                             <div>
                               <h3 className="text-lg font-bold text-white flex items-center gap-1 sm:gap-1.5">
                                 <Users className="w-5 h-5 text-indigo-400 mr-0.5" />
@@ -2379,25 +2386,51 @@ export default function OrganizerDashboard() {
                                   <div className="flex items-center justify-between pt-1">
                                     <div>
                                       <p className="text-sm font-bold text-white">{booking.vendor_name || `Vendor #${booking.vendor_id}`}</p>
-                                      <p className="text-xs text-white/50">Stall Tier: {booking.stall_type || 'Standard'}</p>
+                                      <p className="text-xs text-white/50 mb-2">Stall Tier: {booking.stall_type || 'Standard'}</p>
+                                      <div className="flex flex-col gap-1 text-[10px] font-medium bg-black/20 p-2 rounded-lg border border-white/5">
+                                        <div className="flex justify-between">
+                                          <span className="text-white/60">Total Amount:</span>
+                                          <span className="text-white">₹{booking.total_amount || 0}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-emerald-400/80">Advance Paid:</span>
+                                          <span className="text-emerald-400">₹{booking.amount_paid || 0}</span>
+                                        </div>
+                                        <div className="flex justify-between border-t border-white/10 pt-1 mt-1">
+                                          <span className="text-rose-400/80">Amount Left:</span>
+                                          <span className="text-rose-400">₹{Math.max(0, (booking.total_amount || 0) - (booking.amount_paid || 0))}</span>
+                                        </div>
+                                      </div>
                                     </div>
-                                    <button
-                                      onClick={() => {
-                                        setChatContext({
-                                          eventId: selectedEventForBookings.id,
-                                          receiverId: booking.vendor_id,
-                                          title: `${booking.vendor_name} (Stall #${booking.stall_number})`
-                                        });
-                                        setIsChatOpen(true);
-                                      }}
-                                      className="p-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 transition-all flex items-center gap-1.5 text-xs font-bold shadow-md cursor-pointer hover:scale-105"
-                                    >
-                                      <MessageSquare className="w-3.5 h-3.5" /> Message
-                                    </button>
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                          onClick={() => {
+                                            setChatContext({
+                                              eventId: selectedEventForBookings.id,
+                                              receiverId: booking.vendor_id,
+                                              title: `${booking.vendor_name} (Stall #${booking.stall_number})`
+                                            });
+                                            setIsChatOpen(true);
+                                          }}
+                                          className="p-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 transition-all flex items-center gap-1.5 text-xs font-bold shadow-md cursor-pointer hover:scale-105"
+                                        >
+                                          <MessageSquare className="w-3.5 h-3.5" /> Message
+                                        </button>
+                                        {selectedEventForBookings.payment_model === 'organizer_pays' && (booking.total_amount || 0) > (booking.amount_paid || 0) && (
+                                          <button
+                                            onClick={() => setCheckoutBooking(booking)}
+                                            className="p-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-pink-300 transition-all flex items-center gap-1.5 text-xs font-bold shadow-md cursor-pointer hover:scale-105"
+                                          >
+                                            <CreditCard className="w-3.5 h-3.5" /> Pay
+                                          </button>
+                                        )}
+                                      </div>
                                   </div>
                                 </div>
                               ))}
                             </div>
+                          )}
+                          </div>
                           )}
 
                           {/* Photo Gallery Showcase */}
@@ -2470,47 +2503,63 @@ export default function OrganizerDashboard() {
                         <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col bg-white/[0.02] shrink-0">
                           <h3 className="text-lg font-bold text-white border-b border-white/10 pb-4 mb-6 flex items-center gap-1 sm:gap-1.5">
                             <Sparkles className="w-5 h-5 text-indigo-400 mr-0.5" />
-                            <span>Event</span>
-                            <span className={`${yellowtail.className} text-2xl md:text-3xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
-                              Analytics
-                            </span>
-                            <span>Summary</span>
+                            {selectedEventForBookings.organizer_id === myUserId ? (
+                              <>
+                                <span>Event</span>
+                                <span className={`${yellowtail.className} text-2xl md:text-3xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
+                                  Analytics
+                                </span>
+                                <span>Summary</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Event</span>
+                                <span className={`${yellowtail.className} text-2xl md:text-3xl font-normal normal-case text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 drop-shadow-md px-1 inline-block`}>
+                                  Details
+                                </span>
+                                <span>& Rules</span>
+                              </>
+                            )}
                           </h3>
                           
                           <div className="space-y-4 flex-1">
-                            <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent border border-indigo-500/30">
-                              <span className="block text-xs text-indigo-300 uppercase font-bold tracking-wider mb-1">Total Estimated Revenue</span>
-                              <span className="text-3xl font-black text-emerald-400 drop-shadow-md">
-                                ₹{eventBookings.reduce((sum, b) => {
-                                  const isPremium = (() => {
-                                    try {
-                                      const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
-                                      return Array.isArray(ids) && ids.includes(b.stall_number);
-                                    } catch { return false; }
-                                  })();
-                                  const price = isPremium ? selectedEventForBookings.premium_price : selectedEventForBookings.standard_price;
-                                  return sum + (price || 0);
-                                }, 0).toLocaleString()}
-                              </span>
-                            </div>
+                            {selectedEventForBookings.organizer_id === myUserId && (
+                              <>
+                                <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent border border-indigo-500/30">
+                                  <span className="block text-xs text-indigo-300 uppercase font-bold tracking-wider mb-1">Total Estimated Revenue</span>
+                                  <span className="text-3xl font-black text-emerald-400 drop-shadow-md">
+                                    ₹{eventBookings.reduce((sum, b) => {
+                                      const isPremium = (() => {
+                                        try {
+                                          const ids = JSON.parse(selectedEventForBookings.premium_stall_ids || '[]');
+                                          return Array.isArray(ids) && ids.includes(b.stall_number);
+                                        } catch { return false; }
+                                      })();
+                                      const price = isPremium ? selectedEventForBookings.premium_price : selectedEventForBookings.standard_price;
+                                      return sum + (price || 0);
+                                    }, 0).toLocaleString()}
+                                  </span>
+                                </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Total Capacity</span>
-                                <span className="text-lg font-black text-white mt-0.5 block">{selectedEventForBookings.total_stalls} Stalls</span>
-                              </div>
-                              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Booked Stalls</span>
-                                <span className="text-lg font-black text-indigo-400 mt-0.5 block">{eventBookings.length} Booked</span>
-                              </div>
-                            </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                    <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Total Capacity</span>
+                                    <span className="text-lg font-black text-white mt-0.5 block">{selectedEventForBookings.total_stalls} Stalls</span>
+                                  </div>
+                                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
+                                    <span className="block text-[10px] text-white/40 uppercase font-bold tracking-wider">Booked Stalls</span>
+                                    <span className="text-lg font-black text-indigo-400 mt-0.5 block">{eventBookings.length} Booked</span>
+                                  </div>
+                                </div>
+                              </>
+                            )}
 
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
                               <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Stall Tiers Configuration</p>
                               
                               <div className="flex justify-between items-center text-xs">
                                 <span className="text-white/60">Standard Stall Size:</span>
-                                <span className="font-bold text-white">{selectedEventForBookings.standard_stall_size || '10x10 ft'}</span>
+                                <span className="font-bold text-white">{selectedEventForBookings.provides_infrastructure === false ? 'Bare Space' : (selectedEventForBookings.standard_stall_size || '10x10 ft')}</span>
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Standard Stall Price:</span>
@@ -2518,12 +2567,44 @@ export default function OrganizerDashboard() {
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Premium Stall Size:</span>
-                                <span className="font-bold text-white">{selectedEventForBookings.premium_stall_size || '12x12 ft'}</span>
+                                <span className="font-bold text-white">{selectedEventForBookings.provides_infrastructure === false ? 'Bare Space' : (selectedEventForBookings.premium_stall_size || '12x12 ft')}</span>
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Premium Stall Price:</span>
                                 <span className="font-bold text-amber-400">₹{selectedEventForBookings.premium_price || 0}</span>
                               </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                              <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Event Rules & Policies</p>
+                              <ul className="space-y-2 text-xs text-white/80">
+                                {(() => {
+                                  const rules = [];
+                                  if (selectedEventForBookings.payment_model === 'vendor_pays') {
+                                    rules.push("Vendor Pays Organizer: Vendors must rent the stall space and keep their sales revenue.");
+                                  } else if (selectedEventForBookings.payment_model === 'organizer_pays') {
+                                    rules.push("Organizer Pays Vendor: Organizer pays the vendor a set budget to provide free items/services to attendees.");
+                                  } else if (selectedEventForBookings.payment_model === 'both') {
+                                    rules.push("Hybrid Payment Model: Supports both renting stall space and organizer-sponsored free items.");
+                                  }
+                                  
+                                  if (selectedEventForBookings.provides_infrastructure === false) {
+                                    rules.push("Bare Space Only: Organizer provides only the raw space. Vendors MUST bring their own stall setup, canopy, tables, and equipment.");
+                                  } else {
+                                    rules.push("Stall Setup Provided: Organizer provides the basic stall structure (canopy, tables, etc.).");
+                                  }
+                                  
+                                  rules.push("Setup must be completed at least 2 hours before the event starts.");
+                                  rules.push("Vendors are responsible for cleaning their stall area post-event.");
+                                  
+                                  return rules.map((rule, idx) => (
+                                    <li key={idx} className="flex items-start gap-2">
+                                      <span className="text-indigo-400 mt-0.5">•</span>
+                                      <span className="leading-relaxed">{rule}</span>
+                                    </li>
+                                  ));
+                                })()}
+                              </ul>
                             </div>
 
                             {/* Delete Event Button */}
@@ -2888,18 +2969,46 @@ export default function OrganizerDashboard() {
                             clearly.
                           </h2>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                            <div className="space-y-2">
-                              <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
-                              <input 
-                                type="text" 
-                                required
-                                value={standardStallSize}
-                                onChange={e => setStandardStallSize(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 transition-all shadow-inner"
-                                placeholder="e.g. 10x10"
-                              />
+                          <div className="mb-6 space-y-3">
+                            <label className="text-sm font-medium text-gray-600 dark:text-white/60 pl-1">Stall Setup & Structure</label>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-black/5 dark:bg-black/40 cursor-pointer flex-1 transition-colors hover:border-indigo-500/30">
+                                <input 
+                                  type="radio" 
+                                  name="provides_infrastructure" 
+                                  checked={providesInfrastructure === true} 
+                                  onChange={() => setProvidesInfrastructure(true)} 
+                                  className="accent-indigo-500 w-4 h-4" 
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white font-medium">Provided by Organizer<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">We provide canopy, tables & basic setup</span></span>
+                              </label>
+                              <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-black/5 dark:bg-black/40 cursor-pointer flex-1 transition-colors hover:border-indigo-500/30">
+                                <input 
+                                  type="radio" 
+                                  name="provides_infrastructure" 
+                                  checked={providesInfrastructure === false} 
+                                  onChange={() => setProvidesInfrastructure(false)} 
+                                  className="accent-indigo-500 w-4 h-4" 
+                                />
+                                <span className="text-sm text-gray-900 dark:text-white font-medium">Bare Space Only<br/><span className="text-xs text-gray-500 dark:text-gray-400 font-normal">Vendors bring their own setup</span></span>
+                              </label>
                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            {providesInfrastructure && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Standard Stall Size (e.g. 10x10)</label>
+                                <input 
+                                  type="text" 
+                                  required
+                                  value={standardStallSize}
+                                  onChange={e => setStandardStallSize(e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                                  placeholder="e.g. 10x10"
+                                />
+                              </div>
+                            )}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-gray-650 dark:text-white/60 pl-1">Standard Stall Location</label>
                               <input 
@@ -2911,17 +3020,19 @@ export default function OrganizerDashboard() {
                                 placeholder="e.g. Main Hall"
                               />
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-xs font-semibold text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
-                              <input 
-                                type="text" 
-                                required
-                                value={premiumStallSize}
-                                onChange={e => setPremiumStallSize(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white outline-none focus:border-amber-500/50 transition-all shadow-inner"
-                                placeholder="e.g. 12x12"
-                              />
-                            </div>
+                            {providesInfrastructure && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-semibold text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Size (e.g. 12x12)</label>
+                                <input 
+                                  type="text" 
+                                  required
+                                  value={premiumStallSize}
+                                  onChange={e => setPremiumStallSize(e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-gray-900 dark:text-white outline-none focus:border-amber-500/50 transition-all shadow-inner"
+                                  placeholder="e.g. 12x12"
+                                />
+                              </div>
+                            )}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-amber-600 dark:text-amber-400/80 pl-1">★ Premium Stall Location</label>
                               <input 
@@ -3548,8 +3659,9 @@ export default function OrganizerDashboard() {
 
       {/* Advance Payment Checkout Overlay */}
         <AnimatePresence>
-          {checkoutPitch && (() => {
-          const vendorBasePrice = checkoutPitch.offered_price;
+          {(checkoutPitch || checkoutBooking) && (() => {
+          const isBooking = !!checkoutBooking;
+          const vendorBasePrice = isBooking ? checkoutBooking.total_amount : checkoutPitch.offered_price;
           const calculatedAdvance = Math.round(vendorBasePrice * 0.3); // 30% advance
           const remainingBalance = vendorBasePrice - calculatedAdvance;
 
@@ -3569,7 +3681,10 @@ export default function OrganizerDashboard() {
               >
                 {/* Close Button */}
                 <button
-                  onClick={() => setCheckoutPitch(null)}
+                  onClick={() => {
+                    setCheckoutPitch(null);
+                    setCheckoutBooking(null);
+                  }}
                   className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -3623,9 +3738,30 @@ export default function OrganizerDashboard() {
 
                 {/* Payment Button */}
                 <button
-                  onClick={() => {
-                    handleUpdatePitch(checkoutPitch.id, 'Accepted');
-                    setCheckoutPitch(null);
+                  onClick={async () => {
+                    if (isBooking) {
+                      // Process booking advance payment
+                      try {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/pay`, {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ amount: calculatedAdvance })
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setEventBookings(eventBookings.map(b => b.id === checkoutBooking.id ? { ...b, amount_paid: data.amount_paid } : b));
+                        }
+                      } catch (err) {
+                        console.error('Failed to pay booking', err);
+                      }
+                      setCheckoutBooking(null);
+                    } else {
+                      handleUpdatePitch(checkoutPitch.id, 'Accepted');
+                      setCheckoutPitch(null);
+                    }
                     window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
                   }}
                   className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_0_rgba(236,72,153,0.3)]"

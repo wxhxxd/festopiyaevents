@@ -1007,6 +1007,58 @@ export default function VendorDashboard() {
     }
   };
 
+  const handleBookStall = async () => {
+    if (!selectedEvent || !selectedStall) return;
+    
+    setIsBookingLoading(true);
+    setBookingError(null);
+
+    try {
+      const headers = getHeaders();
+      if (!headers) return;
+
+      const formData = new FormData();
+      formData.append("event_id", selectedEvent.id.toString());
+      formData.append("stall_number", selectedStall.toString());
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${getStoredToken()}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to book stall");
+      }
+
+      // Success! Re-fetch bookings
+      await fetchBookings();
+      if (selectedEvent) {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { 
+          headers: getHeaders()!
+        });
+        const bookData = await res.json();
+        setEventBookings(bookData);
+      }
+      setIsBooked(true);
+      
+      setTimeout(() => {
+        setIsBooked(false);
+        setSelectedStall(null);
+        setSelectedEvent(null);
+      }, 2500);
+
+    } catch (err: any) {
+      setBookingError(err.message);
+    } finally {
+      setIsBookingLoading(false);
+    }
+  };
+
   const getEventName = (eventId: number) => {
     return events.find(e => e.id === eventId)?.name || `Event #${eventId}`;
   };
@@ -2640,6 +2692,42 @@ export default function VendorDashboard() {
                       </div>
                     )}
                   </div>
+
+                  {/* Event Rules Section */}
+                  <div className="mt-12 pt-8 border-t border-white/10">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-rose-400" />
+                      Event Rules & Policies
+                    </h3>
+                    <div className="bg-black/40 p-6 rounded-2xl border border-white/5 space-y-4">
+                      {(() => {
+                        const rules = [];
+                        if (selectedEvent.payment_model === 'vendor_pays') {
+                          rules.push("Vendor Pays Organizer: Vendors must rent the stall space and keep their sales revenue.");
+                        } else if (selectedEvent.payment_model === 'organizer_pays') {
+                          rules.push("Organizer Pays Vendor: Organizer pays the vendor a set budget to provide free items/services to attendees.");
+                        } else if (selectedEvent.payment_model === 'both') {
+                          rules.push("Hybrid Payment Model: Supports both renting stall space and organizer-sponsored free items.");
+                        }
+                        
+                        if (selectedEvent.provides_infrastructure === false) {
+                          rules.push("Bare Space Only: Organizer provides only the raw space. Vendors MUST bring their own stall setup, canopy, tables, and equipment.");
+                        } else {
+                          rules.push("Stall Setup Provided: Organizer provides the basic stall structure (canopy, tables, etc.).");
+                        }
+                        
+                        rules.push("Setup must be completed at least 2 hours before the event starts.");
+                        rules.push("Vendors are responsible for cleaning their stall area post-event.");
+                        
+                        return rules.map((rule, idx) => (
+                          <div key={idx} className="flex items-start gap-3 text-sm text-white/80">
+                            <span className="text-rose-400 mt-1 font-bold">✓</span>
+                            <span className="leading-relaxed">{rule}</span>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right Column: Stall Pitch & Booking Details Panel */}
@@ -2760,20 +2848,45 @@ export default function VendorDashboard() {
                             </div>
                           )}
 
-                          <motion.button
-                            onClick={handlePitch}
-                            disabled={isBookingLoading}
-                            whileHover={isBookingLoading ? {} : { scale: 1.03 }}
-                            whileTap={isBookingLoading ? {} : { scale: 0.97 }}
-                            className={`mt-6 w-full py-4 rounded-xl font-extrabold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xl
-                              ${isBookingLoading 
-                                ? 'bg-rose-500/50 text-white/50 cursor-not-allowed' 
-                                : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white shadow-[0_0_30px_rgba(244,63,94,0.5)]'
-                              }
-                            `}
-                          >
-                            {isBookingLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Pitch This Stall Now 🚀"}
-                          </motion.button>
+                          <div className="mt-6 flex flex-col gap-3">
+                            <motion.button
+                              onClick={handleBookStall}
+                              disabled={isBookingLoading}
+                              whileHover={isBookingLoading ? {} : { scale: 1.03 }}
+                              whileTap={isBookingLoading ? {} : { scale: 0.97 }}
+                              className={`w-full py-4 rounded-xl font-extrabold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xl
+                                ${isBookingLoading 
+                                  ? 'bg-emerald-500/50 text-white/50 cursor-not-allowed' 
+                                  : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]'
+                                }
+                              `}
+                            >
+                              {isBookingLoading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                selectedEvent.payment_model === 'organizer_pays' 
+                                  ? "Accept Organizer's Budget & Book ✅"
+                                  : selectedEvent.payment_model === 'both'
+                                  ? "Accept Default Terms & Book ✅"
+                                  : "Accept Price & Book ✅"
+                              )}
+                            </motion.button>
+
+                            <motion.button
+                              onClick={handlePitch}
+                              disabled={isBookingLoading}
+                              whileHover={isBookingLoading ? {} : { scale: 1.03 }}
+                              whileTap={isBookingLoading ? {} : { scale: 0.97 }}
+                              className={`w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer border border-rose-500/50
+                                ${isBookingLoading 
+                                  ? 'bg-rose-500/20 text-white/50 cursor-not-allowed' 
+                                  : 'bg-black hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.1)]'
+                                }
+                              `}
+                            >
+                              {isBookingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Or Pitch Custom Price 🚀"}
+                            </motion.button>
+                          </div>
                         </motion.div>
                       ) : (
                         <motion.div 
