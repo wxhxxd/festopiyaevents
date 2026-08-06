@@ -858,18 +858,17 @@ def update_current_user_profile(
         current_user.avatar_url = user_update.avatar_url
     if user_update.username is not None:
         username_val = user_update.username.strip().lower()
-        if not username_val:
-            raise HTTPException(status_code=400, detail="Username cannot be empty")
-        if not all(c.isalnum() or c in ('_', '-') for c in username_val):
-            raise HTTPException(
-                status_code=400, 
-                detail="Username can only contain letters, numbers, underscores, and hyphens"
-            )
-        # Check if username is already taken by another user
-        check_user = db.query(User).filter(User.username == username_val, User.id != current_user.id).first()
-        if check_user:
-            raise HTTPException(status_code=400, detail="Username is already taken")
-        current_user.username = username_val
+        if username_val:
+            if not all(c.isalnum() or c in ('_', '-') for c in username_val):
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Username can only contain letters, numbers, underscores, and hyphens"
+                )
+            # Check if username is already taken by another user
+            check_user = db.query(User).filter(User.username == username_val, User.id != current_user.id).first()
+            if check_user:
+                raise HTTPException(status_code=400, detail="Username is already taken")
+            current_user.username = username_val
     if user_update.category is not None:
         current_user.category = user_update.category
     if user_update.items_selling is not None:
@@ -935,7 +934,6 @@ def upload_file(
     
     supabase_avatar_url = upload_to_supabase(
         file_data=file_content,
-        bucket_name="vendor-media",
         file_name=unique_filename,
         content_type=file.content_type or "image/png"
     )
