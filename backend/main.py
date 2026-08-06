@@ -963,8 +963,8 @@ def get_admin_stats(
     total_events = db.query(Event).count()
     total_stalls_booked = db.query(StallBooking).count()
     
-    total_organizers = db.query(User).filter(User.role == "Organizer").count()
-    total_vendors = db.query(User).filter(User.role == "Vendor").count()
+    total_organizers = db.query(User).filter(User.role.ilike("organizer")).count()
+    total_vendors = db.query(User).filter(User.role.ilike("vendor")).count()
     
     bookings_data = db.query(StallBooking).all()
     bookings_list = []
@@ -1750,7 +1750,7 @@ def get_vendor_profile(
     events_completed = None
     stalls_booked = None
     if vendor_id == current_user.id:
-        if vendor.role == "Organizer":
+        if vendor.role and vendor.role.lower() == "organizer":
             stalls_booked = db.query(StallBooking).join(Event, StallBooking.event_id == Event.id).filter(Event.organizer_id == vendor_id).count()
             events_completed = db.query(Event).filter(Event.organizer_id == vendor_id).count()
         else:
@@ -1861,7 +1861,7 @@ def link_supabase_media(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != "Vendor":
+    if not current_user.role or current_user.role.lower() != "vendor":
         raise HTTPException(status_code=403, detail="Only vendors can register media")
 
     db_media = VendorMedia(
