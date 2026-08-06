@@ -212,8 +212,17 @@ interface PitchData {
 const isEventExpired = (eventDateStr: string) => {
   if (!eventDateStr) return false;
   try {
-    const cleanStr = eventDateStr.replace(/^[A-Za-z]+,\s*/, "");
-    const parsedDate = Date.parse(cleanStr);
+    const cleanStr = eventDateStr
+      .replace(/^[A-Za-z]+,\s*/, "")
+      .replace(" at ", " ")
+      .replace(/(\d+)(st|nd|rd|th)/, "$1");
+    let parsedDate = Date.parse(cleanStr);
+    
+    if (isNaN(parsedDate)) {
+      const withYear = `${cleanStr} ${new Date().getFullYear()}`;
+      parsedDate = Date.parse(withYear);
+    }
+    
     if (isNaN(parsedDate)) return false;
     return parsedDate < Date.now();
   } catch (e) {
@@ -1914,7 +1923,7 @@ export default function OrganizerDashboard() {
                       </div>
 
                       {/* Row 2: Dynamic Inline Text Stats */}
-                      <div className="flex items-center gap-8 text-sm md:text-base py-1">
+                      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm md:text-base py-1">
                         <span>
                           <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.media?.length || 0}</strong>{" "}
                           <span className="text-gray-600 dark:text-gray-300">posts</span>
@@ -1927,6 +1936,18 @@ export default function OrganizerDashboard() {
                           <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile?.follower_count || 0}</strong>{" "}
                           <span className="text-gray-600 dark:text-gray-300">followers</span>
                         </span>
+                        {organizerProfile?.events_completed != null && (
+                          <span>
+                            <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile.events_completed}</strong>{" "}
+                            <span className="text-gray-600 dark:text-gray-300">events completed</span>
+                          </span>
+                        )}
+                        {organizerProfile?.stalls_booked != null && (
+                          <span>
+                            <strong className="font-semibold text-gray-900 dark:text-white">{organizerProfile.stalls_booked}</strong>{" "}
+                            <span className="text-gray-600 dark:text-gray-300">stalls booked</span>
+                          </span>
+                        )}
                       </div>
 
                       {/* Row 3: Real User Bio & Details */}

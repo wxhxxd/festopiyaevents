@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   ClipboardList, 
   DollarSign, 
@@ -26,6 +26,28 @@ interface Booking {
 export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<"bookings" | "escrow" | "users">("bookings");
   const [searchQuery, setSearchQuery] = useState("");
+  const [adminStats, setAdminStats] = useState({ total_events: 0, total_stalls_booked: 0 });
+
+  useEffect(() => {
+    const fetchAdminStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/stats`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAdminStats(data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch admin stats", e);
+      }
+    };
+    fetchAdminStats();
+  }, []);
   
   // Initial bookings that mathematically align with user's metrics:
   // 10 bookings with advance paid/collected = 10 * 1500 = ₹15,000 Total Advance Collected
@@ -174,7 +196,7 @@ export default function AdminDashboardClient() {
         </header>
 
         {/* Top Metric Stats Cards (3D Embossed Glass Cards) */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
           
           {/* Total Advance Collected */}
           <div className="relative overflow-hidden p-6 rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
@@ -226,6 +248,40 @@ export default function AdminDashboardClient() {
             <div>
               <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Pending Vendor Payouts</p>
               <h3 className="text-3xl font-black text-white mt-1">₹{pendingVendorPayouts.toLocaleString("en-IN")}</h3>
+            </div>
+          </div>
+
+          {/* Total Events */}
+          <div className="relative overflow-hidden p-6 rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <ClipboardList className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-bold uppercase tracking-wider">
+                Platform
+              </span>
+            </div>
+            <div>
+              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Total Events</p>
+              <h3 className="text-3xl font-black text-white mt-1">{adminStats.total_events}</h3>
+            </div>
+          </div>
+
+          {/* Total Stalls Booked */}
+          <div className="relative overflow-hidden p-6 rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent pointer-events-none" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                <UsersIcon className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 font-bold uppercase tracking-wider">
+                Platform
+              </span>
+            </div>
+            <div>
+              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Stalls Booked</p>
+              <h3 className="text-3xl font-black text-white mt-1">{adminStats.total_stalls_booked}</h3>
             </div>
           </div>
 

@@ -534,6 +534,8 @@ class VendorProfileResponse(BaseModel):
     follower_count: int
     is_followed_by_me: bool
     total_likes: int
+    events_completed: Optional[int] = None
+    stalls_booked: Optional[int] = None
     badges: List[BadgeResponse]
     media: List[MediaItemResponse]
     role: str
@@ -949,6 +951,22 @@ def search_users(
             "role": u.role
         })
     return results
+
+@app.get("/api/admin/stats")
+def get_admin_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.email != "abdulwaheed998922@gmail.com":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    total_events = db.query(Event).count()
+    total_stalls_booked = db.query(StallBooking).count()
+    
+    return {
+        "total_events": total_events,
+        "total_stalls_booked": total_stalls_booked
+    }
 
 @app.get("/api/users/profile-by-id/{user_id}")
 def get_user_profile_by_id(
@@ -1635,8 +1653,8 @@ def get_vendor_profile(
     current_user: User = Depends(get_current_user)
 ):
     vendor = db.query(User).filter(User.id == vendor_id).first()
-    if not vendor or vendor.role != "Vendor":
-        raise HTTPException(status_code=404, detail="Vendor profile not found")
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Profile not found")
 
     # Follower count & followed status
     follower_count = db.query(Follow).filter(Follow.vendor_id == vendor_id).count()
@@ -1693,6 +1711,16 @@ def get_vendor_profile(
         )
     ]
 
+    events_completed = None
+    stalls_booked = None
+    if vendor_id == current_user.id:
+        if vendor.role == "Organizer":
+            stalls_booked = db.query(StallBooking).join(Event, StallBooking.event_id == Event.id).filter(Event.organizer_id == vendor_id).count()
+            events_completed = db.query(Event).filter(Event.organizer_id == vendor_id).count()
+        else:
+            stalls_booked = booking_count
+            events_completed = db.query(StallBooking.event_id).filter(StallBooking.vendor_id == vendor_id).distinct().count()
+
     return VendorProfileResponse(
         id=vendor.id,
         company_name=vendor.company_name,
@@ -1703,6 +1731,8 @@ def get_vendor_profile(
         follower_count=follower_count,
         is_followed_by_me=is_followed_by_me,
         total_likes=total_likes,
+        events_completed=events_completed,
+        stalls_booked=stalls_booked,
         badges=badges,
         media=media_responses,
         role=vendor.role
