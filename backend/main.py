@@ -957,7 +957,7 @@ def get_admin_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.email != "abdulwaheed998922@gmail.com":
+    if not current_user.email or current_user.email.lower() != "abdulwaheed998922@gmail.com":
         raise HTTPException(status_code=403, detail="Not authorized")
     
     total_events = db.query(Event).count()
@@ -979,18 +979,19 @@ def get_admin_stats(
         organizer = db.query(User).filter(User.id == event.organizer_id).first() if event else None
         
         status = "pending_advance"
-        if b.amount_paid > 0:
+        amount_paid = b.amount_paid or 0.0
+        if amount_paid > 0:
              status = "advance_paid"
-             total_advance_collected += b.amount_paid
+             total_advance_collected += amount_paid
              platform_revenue += 500 
-             pending_vendor_payouts += (b.amount_paid - 500)
+             pending_vendor_payouts += (amount_paid - 500)
              
         bookings_list.append({
             "id": b.id,
             "organizerName": organizer.company_name if organizer else "Unknown",
             "vendorName": vendor.company_name if vendor else "Unknown",
             "status": status,
-            "advanceHeld": b.amount_paid
+            "advanceHeld": amount_paid
         })
     
     return {

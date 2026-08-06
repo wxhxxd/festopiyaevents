@@ -37,11 +37,16 @@ export default function AdminDashboardClient() {
   });
   const [bookings, setBookings] = useState<Booking[]>([]);
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchAdminStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token) {
+           setError("No token found. Please log in again.");
+           return;
+        }
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/stats`, {
           headers: {
             "Authorization": `Bearer ${token}`
@@ -59,9 +64,14 @@ export default function AdminDashboardClient() {
             pending_vendor_payouts: data.pending_vendor_payouts || 0
           });
           setBookings(data.bookings || []);
+          setError(null);
+        } else {
+           const errText = await res.text();
+           setError(`Error ${res.status}: ${errText}`);
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Failed to fetch admin stats", e);
+        setError(e.message || "Network error");
       }
     };
     fetchAdminStats();
@@ -175,6 +185,12 @@ export default function AdminDashboardClient() {
             />
           </div>
         </header>
+
+        {error && (
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 font-bold">
+            ⚠️ {error}
+          </div>
+        )}
 
         {/* Top Metric Stats Cards (3D Embossed Glass Cards) */}
         <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
