@@ -3399,6 +3399,37 @@ export default function OrganizerDashboard() {
                       </div>
                     </div>
 
+                    {/* Items Selling / Menu */}
+                    {vendorProfileData?.items_selling && (
+                      (() => {
+                        try {
+                          const itemsList = JSON.parse(vendorProfileData.items_selling);
+                          if (itemsList.length > 0) {
+                            return (
+                              <div className="flex flex-col gap-3">
+                                <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Menu & Items</p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                  {itemsList.map((item: any, idx: number) => (
+                                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-sm">
+                                      {item.image_url ? (
+                                        <img src={getFullImageUrl(item.image_url)} alt={item.name} className="w-full aspect-square object-cover" />
+                                      ) : (
+                                        <div className="w-full aspect-square bg-white/5 flex items-center justify-center text-white/40 text-sm font-semibold">No Image</div>
+                                      )}
+                                      <div className="p-3 text-center">
+                                        <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                        } catch (e) {}
+                        return null;
+                      })()
+                    )}
+
                     {/* Badge Rack */}
                     <div className="flex flex-col gap-3">
                       <p className="text-xs font-black text-white/40 uppercase tracking-widest pl-1">Earned Trust Badges</p>
