@@ -2318,9 +2318,12 @@ export default function VendorDashboard() {
                           type="text"
                           value={item.name}
                           onChange={e => {
-                            const newItems = [...itemsList];
-                            newItems[idx].name = e.target.value;
-                            setItemsList(newItems);
+                            const val = e.target.value;
+                            setItemsList(prev => {
+                              const newItems = [...prev];
+                              newItems[idx] = { ...newItems[idx], name: val };
+                              return newItems;
+                            });
                           }}
                           className="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-green-500/70 text-sm"
                           placeholder="Item Name (e.g. Burger)"
@@ -2341,21 +2344,25 @@ export default function VendorDashboard() {
                               });
                               if (res.ok) {
                                 const data = await res.json();
-                                const newItems = [...itemsList];
-                                newItems[idx].image_url = data.url;
-                                setItemsList(newItems);
+                                setItemsList(prev => {
+                                  const newItems = [...prev];
+                                  if (newItems[idx]) {
+                                    newItems[idx] = { ...newItems[idx], image_url: data.url };
+                                  }
+                                  return newItems;
+                                });
                               }
                             } catch (err) {
                               console.error(err);
                             }
                           }} />
                         </label>
-                        <button type="button" onClick={() => setItemsList(itemsList.filter((_, i) => i !== idx))} className="p-2 text-red-400 hover:bg-red-400/20 rounded-lg shrink-0">
+                        <button type="button" onClick={() => setItemsList(prev => prev.filter((_, i) => i !== idx))} className="p-2 text-red-400 hover:bg-red-400/20 rounded-lg shrink-0">
                            <X className="w-4 h-4" />
                         </button>
                       </div>
                     ))}
-                    <button type="button" onClick={() => setItemsList([...itemsList, {name: "", image_url: ""}])} className="w-full py-3 border border-dashed border-white/20 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors text-sm font-semibold">
+                    <button type="button" onClick={() => setItemsList(prev => [...prev, {name: "", image_url: ""}])} className="w-full py-3 border border-dashed border-white/20 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors text-sm font-semibold">
                       + Add Item
                     </button>
                   </div>
