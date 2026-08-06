@@ -1773,7 +1773,7 @@ export default function OrganizerDashboard() {
                       {searchResults.map((v) => (
                         <div 
                           key={v.id} 
-                          onClick={() => router.push(`/profile/${v.username || v.id}`)}
+                          onClick={() => router.push(`/profile?u=${v.username || v.id}`)}
                           className="p-6 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-fuchsia-500/50 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
                         >
                           <div className="flex items-start gap-4">

@@ -1888,7 +1888,7 @@ export default function VendorDashboard() {
                     {searchResults.map((org) => (
                       <div 
                         key={org.id} 
-                        onClick={() => router.push(`/profile/${org.username || org.id}`)}
+                        onClick={() => router.push(`/profile?u=${org.username || org.id}`)}
                         className="p-6 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-rose-500/50 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] transition-all flex flex-col justify-between cursor-pointer group shadow-lg hover:shadow-2xl"
                       >
                         <div className="flex items-start gap-4">

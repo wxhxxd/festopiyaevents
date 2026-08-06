@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 import UiverseLoader from "@/components/UiverseLoader";
 import { 
@@ -61,9 +61,9 @@ const getFullImageUrl = (url?: string) => {
 };
 
 export default function ProfileClient() {
-  const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const username = params?.username;
+  const username = searchParams.get("u");
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
