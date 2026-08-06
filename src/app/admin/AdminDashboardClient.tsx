@@ -26,7 +26,16 @@ interface Booking {
 export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<"bookings" | "escrow" | "users">("bookings");
   const [searchQuery, setSearchQuery] = useState("");
-  const [adminStats, setAdminStats] = useState({ total_events: 0, total_stalls_booked: 0 });
+  const [adminStats, setAdminStats] = useState({ 
+    total_events: 0, 
+    total_stalls_booked: 0,
+    total_organizers: 0,
+    total_vendors: 0,
+    total_advance_collected: 0,
+    platform_revenue: 0,
+    pending_vendor_payouts: 0
+  });
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
@@ -40,7 +49,16 @@ export default function AdminDashboardClient() {
         });
         if (res.ok) {
           const data = await res.json();
-          setAdminStats(data);
+          setAdminStats({
+            total_events: data.total_events || 0,
+            total_stalls_booked: data.total_stalls_booked || 0,
+            total_organizers: data.total_organizers || 0,
+            total_vendors: data.total_vendors || 0,
+            total_advance_collected: data.total_advance_collected || 0,
+            platform_revenue: data.platform_revenue || 0,
+            pending_vendor_payouts: data.pending_vendor_payouts || 0
+          });
+          setBookings(data.bookings || []);
         }
       } catch (e) {
         console.error("Failed to fetch admin stats", e);
@@ -48,27 +66,6 @@ export default function AdminDashboardClient() {
     };
     fetchAdminStats();
   }, []);
-  
-  // Initial bookings that mathematically align with user's metrics:
-  // 10 bookings with advance paid/collected = 10 * 1500 = ₹15,000 Total Advance Collected
-  // Platform fee component = 10 * 500 = ₹5,000 Festopiya Revenue
-  // Vendor payout component = 10 * 1000 = ₹10,000 Pending Vendor Payouts
-  const [bookings, setBookings] = useState<Booking[]>([
-    { id: 1041, organizerName: "Aarav Sharma", vendorName: "BeatDrop Sound System", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1042, organizerName: "Ishita Kapoor", vendorName: "Royal Floral Decors", status: "pending_advance", advanceHeld: 1500 },
-    { id: 1043, organizerName: "Kabir Malhotra", vendorName: "Gourmet Catering Co.", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1044, organizerName: "Diya Sengupta", vendorName: "Lumina Production Lights", status: "released", advanceHeld: 1500 },
-    { id: 1045, organizerName: "Rohan Varma", vendorName: "Neon Canvas Visuals", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1046, organizerName: "Meera Nair", vendorName: "Classic Banquet Stalls", status: "pending_advance", advanceHeld: 1500 },
-    { id: 1047, organizerName: "Aditya Roy", vendorName: "Delish Bakeries", status: "released", advanceHeld: 1500 },
-    { id: 1048, organizerName: "Ananya Das", vendorName: "Symphony Stage Setup", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1049, organizerName: "Varun Mehta", vendorName: "Candid Frame Photos", status: "pending_advance", advanceHeld: 1500 },
-    { id: 1050, organizerName: "Priya Pillai", vendorName: "Elite Hospitality Staff", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1051, organizerName: "Siddharth Sen", vendorName: "Vivid Pyro Effects", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1052, organizerName: "Kriti Joshi", vendorName: "Apex Security Agency", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1053, organizerName: "Rohan Mehta", vendorName: "Soundcraft DJs", status: "advance_paid", advanceHeld: 1500 },
-    { id: 1054, organizerName: "Amit Verma", vendorName: "Flavors Catering", status: "advance_paid", advanceHeld: 1500 }
-  ]);
 
   // Handle release payout action
   const handleReleasePayout = (bookingId: number) => {
@@ -90,22 +87,6 @@ export default function AdminDashboardClient() {
     b.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     b.id.toString().includes(searchQuery)
   );
-
-  // Dynamic Math Breakdown (NOT HARDCODED)
-  // Total Advance Collected: sum of advanceHeld for all bookings with status 'advance_paid' or 'released'
-  const totalAdvanceCollected = bookings
-    .filter(b => b.status === "advance_paid" || b.status === "released")
-    .reduce((sum) => sum + 1500, 0);
-
-  // Platform Fee Revenue: ₹500 fee generated from every booking that has completed payment
-  const platformRevenue = bookings
-    .filter(b => b.status === "advance_paid" || b.status === "released")
-    .reduce((sum) => sum + 500, 0);
-
-  // Pending Vendor Payouts: ₹1000 component held in escrow for every 'advance_paid' booking waiting to be released
-  const pendingVendorPayouts = bookings
-    .filter(b => b.status === "advance_paid")
-    .reduce((sum) => sum + 1000, 0);
 
   return (
     <div className="flex min-h-screen w-full bg-[#0B0B11] text-zinc-300 overflow-hidden font-sans">
@@ -211,7 +192,7 @@ export default function AdminDashboardClient() {
             </div>
             <div>
               <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Total Advance Collected</p>
-              <h3 className="text-3xl font-black text-white mt-1">₹{totalAdvanceCollected.toLocaleString("en-IN")}</h3>
+              <h3 className="text-3xl font-black text-white mt-1">₹{adminStats.total_advance_collected.toLocaleString("en-IN")}</h3>
             </div>
           </div>
 
@@ -223,13 +204,13 @@ export default function AdminDashboardClient() {
                 <Percent className="w-5 h-5" />
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded bg-pink-500/10 text-pink-300 font-bold uppercase tracking-wider">
-                Platform fee
+                Platform Fee
               </span>
             </div>
             <div>
-              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Festopiya Revenue (Platform Fees)</p>
-              <h3 className="text-3xl font-black bg-gradient-to-r from-pink-500 to-sky-500 bg-clip-text text-transparent mt-1">
-                ₹{platformRevenue.toLocaleString("en-IN")}
+              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Festopiya Revenue</p>
+              <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-sky-400 mt-1">
+                ₹{adminStats.platform_revenue.toLocaleString("en-IN")}
               </h3>
             </div>
           </div>
@@ -247,7 +228,7 @@ export default function AdminDashboardClient() {
             </div>
             <div>
               <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Pending Vendor Payouts</p>
-              <h3 className="text-3xl font-black text-white mt-1">₹{pendingVendorPayouts.toLocaleString("en-IN")}</h3>
+              <h3 className="text-3xl font-black text-white mt-1">₹{adminStats.pending_vendor_payouts.toLocaleString("en-IN")}</h3>
             </div>
           </div>
 
@@ -457,12 +438,12 @@ export default function AdminDashboardClient() {
               <div className="p-6 rounded-2xl border border-white/10 bg-white/5">
                 <h3 className="text-lg font-bold text-white mb-2">Organizers</h3>
                 <p className="text-zinc-500 text-xs">Event planning and venue management accounts.</p>
-                <div className="mt-4 font-mono font-bold text-white text-3xl">7</div>
+                <div className="mt-4 font-mono font-bold text-white text-3xl">{adminStats.total_organizers}</div>
               </div>
               <div className="p-6 rounded-2xl border border-white/10 bg-white/5">
                 <h3 className="text-lg font-bold text-white mb-2">Vendors</h3>
                 <p className="text-zinc-500 text-xs">Stall rentals, catering, visual, and stage crew accounts.</p>
-                <div className="mt-4 font-mono font-bold text-white text-3xl">12</div>
+                <div className="mt-4 font-mono font-bold text-white text-3xl">{adminStats.total_vendors}</div>
               </div>
             </div>
           </section>

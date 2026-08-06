@@ -963,9 +963,45 @@ def get_admin_stats(
     total_events = db.query(Event).count()
     total_stalls_booked = db.query(StallBooking).count()
     
+    total_organizers = db.query(User).filter(User.role == "Organizer").count()
+    total_vendors = db.query(User).filter(User.role == "Vendor").count()
+    
+    bookings_data = db.query(StallBooking).all()
+    bookings_list = []
+    
+    total_advance_collected = 0
+    platform_revenue = 0
+    pending_vendor_payouts = 0
+    
+    for b in bookings_data:
+        vendor = db.query(User).filter(User.id == b.vendor_id).first()
+        event = db.query(Event).filter(Event.id == b.event_id).first()
+        organizer = db.query(User).filter(User.id == event.organizer_id).first() if event else None
+        
+        status = "pending_advance"
+        if b.amount_paid > 0:
+             status = "advance_paid"
+             total_advance_collected += b.amount_paid
+             platform_revenue += 500 
+             pending_vendor_payouts += (b.amount_paid - 500)
+             
+        bookings_list.append({
+            "id": b.id,
+            "organizerName": organizer.company_name if organizer else "Unknown",
+            "vendorName": vendor.company_name if vendor else "Unknown",
+            "status": status,
+            "advanceHeld": b.amount_paid
+        })
+    
     return {
         "total_events": total_events,
-        "total_stalls_booked": total_stalls_booked
+        "total_stalls_booked": total_stalls_booked,
+        "total_organizers": total_organizers,
+        "total_vendors": total_vendors,
+        "bookings": bookings_list,
+        "total_advance_collected": total_advance_collected,
+        "platform_revenue": platform_revenue,
+        "pending_vendor_payouts": pending_vendor_payouts
     }
 
 @app.get("/api/users/profile-by-id/{user_id}")
