@@ -2310,7 +2310,7 @@ export default function VendorDashboard() {
                     {itemsList.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
                         {item.image_url ? (
-                           <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />
+                           <img src={getFullImageUrl(item.image_url)} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />
                         ) : (
                            <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center text-white/50 text-xs text-center p-1 leading-tight">No Img</div>
                         )}

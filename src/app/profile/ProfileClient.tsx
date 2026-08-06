@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import FestopiyaBranding from "@/components/FestopiyaBranding";
 import UiverseLoader from "@/components/UiverseLoader";
@@ -70,6 +70,8 @@ export default function ProfileClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"primary" | "posts">("primary");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!username) return;
@@ -270,82 +272,109 @@ export default function ProfileClient() {
                 )}
               </div>
             </div>
-
-            {/* Items Selling (Vendors) */}
-            {profile.role === "Vendor" && profile.items_selling && (
-              (() => {
-                try {
-                  const items = JSON.parse(profile.items_selling);
-                  if (items.length === 0) return null;
-                  return (
-                    <div className="mt-6 w-full text-left">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Store className="w-4 h-4 text-emerald-500" />
-                        Items Selling
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {items.map((item: any, i: number) => (
-                          <div key={i} className="flex items-center gap-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-2 rounded-xl shadow-sm">
-                            {item.image_url ? (
-                              <img src={getFullImageUrl(item.image_url)} alt={item.name} className="w-10 h-10 object-cover rounded-md shrink-0 border border-gray-200 dark:border-white/10" />
-                            ) : (
-                              <div className="w-10 h-10 bg-gray-200 dark:bg-white/10 rounded-md shrink-0 flex items-center justify-center text-[10px] text-gray-500 font-medium">No Img</div>
-                            )}
-                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{item.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                } catch(e) { return null; }
-              })()
-            )}
           </div>
         </div>
 
         {/* Navigation Tabs Bar */}
-        <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase mt-4">
-          <button className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer">
+        <div className="flex border-t border-gray-200/30 dark:border-zinc-800/50 mt-6 relative z-10">
+          <button 
+            onClick={() => setActiveTab("primary")}
+            className={`flex-1 py-4 flex items-center justify-center gap-2 border-t font-semibold transition-all ${
+              activeTab === "primary" ? "border-black dark:border-white text-black dark:text-white" : "border-transparent text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+            }`}
+          >
+            {profile.role === "Organizer" ? (
+              <>
+                <CalendarDays className="w-4 h-4" />
+                <span className="text-xs tracking-widest uppercase">EVENTS</span>
+              </>
+            ) : (
+              <>
+                <Store className="w-4 h-4" />
+                <span className="text-xs tracking-widest uppercase">ITEMS SELLING</span>
+              </>
+            )}
+          </button>
+          <button 
+            onClick={() => setActiveTab("posts")}
+            className={`flex-1 py-4 flex items-center justify-center gap-2 border-t font-semibold transition-all ${
+              activeTab === "posts" ? "border-black dark:border-white text-black dark:text-white" : "border-transparent text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+            }`}
+          >
             <LayoutGrid className="w-4 h-4" />
-            <span>{profile.role === "Organizer" ? "EVENTS" : "POSTS"}</span>
+            <span className="text-xs tracking-widest uppercase">POSTS</span>
           </button>
         </div>
 
-        {/* 3-Column Grid */}
-        {profile.role === "Organizer" ? (
-          /* Organizer Events Grid */
-          profile.events?.length === 0 ? (
-            <div className="py-16 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center text-center mt-4">
-              <CalendarDays className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
-              <p className="text-gray-500 dark:text-zinc-400 text-sm">No events created yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-              {profile.events?.map((evt: any) => (
-                <div 
-                  key={evt.id}
-                  onClick={() => router.push(`/?event=${evt.id}`)}
-                  className="aspect-[4/3] rounded-xl overflow-hidden bg-zinc-900 relative group cursor-pointer shadow-sm border border-gray-200 dark:border-white/10"
-                >
-                  <img 
-                    src={getFullImageUrl(evt.banner_url || (evt.image_urls ? JSON.parse(evt.image_urls)[0] : null))} 
-                    alt={evt.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
-                    <h3 className="text-white font-bold text-lg truncate">{evt.name}</h3>
-                    <p className="text-white/80 text-xs font-medium mt-1">{new Date(evt.date).toLocaleDateString()}</p>
+        {/* Content Area */}
+        {activeTab === "primary" ? (
+          profile.role === "Organizer" ? (
+            /* Organizer Events Grid */
+            profile.events?.length === 0 ? (
+              <div className="py-16 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center text-center mt-4">
+                <CalendarDays className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
+                <p className="text-gray-500 dark:text-zinc-400 text-sm">No events created yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                {profile.events?.map((evt: any) => (
+                  <div 
+                    key={evt.id}
+                    onClick={() => router.push(`/?event=${evt.id}`)}
+                    className="aspect-[4/3] rounded-xl overflow-hidden bg-zinc-900 relative group cursor-pointer shadow-sm border border-gray-200 dark:border-white/10"
+                  >
+                    <img 
+                      src={getFullImageUrl(evt.banner_url || (evt.image_urls ? JSON.parse(evt.image_urls)[0] : null))} 
+                      alt={evt.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                      <h3 className="text-white font-bold text-lg truncate">{evt.name}</h3>
+                      <p className="text-white/80 text-xs font-medium mt-1">{new Date(evt.date).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
+          ) : (
+            /* Vendor Items Selling Grid */
+            (() => {
+              if (!profile.items_selling) return null;
+              try {
+                const itemsList = JSON.parse(profile.items_selling);
+                if (!Array.isArray(itemsList) || itemsList.length === 0) {
+                  return (
+                    <div className="py-16 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center text-center mt-4">
+                      <Store className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
+                      <p className="text-gray-500 dark:text-zinc-400 text-sm">No items added yet.</p>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                    {itemsList.map((item: any, idx: number) => (
+                      <div key={idx} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        {item.image_url ? (
+                          <img src={getFullImageUrl(item.image_url)} alt={item.name} className="w-full aspect-square object-cover" />
+                        ) : (
+                          <div className="w-full aspect-square bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-400 dark:text-zinc-500 text-sm font-semibold">No Image</div>
+                        )}
+                        <div className="p-3 text-center">
+                          <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate">{item.name}</h4>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              } catch(e) { return null; }
+            })()
           )
         ) : (
-          /* Vendor Posts Grid */
+          /* Posts Grid (Both Vendor & Organizer) */
           profile.media?.length === 0 ? (
             <div className="py-16 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center text-center mt-4">
-              <Store className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
+              <LayoutGrid className="w-10 h-10 text-gray-400 dark:text-zinc-600 mb-3" />
               <p className="text-gray-500 dark:text-zinc-400 text-sm">No posts shared yet.</p>
             </div>
           ) : (
@@ -360,23 +389,23 @@ export default function ProfileClient() {
                     <video 
                       src={getFullImageUrl(post.media_url)} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" 
-                    muted 
-                    playsInline
-                  />
-                ) : (
-                  <img 
-                    src={getFullImageUrl(post.media_url)} 
-                    alt="Showcase post" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
-                  <Heart className="w-5 h-5 fill-white text-white" />
-                  <span className="text-base tracking-wide">{post.like_count || 0}</span>
+                      muted 
+                      playsInline
+                    />
+                  ) : (
+                    <img 
+                      src={getFullImageUrl(post.media_url)} 
+                      alt="Showcase post" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
+                    <Heart className="w-5 h-5 fill-white text-white" />
+                    <span className="text-base tracking-wide">{post.like_count || 0}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           )
         )}
       </div>
