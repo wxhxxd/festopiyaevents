@@ -27,7 +27,10 @@ import {
   FileText,
   Save,
   Sparkles,
+  Camera,
+  Image as ImageIcon,
   Compass,
+  List,
   Send,
   UserCircle,
   ClipboardList,
@@ -620,6 +623,7 @@ export default function VendorDashboard() {
   };
   const [eventBookings, setEventBookings] = useState<BookingData[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
+  const [pricingPopupTarget, setPricingPopupTarget] = useState<EventData | null>(null);
   const [selectedStall, setSelectedStall] = useState<number | null>(null);
   
   const [isBooked, setIsBooked] = useState(false);
@@ -677,6 +681,7 @@ export default function VendorDashboard() {
     company_name: '',
     username: '',
     category: '',
+    items_selling: '[]',
     bio: '',
     instagram_url: '',
     website_url: '',
@@ -684,6 +689,7 @@ export default function VendorDashboard() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [itemsList, setItemsList] = useState<{name: string, image_url: string}[]>([]);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -878,10 +884,16 @@ export default function VendorDashboard() {
           company_name: data.company_name || '',
           username: data.username || '',
           category: data.category || '',
+          items_selling: data.items_selling || '[]',
           bio: data.bio || '',
           instagram_url: data.instagram_url || '',
           website_url: data.website_url || '',
         });
+        try {
+          setItemsList(JSON.parse(data.items_selling || "[]"));
+        } catch (e) {
+          setItemsList([]);
+        }
       })
       .catch(err => console.error('Failed to fetch profile', err));
   }, [activeTab]);
@@ -898,9 +910,9 @@ export default function VendorDashboard() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify({ ...profileData, items_selling: JSON.stringify(itemsList) })
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => null);
@@ -1443,7 +1455,7 @@ export default function VendorDashboard() {
                             <EventAnimationSlider
                               events={filteredEvents}
                               onEventClick={(event) => {
-                                setSelectedEvent(event);
+                                setPricingPopupTarget(event);
                                 setSelectedStall(null);
                                 setBookingError(null);
                               }}
@@ -1468,7 +1480,7 @@ export default function VendorDashboard() {
                                   <div
                                     key={"fast-" + event.id}
                                     onClick={() => {
-                                      setSelectedEvent(event);
+                                      setPricingPopupTarget(event);
                                       setSelectedStall(null);
                                       setBookingError(null);
                                     }}
@@ -1530,7 +1542,7 @@ export default function VendorDashboard() {
                                     <div
                                       key={event.id}
                                       onClick={() => {
-                                        setSelectedEvent(event);
+                                        setPricingPopupTarget(event);
                                         setSelectedStall(null);
                                         setBookingError(null);
                                       }}
@@ -2288,6 +2300,67 @@ export default function VendorDashboard() {
                   />
                 </div>
 
+                {/* Items Selling */}
+                <div className="space-y-4">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
+                    <List className="w-4 h-4 text-green-400" />
+                    Items Selling
+                  </label>
+                  <div className="space-y-3">
+                    {itemsList.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+                        {item.image_url ? (
+                           <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />
+                        ) : (
+                           <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center text-white/50 text-xs text-center p-1 leading-tight">No Img</div>
+                        )}
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={e => {
+                            const newItems = [...itemsList];
+                            newItems[idx].name = e.target.value;
+                            setItemsList(newItems);
+                          }}
+                          className="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-green-500/70 text-sm"
+                          placeholder="Item Name (e.g. Burger)"
+                        />
+                        <label className="cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm text-white transition-colors shrink-0">
+                          Image
+                          <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                            if (!e.target.files?.[0]) return;
+                            const file = e.target.files[0];
+                            const fd = new FormData();
+                            fd.append("file", file);
+                            const token = localStorage.getItem("token");
+                            try {
+                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
+                                method: "POST",
+                                headers: { "Authorization": `Bearer ${token}` },
+                                body: fd
+                              });
+                              if (res.ok) {
+                                const data = await res.json();
+                                const newItems = [...itemsList];
+                                newItems[idx].image_url = data.url;
+                                setItemsList(newItems);
+                              }
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }} />
+                        </label>
+                        <button type="button" onClick={() => setItemsList(itemsList.filter((_, i) => i !== idx))} className="p-2 text-red-400 hover:bg-red-400/20 rounded-lg shrink-0">
+                           <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setItemsList([...itemsList, {name: "", image_url: ""}])} className="w-full py-3 border border-dashed border-white/20 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-colors text-sm font-semibold">
+                      + Add Item
+                    </button>
+                  </div>
+                </div>
+
                 {/* Bio */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-white/80 pl-1">
@@ -2476,7 +2549,51 @@ export default function VendorDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Interactive Stall Map Modal */}
+      {/* Pricing Note Popup */}
+      <AnimatePresence>
+        {pricingPopupTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-200 dark:border-white/10 p-6 md:p-8 relative text-center"
+            >
+              <div className="w-16 h-16 bg-fuchsia-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-fuchsia-500" />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Note</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-8 text-sm md:text-base leading-relaxed">
+                First month is free, then second month 100rs per stall.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setPricingPopupTarget(null)}
+                  className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedEvent(pricingPopupTarget);
+                    setPricingPopupTarget(null);
+                  }}
+                  className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white font-bold transition-all shadow-lg"
+                >
+                  Continue
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* EVENT DETAILS MODAL (Vendor Side) */}
       <AnimatePresence>
         {selectedEvent && (
           <motion.div

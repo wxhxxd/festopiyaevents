@@ -95,6 +95,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=True)
     business_name = Column(String, nullable=True)
     category = Column(String, nullable=True)
+    items_selling = Column(String, default="[]")
     display_name = Column(String, nullable=True)
     
     # Relationships
@@ -404,6 +405,7 @@ class UserResponse(BaseModel):
     username: Optional[str] = None
     business_name: Optional[str] = None
     category: Optional[str] = None
+    items_selling: Optional[str] = None
     display_name: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
@@ -416,6 +418,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     business_name: Optional[str] = None
     category: Optional[str] = None
+    items_selling: Optional[str] = None
     display_name: Optional[str] = None
 
 class Token(BaseModel):
@@ -539,6 +542,8 @@ class VendorProfileResponse(BaseModel):
     badges: List[BadgeResponse]
     media: List[MediaItemResponse]
     role: str
+    category: Optional[str] = None
+    items_selling: Optional[str] = "[]"
     model_config = ConfigDict(from_attributes=True)
 
 class MediaLinkCreate(BaseModel):
@@ -867,6 +872,8 @@ def update_current_user_profile(
         current_user.username = username_val
     if user_update.category is not None:
         current_user.category = user_update.category
+    if user_update.items_selling is not None:
+        current_user.items_selling = user_update.items_selling
     if user_update.display_name is not None:
         current_user.display_name = user_update.display_name
     db.commit()
@@ -916,6 +923,32 @@ def upload_user_avatar(
     db.refresh(current_user)
     return current_user
 
+@app.post("/api/upload")
+def upload_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    import time
+    file_content = file.file.read()
+    unique_filename = f"{current_user.id}_{int(time.time())}_{file.filename}"
+    
+    supabase_avatar_url = upload_to_supabase(
+        file_data=file_content,
+        bucket_name="vendor-media",
+        file_name=unique_filename,
+        content_type=file.content_type or "image/png"
+    )
+    
+    if supabase_avatar_url:
+        return {"url": supabase_avatar_url}
+    else:
+        os.makedirs("static/uploads", exist_ok=True)
+        file_location = f"static/uploads/{unique_filename}"
+        with open(file_location, "wb+") as file_object:
+            file_object.write(file_content)
+        return {"url": f"/static/uploads/{unique_filename}"}
+
 @app.get("/api/search/users")
 def search_users(
     role: str,
@@ -931,7 +964,8 @@ def search_users(
             (User.username.ilike(search_filter)) |
             (User.business_name.ilike(search_filter)) |
             (User.company_name.ilike(search_filter)) |
-            (User.category.ilike(search_filter))
+            (User.category.ilike(search_filter)) |
+            (User.items_selling.ilike(search_filter))
         )
     users = q.all()
     results = []
@@ -947,6 +981,7 @@ def search_users(
             "business_name": u.business_name or u.company_name or "",
             "bio": u.bio or "",
             "category": u.category or "",
+            "items_selling": u.items_selling or "[]",
             "avatar_url": u.avatar_url or "",
             "role": u.role
         })
@@ -963,8 +998,8 @@ def get_admin_stats(
     total_events = db.query(Event).count()
     total_stalls_booked = db.query(StallBooking).count()
     
-    total_organizers = db.query(User).filter(User.role.ilike("organizer")).count()
-    total_vendors = db.query(User).filter(User.role.ilike("vendor")).count()
+    total_organizers = db.query(User).filter(User.role.in_(["Organizer", "organizer", "ORGANIZER"])).count()
+    total_vendors = db.query(User).filter(User.role.in_(["Vendor", "vendor", "VENDOR"])).count()
     
     bookings_data = db.query(StallBooking).all()
     bookings_list = []
@@ -1018,7 +1053,13 @@ def get_user_profile_by_id(
     events_data = []
     if user.role == "Organizer":
         events_data = [
-            {"id": e.id, "name": e.name} for e in user.events
+            {
+                "id": e.id, 
+                "name": e.name,
+                "date": e.date,
+                "banner_url": e.banner_url,
+                "image_urls": e.image_urls
+            } for e in user.events
         ]
         
     res_username = user.username
@@ -1032,6 +1073,8 @@ def get_user_profile_by_id(
         "display_name": user.display_name or user.company_name or res_username,
         "business_name": user.business_name or user.company_name or "",
         "role": user.role,
+        "category": user.category or "",
+        "items_selling": user.items_selling or "[]",
         "events": events_data
     }
 
@@ -1086,7 +1129,13 @@ def get_user_profile_by_username(
     events_data = []
     if user.role == "Organizer":
         events_data = [
-            {"id": e.id, "name": e.name} for e in user.events
+            {
+                "id": e.id, 
+                "name": e.name,
+                "date": e.date,
+                "banner_url": e.banner_url,
+                "image_urls": e.image_urls
+            } for e in user.events
         ]
         
     res_username = user.username
@@ -1102,6 +1151,7 @@ def get_user_profile_by_username(
         "company_name": user.company_name or "",
         "bio": user.bio or "",
         "category": user.category or "",
+        "items_selling": user.items_selling or "[]",
         "avatar_url": user.avatar_url or "",
         "role": user.role,
         "instagram_url": user.instagram_url or "",
@@ -1772,7 +1822,9 @@ def get_vendor_profile(
         stalls_booked=stalls_booked,
         badges=badges,
         media=media_responses,
-        role=vendor.role
+        role=vendor.role,
+        category=vendor.category,
+        items_selling=vendor.items_selling
     )
 
 @app.post("/users/{vendor_id}/follow")

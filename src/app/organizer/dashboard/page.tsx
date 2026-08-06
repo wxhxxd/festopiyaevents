@@ -441,6 +441,7 @@ export default function OrganizerDashboard() {
   const [premiumStalls, setPremiumStalls] = useState<Set<number>>(new Set());
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatContext, setChatContext] = useState<ChatContext | null>(null);
+  const [pricingPopupTarget, setPricingPopupTarget] = useState<{ event: EventData, e: any } | null>(null);
   const [selectedEventForBookings, setSelectedEventForBookings] = useState<EventData | null>(null);
   const [checkoutPitch, setCheckoutPitch] = useState<PitchData | null>(null);
   const [checkoutBooking, setCheckoutBooking] = useState<any | null>(null);
@@ -859,11 +860,16 @@ export default function OrganizerDashboard() {
   };
 
   const handleEventAction = (event: EventData, e: any) => {
+    e.stopPropagation();
+    setPricingPopupTarget({ event, e });
+  };
+  
+  const proceedEventAction = (target: { event: EventData, e: any }) => {
+    const { event, e } = target;
     const isMine = event.organizer_id === myUserId;
     if (isMine) {
       handleViewBookings(event, e);
     } else {
-      e.stopPropagation();
       setSelectedEventDetails(event);
     }
   };
@@ -1790,14 +1796,38 @@ export default function OrganizerDashboard() {
                                 </div>
                               )}
                             </div>
-                            <div className="overflow-hidden">
+                            <div className="overflow-hidden flex-1">
                               <h4 className="font-extrabold text-gray-900 dark:text-white text-lg tracking-tight group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-300 transition-colors truncate">{v.display_name}</h4>
                               <p className="text-gray-500 dark:text-white/40 text-xs truncate">@{v.username}</p>
-                              {v.category && (
-                                <span className="mt-2 inline-block px-2.5 py-1 rounded-lg bg-fuchsia-500/10 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider border border-fuchsia-500/20">
-                                  {v.category}
-                                </span>
-                              )}
+                              <div className="mt-2 space-y-2">
+                                {v.category && (
+                                  <span className="inline-block px-2.5 py-1 rounded-lg bg-fuchsia-500/10 text-fuchsia-400 text-[10px] font-black uppercase tracking-wider border border-fuchsia-500/20 truncate max-w-full block">
+                                    {v.category}
+                                  </span>
+                                )}
+                                {v.items_selling && (
+                                  (() => {
+                                    try {
+                                      const items = JSON.parse(v.items_selling);
+                                      if (items.length === 0) return null;
+                                      return (
+                                        <div className="flex flex-wrap gap-1">
+                                          {items.slice(0, 3).map((item: any, i: number) => (
+                                            <span key={i} className="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10 text-gray-700 dark:text-gray-300 text-[10px] font-medium border border-black/10 dark:border-white/5 truncate max-w-full">
+                                              {item.name}
+                                            </span>
+                                          ))}
+                                          {items.length > 3 && (
+                                            <span className="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10 text-gray-700 dark:text-gray-300 text-[10px] font-medium border border-black/10 dark:border-white/5">
+                                              +{items.length - 3}
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    } catch(e) { return null; }
+                                  })()
+                                )}
+                              </div>
                             </div>
                           </div>
                           
@@ -2666,6 +2696,51 @@ export default function OrganizerDashboard() {
                             </button>
                           </div>
                         </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Pricing Note Popup for Organizer */}
+              <AnimatePresence>
+                {pricingPopupTarget && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-200 dark:border-white/10 p-6 md:p-8 relative text-center"
+                    >
+                      <div className="w-16 h-16 bg-fuchsia-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Sparkles className="w-8 h-8 text-fuchsia-500" />
+                      </div>
+                      <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Note</h2>
+                      <p className="text-gray-600 dark:text-gray-300 mb-8 text-sm md:text-base leading-relaxed font-medium">
+                        Your first month is completely free! <br />
+                        After the first month, a 5% fee will be applied to the stall price for each booking you receive.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={() => setPricingPopupTarget(null)}
+                          className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold transition-all"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            proceedEventAction(pricingPopupTarget);
+                            setPricingPopupTarget(null);
+                          }}
+                          className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white font-bold transition-all shadow-lg"
+                        >
+                          Continue
+                        </button>
                       </div>
                     </motion.div>
                   </motion.div>
