@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
+
 import AdminDashboardClient from "./AdminDashboardClient";
 import React from "react";
 import { Lock } from "lucide-react";
@@ -13,17 +13,27 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const supabase = createBrowserClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-        );
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setIsAuthorized(false);
+          setLoading(false);
+          return;
+        }
 
-        const allowedAdminEmail = "abdulwaheed998922@gmail.com";
-        if (user && user.email === allowedAdminEmail) {
-          setIsAuthorized(true);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          const allowedAdminEmail = "abdulwaheed998922@gmail.com";
+          if (user && user.email === allowedAdminEmail) {
+            setIsAuthorized(true);
+          } else {
+            setIsAuthorized(false);
+          }
         } else {
           setIsAuthorized(false);
         }
