@@ -1,0 +1,352 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, Building2, ArrowRight, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import FestopiyaBranding from "@/components/FestopiyaBranding";
+import { setAuthCredentials, getStoredToken, getStoredRole, clearAuthCredentials } from "@/lib/auth";
+
+export default function AuthPage() {
+  const router = useRouter();
+
+  // ── Auto-redirect if user is already logged in ─────────────────
+  useEffect(() => {
+    const token = getStoredToken();
+    const storedRole = getStoredRole();
+    if (token && storedRole && (storedRole === "Organizer" || storedRole === "Vendor")) {
+      if (storedRole === "Organizer") {
+        router.replace("/organizer/dashboard");
+      } else {
+        router.replace("/vendor/dashboard");
+      }
+    } else if (token || storedRole) {
+      clearAuthCredentials();
+    }
+  }, [router]);
+
+  // ── Role (drives signup payload + top toggle) ─────────────────
+  const [role, setRole] = useState<"Vendor" | "Organizer">("Vendor");
+
+  // ── Form state ────────────────────────────────────────────────
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // ── Submit handler ────────────────────────────────────────────
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+    try {
+      if (isForgotPassword) {
+        const res = await fetch(`${apiUrl}/forgot-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to send reset link");
+        setSuccessMsg("Password reset link sent to your email. Please check your inbox!");
+      } else if (isLogin) {
+        const formData = new URLSearchParams();
+        formData.append("username", email);
+        formData.append("password", password);
+
+        const res = await fetch(`${apiUrl}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: formData.toString(),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (res.status === 403)
+            throw new Error("📧 Please verify your email address before logging in. Check your inbox!");
+          throw new Error(data.detail || "Failed to log in");
+        }
+
+        setAuthCredentials(data.access_token, data.role, data.company_name);
+
+        if (data.role === "Organizer") router.push("/organizer/dashboard");
+        else router.push("/vendor/dashboard");
+
+      } else {
+        // Signup — role comes from the top toggle, not a form field
+        const res = await fetch(`${apiUrl}/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, company_name: companyName, role }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to sign up");
+
+        // Auto-login after signup
+        const formData = new URLSearchParams();
+        formData.append("username", email);
+        formData.append("password", password);
+        const loginRes = await fetch(`${apiUrl}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: formData.toString(),
+        });
+        const loginData = await loginRes.json();
+        if (!loginRes.ok) throw new Error(loginData.detail || "Login failed");
+
+        setAuthCredentials(loginData.access_token, loginData.role, loginData.company_name);
+
+        if (loginData.role === "Organizer") router.push("/organizer/dashboard");
+        else router.push("/vendor/dashboard");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setSuccessMsg(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Shared input className ────────────────────────────────────
+  const inputCls =
+    "w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-300 focus:outline-none focus:bg-white/10 focus:border-white/30 transition-all";
+
+  return (
+    <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden font-sans p-4">
+
+      {/* ── Background Video ───────────────────────────────────── */}
+      <video
+        src="/club-bg.mp4.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        onEnded={(e) => { const v = e.target as HTMLVideoElement; v.play(); }}
+        aria-hidden="true"
+        className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+      />
+
+      {/* ── Dark Semi-transparent Overlay ─────────────────────── */}
+      <div className="fixed inset-0 w-full h-full bg-black/40 z-0 pointer-events-none" />
+
+      {/* ── Role Toggle Switch ───────────────────────────────── */}
+      {!isForgotPassword && (
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative z-10 mb-6 flex items-center gap-1 bg-black/30 backdrop-blur-md border border-white/20 rounded-full p-1 shadow-lg"
+        >
+        {(["Vendor", "Organizer"] as const).map((r) => (
+          <button
+            key={r}
+            type="button"
+            onClick={() => setRole(r)}
+            suppressHydrationWarning={true}
+            className="relative px-7 py-2.5 rounded-full text-sm font-semibold tracking-wide transition-colors duration-200 cursor-pointer"
+          >
+            {role === r && (
+              <motion.span
+                layoutId="role-pill"
+                className="absolute inset-0 rounded-full bg-white/20 border border-white/30 shadow-md"
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              />
+            )}
+            <span className={`relative z-10 transition-colors duration-200 ${role === r ? "text-white" : "text-white/50"}`}>
+              {r}
+            </span>
+          </button>
+        ))}
+        </motion.div>
+      )}
+
+      {/* ── Glass Auth Card ──────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+        className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl relative z-10"
+      >
+        {/* Logo + heading */}
+        <div className="flex flex-col items-center justify-center mb-8">
+          <img src="/logo.png" alt="Festopiya Logo" className="w-11 h-auto mb-3 drop-shadow-xl" />
+          <h1 className="text-center">
+            <FestopiyaBranding className="text-3xl" center={true} />
+          </h1>
+          <p className="text-white/60 text-sm mt-1">
+            {isForgotPassword ? "Reset your password" : isLogin ? "Welcome back" : `Signing up as a ${role}`}
+          </p>
+        </div>
+
+        {/* Log In / Sign Up tabs */}
+        {!isForgotPassword && (
+          <div className="flex p-1 bg-black/20 rounded-2xl border border-white/10 mb-6 relative">
+          <motion.div
+            layoutId="auth-tab"
+            className="absolute inset-y-1 w-[calc(50%-4px)] bg-white/20 rounded-xl border border-white/20 shadow-md"
+            initial={false}
+            animate={{ left: isLogin ? "4px" : "calc(50%)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+          <button
+            type="button"
+            onClick={() => { setIsLogin(true); setError(null); }}
+            suppressHydrationWarning={true}
+            className={`flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${isLogin ? "text-white" : "text-white/40 hover:text-white/70"}`}
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setIsLogin(false); setError(null); }}
+            suppressHydrationWarning={true}
+            className={`flex-1 py-2.5 text-sm font-bold relative z-10 transition-colors ${!isLogin ? "text-white" : "text-white/40 hover:text-white/70"}`}
+          >
+            Sign Up
+          </button>
+        </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <AnimatePresence mode="popLayout">
+            {!isLogin && !isForgotPassword && (
+              <motion.div
+                key="company-field"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="text"
+                    required={!isLogin}
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className={inputCls}
+                    placeholder="Company name"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Email */}
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputCls}
+              placeholder="Email address"
+            />
+          </div>
+
+          {/* Password */}
+          {!isForgotPassword && (
+            <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputCls}
+              placeholder="Password"
+            />
+          </div>
+          )}
+
+          {/* Forgot Password Link */}
+          {isLogin && !isForgotPassword && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => { setIsForgotPassword(true); setError(null); setSuccessMsg(null); }}
+                className="text-sm text-fuchsia-400 hover:text-fuchsia-300 transition-colors"
+              >
+                Forgot Password?
+              </button>
+            </div>
+          )}
+
+          {/* Error / Success Messages */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <p>{error}</p>
+                </div>
+              </motion.div>
+            )}
+            {successMsg && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+                  <p>{successMsg}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            suppressHydrationWarning={true}
+            className="w-full mt-2 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden cursor-pointer shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+          >
+            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
+            {loading ? (
+              <div className="newtons-cradle" style={{ "--uib-size": "24px" } as React.CSSProperties}>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+              </div>
+            ) : (
+              <span className="relative z-10 flex items-center gap-2">
+                {isForgotPassword ? "Send Reset Link" : isLogin ? "Sign In" : "Create Account"}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            )}
+          </button>
+
+          {/* Back to Login Link */}
+          {isForgotPassword && (
+            <div className="flex justify-center mt-4">
+              <button
+                type="button"
+                onClick={() => { setIsForgotPassword(false); setError(null); setSuccessMsg(null); }}
+                className="text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                &larr; Back to Log In
+              </button>
+            </div>
+          )}
+        </form>
+      </motion.div>
+    </main>
+  );
+}
