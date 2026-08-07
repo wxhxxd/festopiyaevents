@@ -732,7 +732,6 @@ def dev_get_token(email: str, db: Session = Depends(get_db)):
     return {"email": email, "verification_link": link}
 
 @app.post("/signup", response_model=UserResponse)
-@limiter.limit("5/minute")
 def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = db.query(User).filter(User.email == user.email).first()
@@ -819,7 +818,6 @@ def reset_password(request: Request, req: ResetPasswordRequest, db: Session = De
     return {"message": "Password updated successfully"}
 
 @app.post("/login", response_model=Token)
-@limiter.limit("5/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         user = db.query(User).filter(User.email == form_data.username).first()
