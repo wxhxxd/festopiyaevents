@@ -206,22 +206,35 @@ from sqlalchemy import inspect, text
 
 try:
     inspector = inspect(engine)
-    if "events" in inspector.get_table_names():
+    tables = inspector.get_table_names()
+    
+    needs_reset = False
+    if "events" in tables:
         columns = [col["name"] for col in inspector.get_columns("events")]
         if "image_urls" not in columns or "standard_stall_size" not in columns or "banner_url" not in columns or "maps_url" not in columns:
-            print("[DATABASE] Mismatch detected: 'events' table is out of date. Resetting database schema...")
-            with engine.connect() as conn:
-                tables_to_drop = ["bookings", "stall_bookings", "pitches", "chat_messages", "follows", "media_likes", "vendor_media", "events", "users"]
-                for table in tables_to_drop:
-                    try:
-                        if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-                            conn.execute(text(f"DROP TABLE IF EXISTS {table}"))
-                        else:
-                            conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
-                    except Exception as drop_err:
-                        print(f"[DATABASE] Warning: Failed to drop table {table}: {drop_err}")
-                conn.commit()
-            print("[DATABASE] Mismatched tables dropped successfully.")
+            needs_reset = True
+            print("[DATABASE] Mismatch detected: 'events' table is out of date.")
+            
+    if "users" in tables and not needs_reset:
+        columns = [col["name"] for col in inspector.get_columns("users")]
+        if "items_selling" not in columns or "category" not in columns or "business_name" not in columns or "display_name" not in columns:
+            needs_reset = True
+            print("[DATABASE] Mismatch detected: 'users' table is out of date.")
+
+    if needs_reset:
+        print("[DATABASE] Resetting database schema...")
+        with engine.connect() as conn:
+            tables_to_drop = ["bookings", "stall_bookings", "pitches", "chat_messages", "follows", "media_likes", "vendor_media", "events", "users"]
+            for table in tables_to_drop:
+                try:
+                    if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+                        conn.execute(text(f"DROP TABLE IF EXISTS {table}"))
+                    else:
+                        conn.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+                except Exception as drop_err:
+                    print(f"[DATABASE] Warning: Failed to drop table {table}: {drop_err}")
+            conn.commit()
+        print("[DATABASE] Mismatched tables dropped successfully.")
 except Exception as e:
     print(f"[DATABASE] Schema check error: {e}")
 
@@ -737,6 +750,7 @@ def dev_get_token(email: str, db: Session = Depends(get_db)):
     return {"email": email, "verification_link": link}
 
 @app.post("/signup", response_model=UserResponse)
+@limiter.limit("5/minute")
 def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = db.query(User).filter(User.email == user.email).first()
@@ -823,6 +837,7 @@ def reset_password(request: Request, req: ResetPasswordRequest, db: Session = De
     return {"message": "Password updated successfully"}
 
 @app.post("/login", response_model=Token)
+@limiter.limit("5/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         user = db.query(User).filter(User.email == form_data.username).first()
