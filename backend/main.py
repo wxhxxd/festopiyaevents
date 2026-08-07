@@ -395,8 +395,8 @@ class ResetPasswordRequest(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
-    company_name: str
-    role: str
+    company_name: Optional[str] = None
+    role: Optional[str] = None
     is_verified: bool = False
     bio: Optional[str] = None
     instagram_url: Optional[str] = None
@@ -424,8 +424,8 @@ class UserUpdate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-    role: str
-    company_name: str
+    role: Optional[str] = None
+    company_name: Optional[str] = None
 
 class EventBase(BaseModel):
     name: str
