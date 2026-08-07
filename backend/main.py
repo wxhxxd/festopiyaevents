@@ -734,23 +734,28 @@ def dev_get_token(email: str, db: Session = Depends(get_db)):
 @app.post("/signup", response_model=UserResponse)
 @limiter.limit("5/minute")
 def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed_password = get_password_hash(user.password)
-    db_user = User(
-        email=user.email,
-        hashed_password=hashed_password,
-        company_name=user.company_name,
-        role=user.role,
-        is_verified=True,
-        verification_token=None
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    try:
+        db_user = db.query(User).filter(User.email == user.email).first()
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        hashed_password = get_password_hash(user.password)
+        db_user = User(
+            email=user.email,
+            hashed_password=hashed_password,
+            company_name=user.company_name,
+            role=user.role,
+            is_verified=True,
+            verification_token=None
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        import traceback
+        error_msg = f"Error in signup: {str(e)}\n{traceback.format_exc()}"
+        return JSONResponse(status_code=400, content={"detail": error_msg})
 
 @app.get("/verify-email")
 def verify_email(token: str, db: Session = Depends(get_db)):
@@ -816,19 +821,24 @@ def reset_password(request: Request, req: ResetPasswordRequest, db: Session = De
 @app.post("/login", response_model=Token)
 @limiter.limit("5/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        user = db.query(User).filter(User.email == form_data.username).first()
+        if not user or not verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
         )
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer", "role": user.role, "company_name": user.company_name}
+        return {"access_token": access_token, "token_type": "bearer", "role": user.role, "company_name": user.company_name}
+    except Exception as e:
+        import traceback
+        error_msg = f"Error in login: {str(e)}\n{traceback.format_exc()}"
+        return JSONResponse(status_code=400, content={"detail": error_msg})
 
 # ----------------- Protected API Endpoints -----------------
 
