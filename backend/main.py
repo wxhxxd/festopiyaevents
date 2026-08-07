@@ -611,6 +611,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 os.makedirs("static/events", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+
+app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex="https?://.*",
@@ -618,7 +622,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(SlowAPIMiddleware)
 
 # ----------------- Auth Endpoints -----------------
 # Email config — replace with real SMTP creds or use Gmail App Password
