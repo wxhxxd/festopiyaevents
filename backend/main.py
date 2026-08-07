@@ -612,6 +612,8 @@ os.makedirs("static/events", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+from fastapi.responses import JSONResponse
+import traceback
 
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
@@ -622,6 +624,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"Global exception caught: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))}
+    )
+
 
 # ----------------- Auth Endpoints -----------------
 # Email config — replace with real SMTP creds or use Gmail App Password
