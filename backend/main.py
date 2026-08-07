@@ -627,12 +627,17 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
     print(f"Global exception caught: {exc}")
     traceback.print_exc()
     return JSONResponse(
         status_code=500,
         content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))}
     )
+
+@app.get("/test-error")
+def test_error():
+    raise HTTPException(status_code=400, detail="Test error")
 
 
 # ----------------- Auth Endpoints -----------------
