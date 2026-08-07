@@ -429,6 +429,7 @@ export default function VendorDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const [activeTab, setActiveTab] = useState<"find_events" | "my_stalls" | "my_pitches" | "organizers" | "profile" | "settings">("find_events");
+  const [activeProfileTab, setActiveProfileTab] = useState<"items" | "posts">("items");
   const [myUserId, setMyUserId] = useState<number | null>(null);
   const [vendorProfile, setVendorProfile] = useState<any>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -2169,66 +2170,111 @@ export default function VendorDashboard() {
                     )}
                   </div>
 
-                  {/* 3. Content Navigation Tabs Bar (POSTS only) */}
+                  {/* 3. Content Navigation Tabs Bar */}
                   <div className="flex items-center justify-center gap-12 border-t border-gray-200 dark:border-zinc-800 text-xs font-semibold tracking-widest uppercase">
                     <button 
-                      className="py-3 flex items-center gap-2 text-gray-900 dark:text-white border-t-2 border-gray-900 dark:border-white -mt-[1px] transition-all cursor-pointer"
+                      onClick={() => setActiveProfileTab("items")}
+                      className={`py-3 flex items-center gap-2 border-t-2 -mt-[1px] transition-all cursor-pointer ${activeProfileTab === "items" ? "border-gray-900 dark:border-white text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"}`}
+                    >
+                      <Store className="w-4 h-4" />
+                      <span>ITEMS SELLING</span>
+                    </button>
+                    <button 
+                      onClick={() => setActiveProfileTab("posts")}
+                      className={`py-3 flex items-center gap-2 border-t-2 -mt-[1px] transition-all cursor-pointer ${activeProfileTab === "posts" ? "border-gray-900 dark:border-white text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"}`}
                     >
                       <LayoutGrid className="w-4 h-4" />
                       <span>POSTS</span>
                     </button>
                   </div>
 
-                  {/* 4. Instagram 3-Column Posts Feed Grid */}
-                  {vendorProfile?.media?.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50">
-                      <div className="w-16 h-16 rounded-full border-2 border-gray-900 dark:border-white flex items-center justify-center mb-4">
-                        <Instagram className="w-8 h-8 text-gray-900 dark:text-white" />
-                      </div>
-                      <p className="text-gray-900 dark:text-white text-xl font-bold">No Posts Yet</p>
-                      <p className="text-gray-500 dark:text-zinc-400 text-xs mt-1">Upload pictures or videos of your stalls using the + New button above.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-3 gap-1 md:gap-4">
-                      {vendorProfile?.media?.map((post: any) => (
-                        <div 
-                          key={post.id}
-                          onClick={() => setSelectedMedia(post)}
-                          className="aspect-square relative overflow-hidden bg-zinc-900 cursor-pointer group shadow-sm rounded-sm md:rounded-md"
-                        >
-                          {post.media_type === "video" ? (
-                            <video 
-                              src={post.media_url} 
-                              className="w-full h-full object-cover" 
-                              muted 
-                              playsInline 
-                            />
-                          ) : (
-                            <SafeImage
-                              src={post.media_url}
-                              alt="Stall setup"
-                              aspectRatio="aspect-square"
-                              maxWDesktop=""
-                              roundedClass="rounded-none"
-                              className="transition-transform duration-300 group-hover:scale-105"
-                              fallbackIcon="store"
-                            />
-                          )}
-
-                          {/* Hover Overlay with Heart/Likes count */}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
-                            <Heart className="w-5 h-5 text-white fill-white" />
-                            <span className="text-base tracking-wide">{post.like_count || 0}</span>
-                          </div>
-                          
-                          {post.media_type === "video" && (
-                            <div className="absolute top-2 right-2 text-white drop-shadow-md">
-                              <Film className="w-4 h-4" />
+                  {/* 4. Tab Content */}
+                  {activeProfileTab === "items" ? (
+                    (() => {
+                      if (!vendorProfile?.items_selling) return null;
+                      try {
+                        const itemsList = JSON.parse(vendorProfile.items_selling);
+                        if (!Array.isArray(itemsList) || itemsList.length === 0) {
+                          return (
+                            <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50">
+                              <div className="w-16 h-16 rounded-full border-2 border-gray-900 dark:border-white flex items-center justify-center mb-4">
+                                <Store className="w-8 h-8 text-gray-900 dark:text-white" />
+                              </div>
+                              <p className="text-gray-900 dark:text-white text-xl font-bold">No Items Yet</p>
+                              <p className="text-gray-500 dark:text-zinc-400 text-xs mt-1">Add items you sell from the Settings tab.</p>
                             </div>
-                          )}
+                          );
+                        }
+                        return (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                            {itemsList.map((item: any, idx: number) => (
+                              <div key={idx} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                {item.image_url ? (
+                                  <img src={getFullImageUrl(item.image_url)} alt={item.name} className="w-full aspect-square object-cover" />
+                                ) : (
+                                  <div className="w-full aspect-square bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-400 dark:text-zinc-500 text-sm font-semibold">No Image</div>
+                                )}
+                                <div className="p-3 text-center">
+                                  <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate">{item.name}</h4>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      } catch(e) { return null; }
+                    })()
+                  ) : (
+                    /* Instagram 3-Column Posts Feed Grid */
+                    vendorProfile?.media?.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-200 dark:border-zinc-800 rounded-2xl bg-gray-50/50 dark:bg-zinc-950/50">
+                        <div className="w-16 h-16 rounded-full border-2 border-gray-900 dark:border-white flex items-center justify-center mb-4">
+                          <Instagram className="w-8 h-8 text-gray-900 dark:text-white" />
                         </div>
-                      ))}
-                    </div>
+                        <p className="text-gray-900 dark:text-white text-xl font-bold">No Posts Yet</p>
+                        <p className="text-gray-500 dark:text-zinc-400 text-xs mt-1">Upload pictures or videos of your stalls using the + New button above.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1 md:gap-4">
+                        {vendorProfile?.media?.map((post: any) => (
+                          <div 
+                            key={post.id}
+                            onClick={() => setSelectedMedia(post)}
+                            className="aspect-square relative overflow-hidden bg-zinc-900 cursor-pointer group shadow-sm rounded-sm md:rounded-md"
+                          >
+                            {post.media_type === "video" ? (
+                              <video 
+                                src={post.media_url} 
+                                className="w-full h-full object-cover" 
+                                muted 
+                                playsInline 
+                              />
+                            ) : (
+                              <SafeImage
+                                src={post.media_url}
+                                alt="Stall setup"
+                                aspectRatio="aspect-square"
+                                maxWDesktop=""
+                                roundedClass="rounded-none"
+                                className="transition-transform duration-300 group-hover:scale-105"
+                                fallbackIcon="store"
+                              />
+                            )}
+
+                            {/* Hover Overlay with Heart/Likes count */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white font-bold backdrop-blur-[1px]">
+                              <Heart className="w-5 h-5 text-white fill-white" />
+                              <span className="text-base tracking-wide">{post.like_count || 0}</span>
+                            </div>
+                            
+                            {post.media_type === "video" && (
+                              <div className="absolute top-2 right-2 text-white drop-shadow-md">
+                                <Film className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
                   )}
                 </>
               )}
