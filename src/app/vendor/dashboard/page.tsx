@@ -1057,23 +1057,60 @@ export default function VendorDashboard() {
         throw new Error(data.detail || "Failed to book stall");
       }
 
-      // Success! Re-fetch bookings
-      await fetchBookings();
-      if (selectedEvent) {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { 
-          headers: getHeaders()!
-        });
-        const bookData = await res.json();
-        setEventBookings(bookData);
-      }
-      setIsBooked(true);
-      
-      setTimeout(() => {
-        setIsBooked(false);
-        setSelectedStall(null);
-        setSelectedEvent(null);
-      }, 2500);
+      if (data.payu_hash) {
+        // Create hidden form dynamically
+        const form = document.createElement("form");
+        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "production" 
+          ? "https://secure.payu.in/_payment" 
+          : "https://test.payu.in/_payment";
+          
+        form.setAttribute("action", payuUrl);
+        form.setAttribute("method", "POST");
+        form.style.display = "none";
 
+        const params: Record<string, any> = {
+          key: data.key,
+          txnid: data.txnid,
+          amount: data.amount,
+          productinfo: data.productinfo,
+          firstname: data.firstname,
+          email: data.email,
+          phone: "9999999999", // PayU requires phone, adding placeholder
+          surl: data.surl,
+          furl: data.furl,
+          hash: data.payu_hash
+        };
+
+        for (const key in params) {
+          if (params.hasOwnProperty(key)) {
+            const input = document.createElement("input");
+            input.setAttribute("type", "hidden");
+            input.setAttribute("name", key);
+            input.setAttribute("value", params[key]);
+            form.appendChild(input);
+          }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        // Success! Re-fetch bookings
+        await fetchBookings();
+        if (selectedEvent) {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { 
+            headers: getHeaders()!
+          });
+          const bookData = await res.json();
+          setEventBookings(bookData);
+        }
+        setIsBooked(true);
+        
+        setTimeout(() => {
+          setIsBooked(false);
+          setSelectedStall(null);
+          setSelectedEvent(null);
+        }, 2500);
+      }
     } catch (err: any) {
       setBookingError(err.message);
     } finally {

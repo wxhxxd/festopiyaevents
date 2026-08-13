@@ -19,6 +19,7 @@ import shutil
 import json
 import secrets
 import sys
+import hashlib
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -139,6 +140,8 @@ class StallBooking(Base):
     image_url = Column(String, nullable=True)
     total_amount = Column(Float, default=0.0)
     amount_paid = Column(Float, default=0.0)
+    txnid = Column(String, nullable=True, unique=True)
+    status = Column(String, default="Pending")
 
     event = relationship("Event", back_populates="bookings")
     vendor = relationship("User", back_populates="bookings")
@@ -477,7 +480,21 @@ class StallBookingResponse(StallBookingBase):
     image_url: Optional[str] = None
     total_amount: Optional[float] = 0.0
     amount_paid: Optional[float] = 0.0
+    txnid: Optional[str] = None
+    status: Optional[str] = "Pending"
     model_config = ConfigDict(from_attributes=True)
+
+class PayUInitResponse(BaseModel):
+    booking: StallBookingResponse
+    payu_hash: str
+    txnid: str
+    amount: float
+    key: str
+    productinfo: str
+    firstname: str
+    email: str
+    surl: str
+    furl: str
 
 class PitchBase(BaseModel):
     event_id: str
@@ -1432,7 +1449,7 @@ def delete_event(
     db.commit()
     return {"status": "success", "message": "Event deleted successfully"}
 
-@app.post("/bookings/", response_model=StallBookingResponse)
+@app.post("/bookings/", response_model=PayUInitResponse)
 @limiter.limit("5/minute")
 def book_stall(
     request: Request,
@@ -1509,7 +1526,83 @@ def book_stall(
         db.refresh(db_booking)
     
     db_booking.vendor_name = current_user.company_name
-    return db_booking
+
+    # PayU Integration
+    payu_key = os.getenv("PAYU_KEY", "YOUR_PAYU_KEY")
+    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    
+    txnid = f"TXN_{uuid.uuid4().hex[:16].upper()}"
+    amount_str = f"{total_amount:.2f}"
+    productinfo = f"Booking for stall {stall_number}"
+    firstname = current_user.company_name or "Vendor"
+    email = current_user.email
+    
+    # sha512(key|txnid|amount|productinfo|firstname|email|||||||||||SALT)
+    hash_string = f"{payu_key}|{txnid}|{amount_str}|{productinfo}|{firstname}|{email}|||||||||||{payu_salt}"
+    payu_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest().lower()
+    
+    db_booking.txnid = txnid
+    db_booking.status = "Pending"
+    db.commit()
+    db.refresh(db_booking)
+    
+    surl = f"{FRONTEND_URL}/vendor/dashboard?payment=success"
+    furl = f"{FRONTEND_URL}/vendor/dashboard?payment=failure"
+
+    return PayUInitResponse(
+        booking=db_booking,
+        payu_hash=payu_hash,
+        txnid=txnid,
+        amount=float(amount_str),
+        key=payu_key,
+        productinfo=productinfo,
+        firstname=firstname,
+        email=email,
+        surl=surl,
+        furl=furl
+    )
+
+from fastapi.responses import RedirectResponse
+
+@app.post("/webhook/payu")
+async def payu_webhook(request: Request, db: Session = Depends(get_db)):
+    form_data = await request.form()
+    
+    txnid = form_data.get("txnid", "")
+    status = form_data.get("status", "")
+    amount = form_data.get("amount", "")
+    productinfo = form_data.get("productinfo", "")
+    firstname = form_data.get("firstname", "")
+    email = form_data.get("email", "")
+    payu_hash = form_data.get("hash", "")
+    key = form_data.get("key", "")
+    
+    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    
+    # Reverse Hash Validation
+    # sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
+    hash_string = f"{payu_salt}|{status}|||||||||||{email}|{firstname}|{productinfo}|{amount}|{txnid}|{key}"
+    calculated_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest().lower()
+    
+    if calculated_hash != payu_hash:
+        print("[PAYU WEBHOOK] Hash mismatch!")
+        return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=failure&reason=hash_mismatch", status_code=303)
+        
+    booking = db.query(StallBooking).filter(StallBooking.txnid == txnid).first()
+    if not booking:
+        print("[PAYU WEBHOOK] Booking not found!")
+        return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=failure&reason=booking_not_found", status_code=303)
+
+    if status == "success":
+        booking.status = "Booked"
+        booking.amount_paid = booking.total_amount
+        db.commit()
+        return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=success", status_code=303)
+    else:
+        booking.status = "Failed"
+        db.commit()
+        return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=failure", status_code=303)
+
 
 @app.get("/bookings/", response_model=List[StallBookingResponse])
 def get_all_bookings(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
