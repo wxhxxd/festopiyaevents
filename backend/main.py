@@ -1467,17 +1467,26 @@ def book_stall(
     if stall_number <= 0 or stall_number > event.total_stalls:
         raise HTTPException(status_code=400, detail=f"Invalid stall number. Must be between 1 and {event.total_stalls}")
 
+    vendor_id = current_user.id
+    total_amount = 0
+    vendor_company = current_user.company_name
+
     existing_booking = db.query(StallBooking).filter(
         StallBooking.event_id == event_id,
         StallBooking.stall_number == stall_number
     ).first()
     
     if existing_booking:
-        raise HTTPException(status_code=400, detail="This stall is already booked for this event.")
-
-    vendor_id = current_user.id
-    total_amount = 0
-    vendor_company = current_user.company_name
+        # If it's a pending booking belonging to this vendor (or via the pitch), allow them to resume payment
+        if existing_booking.status in ["Pending", "Payment Pending"] and existing_booking.amount_paid <= 0:
+            if existing_booking.vendor_id == vendor_id or (pitch_id and existing_booking.vendor_id == db.query(StallPitch).filter(StallPitch.id == pitch_id).first().vendor_id):
+                # Just use the existing booking instead of creating a new one
+                db_booking = existing_booking
+                # Jump down to the PayU hash generation
+            else:
+                raise HTTPException(status_code=400, detail="This stall is already reserved by someone else.")
+        else:
+            raise HTTPException(status_code=400, detail="This stall is already booked for this event.")
 
     if pitch_id:
         pitch = db.query(StallPitch).filter(StallPitch.id == pitch_id).first()
@@ -1511,15 +1520,16 @@ def book_stall(
         if total_amount is None:
             total_amount = 0
 
-    db_booking = StallBooking(
-        event_id=event_id,
-        stall_number=stall_number,
-        vendor_id=vendor_id,
-        total_amount=total_amount
-    )
-    db.add(db_booking)
-    db.commit()
-    db.refresh(db_booking)
+    if not existing_booking:
+        db_booking = StallBooking(
+            event_id=event_id,
+            stall_number=stall_number,
+            vendor_id=vendor_id,
+            total_amount=total_amount
+        )
+        db.add(db_booking)
+        db.commit()
+        db.refresh(db_booking)
     
     if image:
         file_extension = os.path.splitext(image.filename)[1].lower()
