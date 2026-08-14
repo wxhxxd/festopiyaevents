@@ -3884,10 +3884,9 @@ export default function OrganizerDashboard() {
                       
                       let res;
                       if (isBooking) {
-                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/pay`, {
+                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/initiate_payu`, {
                           method: 'POST',
-                          headers: { ...headers, 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ amount: calculatedAdvance })
+                          headers: headers
                         });
                       } else {
                         // Accept the pitch first, wait for it

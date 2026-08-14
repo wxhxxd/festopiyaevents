@@ -2254,3 +2254,40 @@ async def payu_callback(
                 redirect_url = f"{frontend_url}/vendor/dashboard?payment=success"
     
     return RedirectResponse(url=redirect_url, status_code=303)
+
+@app.post("/bookings/{booking_id}/initiate_payu", response_model=PayUInitResponse)
+def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    booking = db.query(StallBooking).filter(StallBooking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if booking.status == "Booked" and booking.amount_paid >= booking.total_amount:
+        raise HTTPException(status_code=400, detail="This booking is already fully paid.")
+
+    payu_key = os.getenv("PAYU_KEY", "YOUR_PAYU_KEY")
+    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    
+    amount_str = f"{booking.total_amount:.2f}"
+    productinfo = f"Booking for stall {booking.stall_number}"
+    firstname = current_user.company_name or "Vendor"
+    email = current_user.email
+    
+    # sha512(key|txnid|amount|productinfo|firstname|email|||||||||||SALT)
+    hash_string = f"{payu_key}|{booking.txnid}|{amount_str}|{productinfo}|{firstname}|{email}|||||||||||{payu_salt}"
+    payu_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest()
+    
+    surl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
+    furl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
+    
+    return PayUInitResponse(
+        booking=booking,
+        payu_hash=payu_hash,
+        txnid=booking.txnid,
+        amount=float(amount_str),
+        key=payu_key,
+        productinfo=productinfo,
+        firstname=firstname,
+        email=email,
+        surl=surl,
+        furl=furl
+    )
