@@ -1775,20 +1775,7 @@ def update_pitch(
         pitch.offered_price = pitch_update.offered_price
     if pitch_update.status is not None:
         pitch.status = pitch_update.status
-        if pitch.status == "Accepted":
-            # Automatically create a booking when pitch is accepted
-            existing_booking = db.query(StallBooking).filter(
-                StallBooking.event_id == pitch.event_id,
-                StallBooking.stall_number == pitch.stall_number
-            ).first()
-            if not existing_booking:
-                db_booking = StallBooking(
-                    event_id=pitch.event_id,
-                    vendor_id=pitch.vendor_id,
-                    stall_number=pitch.stall_number,
-                    total_amount=pitch.offered_price
-                )
-                db.add(db_booking)
+
         
     db.commit()
     db.refresh(pitch)
