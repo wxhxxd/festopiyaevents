@@ -1032,19 +1032,15 @@ export default function VendorDashboard() {
     }
   };
 
-  const handleBookStall = async () => {
-    if (!selectedEvent || !selectedStall) return;
-    
-    setIsBookingLoading(true);
-    setBookingError(null);
-
+  const handlePayAcceptedPitch = async (pitch: PitchData) => {
     try {
       const headers = getHeaders();
       if (!headers) return;
 
       const formData = new FormData();
-      formData.append("event_id", selectedEvent.id.toString());
-      formData.append("stall_number", selectedStall.toString());
+      formData.append("event_id", pitch.event_id.toString());
+      formData.append("stall_number", pitch.stall_number.toString());
+      formData.append("pitch_id", pitch.id.toString());
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, {
         method: "POST",
@@ -1057,11 +1053,10 @@ export default function VendorDashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to book stall");
+        throw new Error(data.detail || "Failed to process payment");
       }
 
       if (data.payu_hash) {
-        // Create hidden form dynamically
         const form = document.createElement("form");
         const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "production" 
           ? "https://secure.payu.in/_payment" 
@@ -1078,7 +1073,7 @@ export default function VendorDashboard() {
           productinfo: data.productinfo,
           firstname: data.firstname,
           email: data.email,
-          phone: "9999999999", // PayU requires phone, adding placeholder
+          phone: "9999999999",
           surl: data.surl,
           furl: data.furl,
           hash: data.payu_hash
@@ -1093,27 +1088,55 @@ export default function VendorDashboard() {
             form.appendChild(input);
           }
         }
-
         document.body.appendChild(form);
         form.submit();
       } else {
-        // Success! Re-fetch bookings
         await fetchBookings();
-        if (selectedEvent) {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEvent.id}/bookings`, { 
-            headers: getHeaders()!
-          });
-          const bookData = await res.json();
-          setEventBookings(bookData);
-        }
-        setIsBooked(true);
-        
-        setTimeout(() => {
-          setIsBooked(false);
-          setSelectedStall(null);
-          setSelectedEvent(null);
-        }, 2500);
+        fetchMyPitches();
+        alert("Booking Successful!");
       }
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleBookStall = async () => {
+    if (!selectedEvent || !selectedStall) return;
+    
+    setIsBookingLoading(true);
+    setBookingError(null);
+
+    try {
+      const headers = getHeaders();
+      if (!headers) return;
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({
+          event_id: selectedEvent.id,
+          stall_type: stallType,
+          stall_number: selectedStall,
+          offered_price: parseFloat(offeredPrice) || 0
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to request stall");
+      }
+
+      await fetchBookings();
+      fetchMyPitches();
+      setIsBooked(true);
+      
+      setTimeout(() => {
+        setIsBooked(false);
+        setSelectedStall(null);
+        setSelectedEvent(null);
+      }, 2500);
+
     } catch (err: any) {
       setBookingError(err.message);
     } finally {
