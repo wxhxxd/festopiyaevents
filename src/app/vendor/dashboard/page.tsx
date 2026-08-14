@@ -1843,18 +1843,30 @@ export default function VendorDashboard() {
                         </div>
 
                         {/* Payment action — vendor pays advance to lock stall if vendor_pays */}
-                        {isAccepted && (!events.find(e => e.id === pitch.event_id)?.payment_model || events.find(e => e.id === pitch.event_id)?.payment_model === 'vendor_pays') && (
-                          <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
-                            <p className="text-xs text-emerald-300 font-semibold">Pitch accepted! Secure your stall:</p>
-                            <button
-                              onClick={() => handlePayAcceptedPitch(pitch)}
-                              className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(16,185,129,0.25)] transition-all flex items-center justify-center gap-2"
-                            >
-                              <CreditCard className="w-4 h-4" />
-                              Pay Full Amount
-                            </button>
-                          </div>
-                        )}
+                        {(() => {
+                          const isAlreadyBooked = bookings.some(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Booked");
+                          if (isAlreadyBooked) {
+                            return (
+                              <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
+                                <div className="w-full py-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-sm font-bold border border-emerald-500/30 flex items-center justify-center gap-2">
+                                  <span>✅ Stall Booked & Paid!</span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return isAccepted && (!events.find(e => e.id === pitch.event_id)?.payment_model || events.find(e => e.id === pitch.event_id)?.payment_model === 'vendor_pays') && (
+                            <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
+                              <p className="text-xs text-emerald-300 font-semibold">Pitch accepted! Secure your stall:</p>
+                              <button
+                                onClick={() => handlePayAcceptedPitch(pitch)}
+                                className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(16,185,129,0.25)] transition-all flex items-center justify-center gap-2"
+                              >
+                                <CreditCard className="w-4 h-4" />
+                                Pay Full Amount
+                              </button>
+                            </div>
+                          );
+                        })()}
 
                         {/* Counter-offer action — vendor responds to organizer's counter */}
                         {isCounter && (

@@ -1479,7 +1479,7 @@ def book_stall(
     if existing_booking:
         # If it's a pending booking belonging to this vendor (or via the pitch), allow them to resume payment
         if existing_booking.status in ["Pending", "Payment Pending"] and existing_booking.amount_paid <= 0:
-            if existing_booking.vendor_id == vendor_id or (pitch_id and existing_booking.vendor_id == db.query(StallPitch).filter(StallPitch.id == pitch_id).first().vendor_id):
+            if str(existing_booking.vendor_id) == str(vendor_id) or (pitch_id and str(existing_booking.vendor_id) == str(db.query(Pitch).filter(Pitch.id == pitch_id).first().vendor_id)):
                 # Just use the existing booking instead of creating a new one
                 db_booking = existing_booking
                 # Jump down to the PayU hash generation
@@ -1489,7 +1489,7 @@ def book_stall(
             raise HTTPException(status_code=400, detail="This stall is already booked for this event.")
 
     if pitch_id:
-        pitch = db.query(StallPitch).filter(StallPitch.id == pitch_id).first()
+        pitch = db.query(Pitch).filter(Pitch.id == pitch_id).first()
         if not pitch or pitch.status != "Accepted":
             raise HTTPException(status_code=400, detail="Invalid or unaccepted pitch.")
         
@@ -1734,6 +1734,16 @@ def create_pitch(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
+    # Check if this stall is already fully booked by someone else
+    existing_booking = db.query(StallBooking).filter(
+        StallBooking.event_id == pitch.event_id,
+        StallBooking.stall_number == pitch.stall_number,
+        StallBooking.status == "Booked"
+    ).first()
+    
+    if existing_booking:
+        raise HTTPException(status_code=400, detail="This stall is already fully booked and paid for.")
+
     # Check for existing pitch by this vendor for this specific stall in this event
     existing = db.query(Pitch).filter(
         Pitch.event_id == pitch.event_id,
@@ -2236,7 +2246,7 @@ async def payu_callback(
             db.commit()
             
             # Find and update the related pitch
-            pitch = db.query(StallPitch).filter(
+            pitch = db.query(Pitch).filter(
                 StallPitch.event_id == booking.event_id,
                 StallPitch.stall_number == booking.stall_number,
                 StallPitch.vendor_id == booking.vendor_id,
