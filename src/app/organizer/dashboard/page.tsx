@@ -2417,8 +2417,8 @@ export default function OrganizerDashboard() {
                                     <span className="px-3 py-1 text-xs font-black rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                       Stall #{booking.stall_number}
                                     </span>
-                                    <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-                                      Booked
+                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${booking.status === 'Pending' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
+                                      {booking.status === 'Pending' ? 'Payment Pending' : 'Booked'}
                                     </span>
                                   </div>
 

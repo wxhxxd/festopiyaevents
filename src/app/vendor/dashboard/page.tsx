@@ -950,8 +950,10 @@ export default function VendorDashboard() {
   }, [selectedEvent]);
 
   // Check if a stall is already booked based on the eventBookings array
-  const isStallBookedForEvent = (stallId: number) => {
-    return eventBookings.some(b => b.stall_number === stallId);
+  const getStallStatusForEvent = (stallId: number) => {
+    const booking = eventBookings.find(b => b.stall_number === stallId);
+    if (!booking) return "available";
+    return booking.status === "Pending" ? "pending" : "booked";
   };
 
   // Compute which stalls are premium for the selected event
@@ -966,11 +968,11 @@ export default function VendorDashboard() {
   const visualStallCount = selectedEvent ? Math.min(selectedEvent.total_stalls, 20) : 0;
   const stalls = Array.from({ length: visualStallCount }).map((_, i) => {
     const stallId = i + 1;
-    const isBookedStatus = selectedEvent ? isStallBookedForEvent(stallId) : false;
+    const stallStatus = selectedEvent ? getStallStatusForEvent(stallId) : "available";
     const isPremium = premiumStallSet.has(stallId);
     return {
       id: stallId,
-      status: isBookedStatus ? "booked" : "available",
+      status: stallStatus,
       isPremium,
       top: `${15 + Math.floor(i / 5) * 20}%`,
       left: `${10 + (i % 5) * 17}%`,
