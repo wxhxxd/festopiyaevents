@@ -2195,3 +2195,62 @@ def delete_vendor_media(
     db.delete(media)
     db.commit()
     return {"status": "success", "message": "Media deleted successfully"}
+
+@app.post("/payu/callback")
+async def payu_callback(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    form_data = await request.form()
+    
+    txnid = form_data.get("txnid", "")
+    status = form_data.get("status", "")
+    hash_val = form_data.get("hash", "")
+    amount = form_data.get("amount", "")
+    firstname = form_data.get("firstname", "")
+    email = form_data.get("email", "")
+    productinfo = form_data.get("productinfo", "")
+    key = form_data.get("key", "")
+    
+    # Verify Reverse Hash
+    # sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
+    payu_salt = os.getenv("PAYU_SALT", "test_salt")
+    hash_string = f"{payu_salt}|{status}|||||||||||{email}|{firstname}|{productinfo}|{amount}|{txnid}|{key}"
+    calculated_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest()
+    
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    
+    booking = db.query(StallBooking).filter(StallBooking.txnid == txnid).first()
+    
+    redirect_url = f"{frontend_url}/vendor/dashboard?payment=failed"
+    
+    if booking:
+        # Determine redirect base on payment model / who paid
+        # But for now, vendor dashboard is a safe default fallback, or organizer
+        # Let's route based on the event's payment model if possible
+        event = db.query(Event).filter(Event.id == booking.event_id).first()
+        if event and event.payment_model == "organizer_pays":
+            redirect_url = f"{frontend_url}/organizer/dashboard?payment=failed"
+        
+        if status == "success" and calculated_hash == hash_val:
+            booking.status = "Booked"
+            booking.amount_paid = booking.total_amount
+            db.commit()
+            
+            # Find and update the related pitch
+            pitch = db.query(StallPitch).filter(
+                StallPitch.event_id == booking.event_id,
+                StallPitch.stall_number == booking.stall_number,
+                StallPitch.vendor_id == booking.vendor_id,
+                StallPitch.status == "Accepted"
+            ).first()
+            if pitch:
+                pitch.status = "Paid"
+                db.commit()
+            
+            if event and event.payment_model == "organizer_pays":
+                redirect_url = f"{frontend_url}/organizer/dashboard?payment=success"
+            else:
+                redirect_url = f"{frontend_url}/vendor/dashboard?payment=success"
+    
+    return RedirectResponse(url=redirect_url, status_code=303)
