@@ -1822,13 +1822,11 @@ export default function VendorDashboard() {
                           <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
                             <p className="text-xs text-emerald-300 font-semibold">Pitch accepted! Secure your stall:</p>
                             <button
-                              onClick={() => {
-                                window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
-                              }}
-                              className="w-full py-2 rounded-xl bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(236,72,153,0.25)] transition-all flex items-center justify-center gap-2"
+                              onClick={() => handlePayAcceptedPitch(pitch)}
+                              className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(16,185,129,0.25)] transition-all flex items-center justify-center gap-2"
                             >
                               <CreditCard className="w-4 h-4" />
-                              Pay Advance
+                              Pay Full Amount
                             </button>
                           </div>
                         )}
@@ -2903,14 +2901,33 @@ export default function VendorDashboard() {
                               <p>{bookingError}</p>
                             </div>
                           )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-[10px] sm:text-xs text-white/50 font-bold uppercase tracking-widest">Entry Pass / Stall {selectedStall}</span>
-                              <span className="text-xl sm:text-2xl font-black text-white">₹{offeredPrice}</span>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-[10px] sm:text-xs text-white/50 font-bold uppercase tracking-widest">Entry Pass / Stall {selectedStall}</span>
+                                <span className="text-xl sm:text-2xl font-black text-white">₹{offeredPrice}</span>
+                              </div>
+                              <button onClick={handleBookStall} disabled={isBookingLoading} className="px-6 py-3 rounded-2xl bg-white hover:bg-gray-200 active:scale-95 text-black font-black text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.2)]">
+                                {isBookingLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Request to Book"}
+                              </button>
                             </div>
-                            <button onClick={handleBookStall} disabled={isBookingLoading} className="px-8 py-3.5 sm:px-12 rounded-2xl bg-white hover:bg-gray-200 active:scale-95 text-black font-black text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_20px_rgba(255,255,255,0.2)]">
-                               {isBookingLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Buy Tickets"}
-                            </button>
+                            
+                            {/* Pitch UI integration inside Bottom Bar */}
+                            <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                               <input 
+                                 type="number" 
+                                 placeholder="Custom Price"
+                                 className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none focus:border-pink-500/50 transition-all font-medium text-sm"
+                                 onChange={(e) => setOfferedPrice(e.target.value)}
+                               />
+                               <button 
+                                 onClick={handlePitch} 
+                                 disabled={isBookingLoading} 
+                                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-pink-300 font-bold text-sm hover:bg-pink-500/30 transition-all whitespace-nowrap active:scale-95"
+                               >
+                                 Pitch Offer
+                               </button>
+                            </div>
                           </div>
                         </motion.div>
                       ) : (
@@ -2918,8 +2935,8 @@ export default function VendorDashboard() {
                             <div className="flex items-center gap-3">
                               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                               <div className="flex flex-col">
-                                <span className="text-white font-bold">Booking Successful!</span>
-                                <span className="text-white/50 text-xs">Stall {selectedStall} is yours.</span>
+                                <span className="text-white font-bold">Request Sent!</span>
+                                <span className="text-white/50 text-xs">Awaiting Organizer Approval.</span>
                               </div>
                             </div>
                         </motion.div>
@@ -2932,7 +2949,7 @@ export default function VendorDashboard() {
                          <span className="text-xl sm:text-2xl font-black text-white">₹--</span>
                        </div>
                        <button disabled className="px-8 py-3.5 sm:px-12 rounded-2xl bg-white/20 text-white/50 font-black text-sm cursor-not-allowed">
-                          Buy Tickets
+                          Request to Book
                        </button>
                     </div>
                   )}

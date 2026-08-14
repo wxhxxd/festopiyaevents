@@ -1456,12 +1456,10 @@ def book_stall(
     event_id: str = Form(...),
     stall_number: int = Form(...),
     image: Optional[UploadFile] = File(None),
+    pitch_id: Optional[int] = Form(None),
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
-    if current_user.role != "Vendor":
-        raise HTTPException(status_code=403, detail="Only vendors can book stalls")
-
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -1476,23 +1474,47 @@ def book_stall(
     
     if existing_booking:
         raise HTTPException(status_code=400, detail="This stall is already booked for this event.")
+
+    vendor_id = current_user.id
+    total_amount = 0
+    vendor_company = current_user.company_name
+
+    if pitch_id:
+        pitch = db.query(StallPitch).filter(StallPitch.id == pitch_id).first()
+        if not pitch or pitch.status != "Accepted":
+            raise HTTPException(status_code=400, detail="Invalid or unaccepted pitch.")
         
-    # Determine total amount based on stall type
-    is_premium = False
-    try:
-        premium_ids = json.loads(event.premium_stall_ids or "[]")
-        if isinstance(premium_ids, list) and stall_number in premium_ids:
-            is_premium = True
-    except:
-        pass
-    total_amount = event.premium_price if is_premium else event.standard_price
-    if total_amount is None:
-        total_amount = 0
+        vendor_id = pitch.vendor_id
+        total_amount = pitch.offered_price
+        vendor_user = db.query(User).filter(User.id == vendor_id).first()
+        if vendor_user:
+            vendor_company = vendor_user.company_name
+
+        if event.payment_model == "organizer_pays":
+            if current_user.role != "Organizer" or event.organizer_id != current_user.id:
+                raise HTTPException(status_code=403, detail="Only the organizer can pay for this.")
+        elif event.payment_model == "vendor_pays":
+            if current_user.role != "Vendor" or vendor_id != current_user.id:
+                raise HTTPException(status_code=403, detail="Only the vendor can pay for this.")
+    else:
+        if current_user.role != "Vendor":
+            raise HTTPException(status_code=403, detail="Only vendors can book stalls")
+            
+        is_premium = False
+        try:
+            premium_ids = json.loads(event.premium_stall_ids or "[]")
+            if isinstance(premium_ids, list) and stall_number in premium_ids:
+                is_premium = True
+        except:
+            pass
+        total_amount = event.premium_price if is_premium else event.standard_price
+        if total_amount is None:
+            total_amount = 0
 
     db_booking = StallBooking(
         event_id=event_id,
         stall_number=stall_number,
-        vendor_id=current_user.id,
+        vendor_id=vendor_id,
         total_amount=total_amount
     )
     db.add(db_booking)
@@ -1526,6 +1548,7 @@ def book_stall(
             db.commit()
             db.refresh(db_booking)
     
+    db_booking.vendor_name = vendor_company
     db_booking.vendor_name = current_user.company_name
 
     # If amount is 0 or less, bypass PayU entirely and mark as Booked

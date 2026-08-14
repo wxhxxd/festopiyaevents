@@ -3805,27 +3805,27 @@ export default function OrganizerDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Advance Payment Checkout Overlay */}
-        <AnimatePresence>
-          {(checkoutPitch || checkoutBooking) && (() => {
+      {/* Full Payment Checkout Overlay */}
+      <AnimatePresence>
+        {(checkoutPitch || checkoutBooking) && (() => {
           const isBooking = !!checkoutBooking;
+          const vendorName = isBooking ? checkoutBooking.vendor_name : checkoutPitch.vendor?.company_name || 'Vendor';
           const vendorBasePrice = isBooking ? checkoutBooking.total_amount : checkoutPitch.offered_price;
-          const calculatedAdvance = Math.round(vendorBasePrice * 0.3); // 30% advance
-          const remainingBalance = vendorBasePrice - calculatedAdvance;
+          const calculatedAdvance = vendorBasePrice; // 100% full amount now
+          const remainingBalance = 0;
 
           return (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
             >
               <motion.div
-                initial={{ scale: 0.95, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 20 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="relative w-full max-w-md overflow-hidden p-8 rounded-[2.5rem] border border-white/20 bg-[#0B0B11]/90 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] text-white"
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                className="w-full max-w-md bg-[#0a0a0f] rounded-3xl overflow-hidden border border-white/10 p-6 md:p-8 relative shadow-[0_0_50px_rgba(0,0,0,0.5)]"
               >
                 {/* Close Button */}
                 <button
@@ -3833,42 +3833,36 @@ export default function OrganizerDashboard() {
                     setCheckoutPitch(null);
                     setCheckoutBooking(null);
                   }}
-                  className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-10"
                 >
                   <X className="w-5 h-5" />
                 </button>
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-3">
-                    <CreditCard className="w-6 h-6" />
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500/20 to-sky-500/20 border border-white/10 flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-extrabold text-white tracking-tight">Advance Payment</h3>
-                  <p className="text-white/40 text-xs mt-1">Review checkout breakdown to secure your booking</p>
+                  <h2 className="text-2xl font-black text-white">Secure Booking</h2>
+                  <p className="text-white/60 text-sm mt-1">
+                    Pay {vendorName} to lock in the stall
+                  </p>
                 </div>
 
-                {/* Receipt-Style Breakdown */}
-                <div className="space-y-4 border-b border-white/10 pb-6 mb-6 font-sans">
-                  <div className="flex justify-between items-center text-sm text-white/60">
-                    <span>Total Stall Price</span>
-                    <span className="font-semibold text-white">₹{vendorBasePrice.toLocaleString('en-IN')}</span>
+                {/* Price Breakdown */}
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/5 mb-6">
+                  <div className="flex justify-between items-center mb-4 text-sm">
+                    <span className="text-white/60">Agreed Amount</span>
+                    <span className="text-white font-medium">₹{vendorBasePrice.toLocaleString('en-IN')}</span>
                   </div>
 
-                  <div className="flex justify-between items-center p-3 rounded-2xl bg-white/5 border border-white/5 font-sans">
-                    <span className="text-sm font-bold text-white/90">Advance Required to Lock Stall</span>
-                    <span className="text-lg font-black bg-gradient-to-r from-pink-500 to-sky-500 bg-clip-text text-transparent">
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-4"></div>
+
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-white font-bold">Total to Pay</span>
+                    <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-sky-400">
                       ₹{calculatedAdvance.toLocaleString('en-IN')}
                     </span>
-                  </div>
-
-                  <div className="space-y-1 pt-2">
-                    <div className="flex justify-between items-center text-sm text-white/60">
-                      <span>Remaining Balance</span>
-                      <span className="font-semibold text-white">₹{remainingBalance.toLocaleString('en-IN')}</span>
-                    </div>
-                    <p className="text-[10px] text-white/40 leading-normal">
-                      Paid securely through the app 24 hours before the event
-                    </p>
                   </div>
                 </div>
 
@@ -3878,44 +3872,99 @@ export default function OrganizerDashboard() {
                     <Shield className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <span>Payment held securely in escrow</span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Unlock className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                    <span>Vendor contact details unlocked immediately after advance payment</span>
-                  </div>
                 </div>
 
                 {/* Payment Button */}
                 <button
                   onClick={async () => {
-                    if (isBooking) {
-                      // Process booking advance payment
-                      try {
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/pay`, {
+                    try {
+                      const headers = {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                      };
+                      
+                      let res;
+                      if (isBooking) {
+                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/pay`, {
                           method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                            'Content-Type': 'application/json'
-                          },
+                          headers: { ...headers, 'Content-Type': 'application/json' },
                           body: JSON.stringify({ amount: calculatedAdvance })
                         });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setEventBookings(eventBookings.map(b => b.id === checkoutBooking.id ? { ...b, amount_paid: data.amount_paid } : b));
-                        }
-                      } catch (err) {
-                        console.error('Failed to pay booking', err);
+                      } else {
+                        // Accept the pitch first, wait for it
+                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${checkoutPitch.id}`, {
+                           method: 'PUT',
+                           headers: { ...headers, 'Content-Type': 'application/json' },
+                           body: JSON.stringify({ status: 'Accepted' })
+                        });
+
+                        // Then hit POST /bookings/
+                        const formData = new FormData();
+                        formData.append("event_id", checkoutPitch.event_id.toString());
+                        formData.append("stall_number", checkoutPitch.stall_number.toString());
+                        formData.append("pitch_id", checkoutPitch.id.toString());
+
+                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, {
+                          method: 'POST',
+                          headers: headers,
+                          body: formData
+                        });
                       }
-                      setCheckoutBooking(null);
-                    } else {
-                      handleUpdatePitch(checkoutPitch.id, 'Accepted');
-                      setCheckoutPitch(null);
+
+                      if (!res.ok) {
+                        const errData = await res.json();
+                        throw new Error(errData.detail || "Payment failed");
+                      }
+                      
+                      const data = await res.json();
+
+                      if (data.payu_hash) {
+                        const form = document.createElement("form");
+                        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "production" 
+                          ? "https://secure.payu.in/_payment" 
+                          : "https://test.payu.in/_payment";
+                          
+                        form.setAttribute("action", payuUrl);
+                        form.setAttribute("method", "POST");
+                        form.style.display = "none";
+
+                        const params: Record<string, any> = {
+                          key: data.key,
+                          txnid: data.txnid,
+                          amount: data.amount,
+                          productinfo: data.productinfo,
+                          firstname: data.firstname,
+                          email: data.email,
+                          phone: "9999999999",
+                          surl: data.surl,
+                          furl: data.furl,
+                          hash: data.payu_hash
+                        };
+
+                        for (const key in params) {
+                          if (params.hasOwnProperty(key)) {
+                            const input = document.createElement("input");
+                            input.setAttribute("type", "hidden");
+                            input.setAttribute("name", key);
+                            input.setAttribute("value", params[key]);
+                            form.appendChild(input);
+                          }
+                        }
+                        document.body.appendChild(form);
+                        form.submit();
+                      } else {
+                        if (!isBooking) handleUpdatePitch(checkoutPitch.id, 'Accepted');
+                        setCheckoutPitch(null);
+                        setCheckoutBooking(null);
+                        alert("Booking Successful!");
+                      }
+                    } catch (err: any) {
+                      alert(err.message);
                     }
-                    window.open('https://u.payu.in/ar6SshJj0gro', '_blank');
                   }}
-                  className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-pink-500 to-sky-500 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_0_rgba(236,72,153,0.3)]"
+                  className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_0_rgba(16,185,129,0.3)]"
                 >
                   <CreditCard className="w-5 h-5" />
-                  Pay Advance
+                  Pay Full Amount
                 </button>
               </motion.div>
             </motion.div>
