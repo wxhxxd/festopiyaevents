@@ -3031,33 +3031,16 @@ export default function VendorDashboard() {
 
                             <div>
                               <label className="block text-xs font-bold text-white/70 uppercase tracking-wider mb-2">
-                                {selectedEvent.payment_model === 'organizer_pays' ? 'Enter Requested Budget (₹)' : selectedEvent.payment_model === 'both' ? 'Enter Pitch Price / Requested Budget (₹)' : 'Enter Your Pitch Price (₹)'}
+                                {selectedEvent.payment_model === 'organizer_pays' ? 'Requested Budget (₹)' : selectedEvent.payment_model === 'both' ? 'Pitch Price / Requested Budget (₹)' : 'Fixed Stall Price (₹)'}
                               </label>
                               <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold text-lg">₹</span>
                                 <input 
                                   type="number" 
-                                  value={offeredPrice}
-                                  onChange={e => setOfferedPrice(e.target.value)}
-                                  className="w-full pl-9 pr-4 py-3 rounded-xl bg-black/60 border border-white/20 text-white font-bold text-lg placeholder:text-white/20 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all shadow-inner"
-                                  placeholder="0"
+                                  value={stallType === 'Premium' ? (selectedEvent.premium_price || 0) : (selectedEvent.standard_price || 0)}
+                                  readOnly
+                                  className="w-full pl-9 pr-4 py-3 rounded-xl bg-black/60 border border-white/20 text-white/50 font-bold text-lg outline-none shadow-inner cursor-not-allowed"
                                 />
-                              </div>
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  type="button"
-                                  onClick={() => setOfferedPrice(selectedEvent.standard_price?.toString() || '0')}
-                                  className="flex-1 py-1 text-[11px] font-semibold rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 transition-all"
-                                >
-                                  Standard (₹{selectedEvent.standard_price || 0})
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setOfferedPrice(selectedEvent.premium_price?.toString() || '0')}
-                                  className="flex-1 py-1 text-[11px] font-semibold rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 transition-all"
-                                >
-                                  Premium (₹{selectedEvent.premium_price || 0})
-                                </button>
                               </div>
                             </div>
                             

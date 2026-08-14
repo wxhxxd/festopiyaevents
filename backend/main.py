@@ -1485,8 +1485,9 @@ def book_stall(
             is_premium = True
     except:
         pass
-        
     total_amount = event.premium_price if is_premium else event.standard_price
+    if total_amount is None:
+        total_amount = 0
 
     db_booking = StallBooking(
         event_id=event_id,
@@ -1514,18 +1515,37 @@ def book_stall(
         
         if supabase_image_url:
             db_booking.image_url = supabase_image_url
+            db.commit()
+            db.refresh(db_booking)
         else:
             # Fallback to local storage
             os.makedirs("static/bookings", exist_ok=True)
-            with open(file_location, "wb+") as file_object:
-                file_object.write(image_content)
-            base_url = str(request.base_url).rstrip("/")
-            db_booking.image_url = f"{base_url}/static/bookings/{unique_filename}"
-            
-        db.commit()
-        db.refresh(db_booking)
+            with open(file_location, "wb") as f:
+                f.write(image_content)
+            db_booking.image_url = f"/{file_location}"
+            db.commit()
+            db.refresh(db_booking)
     
     db_booking.vendor_name = current_user.company_name
+
+    # If amount is 0 or less, bypass PayU entirely and mark as Booked
+    if total_amount <= 0:
+        db_booking.status = "Booked"
+        db_booking.txnid = f"FREE_{uuid.uuid4().hex[:12].upper()}"
+        db.commit()
+        db.refresh(db_booking)
+        return PayUInitResponse(
+            booking=db_booking,
+            payu_hash="",
+            txnid=db_booking.txnid,
+            amount=0,
+            key="",
+            productinfo="",
+            firstname="",
+            email="",
+            surl="",
+            furl=""
+        )
 
     # PayU Integration
     payu_key = os.getenv("PAYU_KEY", "YOUR_PAYU_KEY")
