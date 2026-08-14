@@ -42,7 +42,8 @@ import {
   ArrowRight,
   Film,
   Bookmark,
-  Tag
+  Tag,
+  User
 } from "lucide-react";
 import React, { MouseEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -3681,105 +3682,125 @@ export default function OrganizerDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-6 md:p-8 bg-black/90 backdrop-blur-md"
           >
-            <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-[2.5rem] border border-white/15 bg-[#0a0a0f]/95 backdrop-blur-3xl shadow-[0_0_80px_rgba(168,85,247,0.25)] text-white flex flex-col scrollbar-hide">
-              {/* Floating ambient glow */}
-              <div className="absolute top-0 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
-
-              {/* Close button */}
+            <motion.div
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-3xl sm:rounded-[2.5rem] bg-[#0a0a0f] border border-white/10 shadow-2xl flex flex-col overflow-hidden"
+            >
+              {/* Close button - Top Left like mobile back button */}
               <button 
                 onClick={() => setSelectedEventDetails(null)}
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-black/60 hover:bg-purple-500/20 border border-white/20 hover:border-purple-500/50 text-white/70 hover:text-white transition-all shadow-xl backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95"
+                className="absolute top-4 left-4 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 border border-white/20 text-white backdrop-blur-md transition-all cursor-pointer"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
               
-              <div className="space-y-6">
-                <div>
-                  <span className="px-3.5 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 backdrop-blur-md uppercase inline-block mb-3 shadow-md">
-                    ★ EXPLORE LIVE FESTIVAL
-                  </span>
-                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-xl break-words pr-12">
-                    <span className="bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
-                      {selectedEventDetails.name}
-                    </span>
-                  </h2>
-                  <p className="text-white/50 text-xs sm:text-sm mt-1">Uploaded by event organizer partner</p>
-                </div>
-
-                <div 
-                  onClick={() => setLightboxImage(selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0]))}
-                  className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black/40 cursor-pointer group shadow-xl"
-                >
+              <div className="flex-1 overflow-y-auto scrollbar-hide pb-10">
+                {/* Hero Banner Section */}
+                <div className="relative w-full aspect-video sm:h-80 shrink-0 bg-zinc-900 group">
                   <SafeImage
                     src={selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0])}
                     alt={selectedEventDetails.name}
-                    aspectRatio="aspect-video"
-                    maxWDesktop=""
-                    roundedClass="rounded-none group-hover:scale-105 transition-transform duration-700"
+                    aspectRatio="w-full h-full"
+                    maxWDesktop="none"
+                    roundedClass="rounded-none cursor-pointer group-hover:scale-105 transition-transform duration-700"
                     fallbackIcon="store"
                   />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
-                    <span className="text-white text-xs font-bold px-4 py-2 rounded-full bg-purple-500/90 shadow-2xl border border-white/20">
-                      Expand Full Photo 🔍
-                    </span>
-                  </div>
+                  <div 
+                    onClick={() => setLightboxImage(selectedEventDetails.banner_url || (getImageUrls(selectedEventDetails)[0]))}
+                    className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#0a0a0f] cursor-pointer" 
+                  />
                 </div>
 
-                {/* Stall Specifications Matrix */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                  <div className="p-5 rounded-2xl bg-white/5 border border-white/10 shadow-md">
-                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 inline-block mb-2">
-                      Standard Tier
+                {/* Content Section matching screenshot */}
+                <div className="px-5 sm:px-10 -mt-8 relative z-10">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="px-3 py-1 text-[11px] font-bold tracking-wider rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-500/40 backdrop-blur-md uppercase shadow-lg">
+                      ★ EXPLORE LIVE FESTIVAL
                     </span>
-                    <p className="text-2xl font-black text-white mt-1">₹{selectedEventDetails.standard_price || "0"}</p>
-                    <p className="text-xs text-white/60 mt-1 font-semibold">Dimensions: {selectedEventDetails.standard_stall_size || "10x10 ft"}</p>
-                    <p className="text-xs text-white/60 mt-0.5 font-semibold">Location: {selectedEventDetails.standard_stall_location || "Main Hall"}</p>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 shadow-md">
-                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-block mb-2">
-                      ★ Premium Tier
-                    </span>
-                    <p className="text-2xl font-black text-amber-400 mt-1">₹{selectedEventDetails.premium_price || "0"}</p>
-                    <p className="text-xs text-amber-300/80 mt-1 font-semibold">Dimensions: {selectedEventDetails.premium_stall_size || "12x12 ft"}</p>
-                    <p className="text-xs text-amber-300/80 mt-0.5 font-semibold">Location: {selectedEventDetails.premium_stall_location || "VIP Zone"}</p>
+                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight mb-6 pr-4">
+                    {selectedEventDetails.name}
+                  </h2>
+                  
+                  {/* Meta Details exactly like screenshot */}
+                  <div className="flex flex-col gap-5 bg-white/[0.02] border border-white/10 p-6 rounded-3xl mb-8 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-white/5 border border-white/10">
+                        <CalendarDays className="w-5 h-5 text-pink-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Date & Time</p>
+                        <p className="text-white font-bold">{selectedEventDetails.date}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="h-px w-full bg-white/5" />
+
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-white/5 border border-white/10">
+                        <MapPin className="w-5 h-5 text-cyan-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Location</p>
+                        <p className="text-white font-bold">{selectedEventDetails.standard_stall_location || "Venue TBD"}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="h-px w-full bg-white/5" />
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-white/5 border border-white/10">
+                        <User className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/50 font-bold uppercase tracking-wider mb-0.5">Host</p>
+                        <p className="text-white font-bold">Organizer</p>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* About the event */}
+                  <div className="mb-10">
+                    <h3 className="text-xl font-bold text-white mb-4">About the Event</h3>
+                    <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
+                       {selectedEventDetails.description || "Join us for an amazing event experience! Detailed description is pending from the organizer. Expect great stalls, entertainment, and a massive crowd!"}
+                    </p>
+                  </div>
+
+                  {/* Stall Specifications Matrix */}
+                  <div className="mb-10 pt-6 border-t border-white/5">
+                    <h3 className="text-xl font-bold text-white mb-4">Stall Specifications</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/10 shadow-sm">
+                        <span className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-block mb-3">
+                          Standard Tier
+                        </span>
+                        <p className="text-3xl font-black text-white mt-1 mb-2">₹{selectedEventDetails.standard_price || "0"}</p>
+                        <p className="text-sm text-white/70 mt-1 font-medium">Dimensions: {selectedEventDetails.standard_stall_size || "10x10 ft"}</p>
+                        <p className="text-sm text-white/70 mt-0.5 font-medium">Zone: {selectedEventDetails.standard_stall_location || "Main Hall"}</p>
+                      </div>
+
+                      <div className="p-5 rounded-3xl bg-amber-500/[0.02] border border-amber-500/20 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-[40px] pointer-events-none" />
+                        <span className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-block mb-3 relative z-10">
+                          ★ Premium Tier
+                        </span>
+                        <p className="text-3xl font-black text-amber-400 mt-1 mb-2 relative z-10">₹{selectedEventDetails.premium_price || "0"}</p>
+                        <p className="text-sm text-amber-300/80 mt-1 font-medium relative z-10">Dimensions: {selectedEventDetails.premium_stall_size || "12x12 ft"}</p>
+                        <p className="text-sm text-amber-300/80 mt-0.5 font-medium relative z-10">Zone: {selectedEventDetails.premium_stall_location || "VIP Zone"}</p>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
-
-                <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-white/10 text-xs sm:text-sm">
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                    <CalendarDays className="w-4 h-4 text-purple-400" />
-                    <span className="font-semibold text-white/70">Date:</span> 
-                    <span className="font-bold text-white">{selectedEventDetails.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                    <Users className="w-4 h-4 text-pink-400" />
-                    <span className="font-semibold text-white/70">Stalls:</span> 
-                    <span className="font-bold text-white">{selectedEventDetails.total_stalls} Total</span>
-                  </div>
-                  {selectedEventDetails.maps_url && (
-                    <a 
-                      href={selectedEventDetails.maps_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 px-4 py-2 rounded-xl border border-purple-500/40 font-bold transition-all hover:scale-105"
-                    >
-                      <MapPin className="w-4 h-4 text-purple-400" />
-                      <span>View Google Maps ↗</span>
-                    </a>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setSelectedEventDetails(null)}
-                  className="w-full py-4 mt-2 rounded-xl font-extrabold text-sm text-white bg-white/10 hover:bg-white/20 border border-white/15 transition-all cursor-pointer shadow-lg"
-                >
-                  Close Details
-                </button>
               </div>
-            </div>
+
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
