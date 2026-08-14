@@ -1724,10 +1724,11 @@ def create_pitch(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    # Check for existing pitch by this vendor for this event
+    # Check for existing pitch by this vendor for this specific stall in this event
     existing = db.query(Pitch).filter(
         Pitch.event_id == pitch.event_id,
-        Pitch.vendor_id == current_user.id
+        Pitch.vendor_id == current_user.id,
+        Pitch.stall_number == pitch.stall_number
     ).first()
     if existing:
         existing.stall_type = pitch.stall_type
