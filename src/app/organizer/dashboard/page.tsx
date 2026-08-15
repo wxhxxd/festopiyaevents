@@ -3921,9 +3921,9 @@ export default function OrganizerDashboard() {
 
                       if (data.payu_hash) {
                         const form = document.createElement("form");
-                        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "production" 
-                          ? "https://secure.payu.in/_payment" 
-                          : "https://test.payu.in/_payment";
+                        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "test" 
+                          ? "https://test.payu.in/_payment" 
+                          : "https://secure.payu.in/_payment";
                           
                         form.setAttribute("action", payuUrl);
                         form.setAttribute("method", "POST");
