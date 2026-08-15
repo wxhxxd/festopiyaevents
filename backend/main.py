@@ -1699,7 +1699,7 @@ async def payu_webhook(request: Request, db: Session = Depends(get_db)):
     payu_hash = form_data.get("hash", "")
     key = form_data.get("key", "")
     
-    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     
     # Reverse Hash Validation
     # sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
@@ -2291,11 +2291,11 @@ async def payu_callback(
     
     # Verify Reverse Hash
     # sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
-    payu_salt = os.getenv("PAYU_SALT", "test_salt")
+    payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     hash_string = f"{payu_salt}|{status}|||||||||||{email}|{firstname}|{productinfo}|{amount}|{txnid}|{key}"
     calculated_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest()
     
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    frontend_url = os.getenv("FRONTEND_URL", "https://www.festopiya.com")
     
     booking = db.query(StallBooking).filter(StallBooking.txnid == txnid).first()
     

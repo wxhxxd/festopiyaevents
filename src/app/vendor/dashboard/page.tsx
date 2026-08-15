@@ -1062,7 +1062,7 @@ export default function VendorDashboard() {
 
       if (data.payu_hash) {
         const form = document.createElement("form");
-        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "test" 
+        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "sandbox" 
           ? "https://test.payu.in/_payment" 
           : "https://secure.payu.in/_payment";
           
