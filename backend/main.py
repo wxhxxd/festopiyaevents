@@ -660,9 +660,23 @@ async def global_exception_handler(request: Request, exc: Exception):
     import traceback
     print(f"Global exception caught: {exc}")
     traceback.print_exc()
+    origin = request.headers.get("origin", "*")
+    headers = {
+        "Access-Control-Allow-Origin": origin if origin else "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+    }
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=headers
+        )
     return JSONResponse(
         status_code=500,
-        content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))}
+        content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))},
+        headers=headers
     )
 
 @app.get("/test-error")
