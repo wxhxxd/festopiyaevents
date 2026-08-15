@@ -184,7 +184,7 @@ const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
 
 const yellowtail = { className: "font-yellowtail" };
 interface EventData {
-  id: number;
+  id: any;
   name: string;
   category?: string;
   date: string;
@@ -202,6 +202,8 @@ interface EventData {
   standard_stall_location?: string;
   premium_stall_location?: string;
   payment_model?: string;
+  provides_infrastructure?: string;
+  description?: string;
 }
 
 const isEventExpired = (eventDateStr: string) => {
@@ -309,15 +311,16 @@ function ImageCarousel({ urls, alt, aspectRatio = "aspect-video", roundedClass =
 
 interface BookingData {
   id: number;
-  event_id: number;
-  vendor_name: string;
+  event_id: any;
+  vendor_name?: string;
   stall_number: number;
   image_url?: string;
+  status?: string;
 }
 
 interface PitchData {
   id: number;
-  event_id: number;
+  event_id: any;
   vendor_id: number;
   stall_type: string;
   stall_number: number | null;
@@ -325,6 +328,7 @@ interface PitchData {
   status: string;
   event_name?: string;
   organizer_id?: number;
+  vendor?: any;
 }
 
 const parseEventDate = (dateString: string) => {
@@ -1039,7 +1043,7 @@ export default function VendorDashboard() {
 
       const formData = new FormData();
       formData.append("event_id", pitch.event_id.toString());
-      formData.append("stall_number", pitch.stall_number.toString());
+      formData.append("stall_number", (pitch.stall_number ?? 1).toString());
       formData.append("pitch_id", pitch.id.toString());
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, {
@@ -1747,9 +1751,9 @@ export default function VendorDashboard() {
                           
                           <div className="border-t border-black/10 dark:border-white/10 mt-auto flex items-center gap-3 py-3">
                             <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm shrink-0">
-                              {booking.vendor_name.charAt(0)}
+                              {(booking.vendor_name || 'Vendor').charAt(0)}
                             </div>
-                            <span className="text-gray-700 dark:text-white/70 text-sm font-medium truncate">{booking.vendor_name}</span>
+                            <span className="text-gray-700 dark:text-white/70 text-sm font-medium truncate">{booking.vendor_name || 'Vendor'}</span>
                           </div>
                         </div>
                       </motion.div>
@@ -2910,7 +2914,7 @@ export default function VendorDashboard() {
                         const rules = [];
                         if (selectedEvent.payment_model === 'vendor_pays') rules.push("Vendors rent stall space and keep revenue.");
                         else if (selectedEvent.payment_model === 'organizer_pays') rules.push("Organizer pays vendor to provide items.");
-                        if (selectedEvent.provides_infrastructure === false) rules.push("Bare space only. Bring your own canopy/tables.");
+                        if (String(selectedEvent.provides_infrastructure) === 'false') rules.push("Bare space only. Bring your own canopy/tables.");
                         else rules.push("Stall setup provided by organizer.");
                         rules.push("Setup must be completed 2 hours before event.");
                         return rules.map((rule, idx) => (

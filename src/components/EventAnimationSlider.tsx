@@ -4,19 +4,19 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 
 interface EventData {
-  id: string;
+  id: any;
   name: string;
   date: string;
   banner_url?: string;
-  image_urls?: string;
+  image_urls?: any;
   standard_stall_size?: string;
   standard_stall_location?: string;
   standard_price?: number;
 }
 
 interface EventAnimationSliderProps {
-  events: EventData[];
-  onEventClick: (event: EventData) => void;
+  events: any[];
+  onEventClick: (event: any) => void;
 }
 
 const GLOW_COLORS = [
@@ -149,11 +149,11 @@ export default function EventAnimationSlider({ events, onEventClick }: EventAnim
     
     // Group characters by word so words NEVER break in half mid-word
     const words = activeEventName.split(" ");
-    words.forEach((word) => {
+    words.forEach((word: string) => {
       const wordSpan = document.createElement("span");
       wordSpan.style.cssText = "display: inline-block; white-space: nowrap; margin-right: 0.3em; margin-bottom: 0.1em;";
       
-      [...word].forEach((char) => {
+      [...word].forEach((char: string) => {
         const charSpan = document.createElement("span");
         charSpan.textContent = char;
         charSpan.style.cssText = "display: inline-block; will-change: transform;";

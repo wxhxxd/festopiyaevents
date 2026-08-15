@@ -179,7 +179,7 @@ const Instagram = (props: React.SVGProps<SVGSVGElement>) => (
 const yellowtail = { className: "font-yellowtail" };
 
 interface EventData {
-  id: number;
+  id: any;
   name: string;
   date: string;
   total_stalls: number;
@@ -196,11 +196,13 @@ interface EventData {
   premium_stall_location?: string;
   organizer_id?: number;
   payment_model?: string;
+  provides_infrastructure?: string;
+  description?: string;
 }
 
 interface PitchData {
   id: number;
-  event_id: number;
+  event_id: any;
   vendor_id: number;
   stall_type: string;
   stall_number: number | null;
@@ -208,6 +210,7 @@ interface PitchData {
   status: string;
   vendor_name?: string;
   event_name?: string;
+  vendor?: any;
 }
 
 const isEventExpired = (eventDateStr: string) => {
@@ -2611,7 +2614,7 @@ export default function OrganizerDashboard() {
                               
                               <div className="flex justify-between items-center text-xs">
                                 <span className="text-white/60">Standard Stall Size:</span>
-                                <span className="font-bold text-white">{selectedEventForBookings.provides_infrastructure === false ? 'Bare Space' : (selectedEventForBookings.standard_stall_size || '10x10 ft')}</span>
+                                <span className="font-bold text-white">{String(selectedEventForBookings.provides_infrastructure) === 'false' ? 'Bare Space' : (selectedEventForBookings.standard_stall_size || '10x10 ft')}</span>
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Standard Stall Price:</span>
@@ -2619,7 +2622,7 @@ export default function OrganizerDashboard() {
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Premium Stall Size:</span>
-                                <span className="font-bold text-white">{selectedEventForBookings.provides_infrastructure === false ? 'Bare Space' : (selectedEventForBookings.premium_stall_size || '12x12 ft')}</span>
+                                <span className="font-bold text-white">{String(selectedEventForBookings.provides_infrastructure) === 'false' ? 'Bare Space' : (selectedEventForBookings.premium_stall_size || '12x12 ft')}</span>
                               </div>
                               <div className="flex justify-between items-center text-xs border-t border-white/5 pt-2">
                                 <span className="text-white/60">Premium Stall Price:</span>
@@ -2640,7 +2643,7 @@ export default function OrganizerDashboard() {
                                     rules.push("Hybrid Payment Model: Supports both renting stall space and organizer-sponsored free items.");
                                   }
                                   
-                                  if (selectedEventForBookings.provides_infrastructure === false) {
+                                  if (String(selectedEventForBookings.provides_infrastructure) === 'false') {
                                     rules.push("Bare Space Only: Organizer provides only the raw space. Vendors MUST bring their own stall setup, canopy, tables, and equipment.");
                                   } else {
                                     rules.push("Stall Setup Provided: Organizer provides the basic stall structure (canopy, tables, etc.).");
@@ -3809,8 +3812,8 @@ export default function OrganizerDashboard() {
       <AnimatePresence>
         {(checkoutPitch || checkoutBooking) && (() => {
           const isBooking = !!checkoutBooking;
-          const vendorName = isBooking ? checkoutBooking.vendor_name : checkoutPitch.vendor?.company_name || 'Vendor';
-          const vendorBasePrice = isBooking ? checkoutBooking.total_amount : checkoutPitch.offered_price;
+          const vendorName = isBooking ? checkoutBooking?.vendor_name : (checkoutPitch?.vendor?.company_name || 'Vendor');
+          const vendorBasePrice = isBooking ? checkoutBooking?.total_amount : (checkoutPitch?.offered_price || 0);
           const calculatedAdvance = vendorBasePrice; // 100% full amount now
           const remainingBalance = 0;
 
@@ -3853,7 +3856,7 @@ export default function OrganizerDashboard() {
                 <div className="bg-white/5 rounded-2xl p-5 border border-white/5 mb-6">
                   <div className="flex justify-between items-center mb-4 text-sm">
                     <span className="text-white/60">Agreed Amount</span>
-                    <span className="text-white font-medium">₹{vendorBasePrice.toLocaleString('en-IN')}</span>
+                    <span className="text-white font-medium">₹{Number(vendorBasePrice).toLocaleString('en-IN')}</span>
                   </div>
 
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-4"></div>
@@ -3861,7 +3864,7 @@ export default function OrganizerDashboard() {
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-white font-bold">Total to Pay</span>
                     <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-sky-400">
-                      ₹{calculatedAdvance.toLocaleString('en-IN')}
+                      ₹{Number(calculatedAdvance).toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
@@ -3884,13 +3887,13 @@ export default function OrganizerDashboard() {
                       
                       let res;
                       if (isBooking) {
-                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking.id}/initiate_payu`, {
+                        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${checkoutBooking?.id}/initiate_payu`, {
                           method: 'POST',
                           headers: headers
                         });
                       } else {
                         // Accept the pitch first, wait for it
-                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${checkoutPitch.id}`, {
+                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pitches/${checkoutPitch?.id}`, {
                            method: 'PUT',
                            headers: { ...headers, 'Content-Type': 'application/json' },
                            body: JSON.stringify({ status: 'Accepted' })
@@ -3898,9 +3901,9 @@ export default function OrganizerDashboard() {
 
                         // Then hit POST /bookings/
                         const formData = new FormData();
-                        formData.append("event_id", checkoutPitch.event_id.toString());
-                        formData.append("stall_number", checkoutPitch.stall_number.toString());
-                        formData.append("pitch_id", checkoutPitch.id.toString());
+                        formData.append("event_id", checkoutPitch?.event_id?.toString() || "");
+                        formData.append("stall_number", checkoutPitch?.stall_number?.toString() || "");
+                        formData.append("pitch_id", checkoutPitch?.id?.toString() || "");
 
                         res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/`, {
                           method: 'POST',
@@ -3951,7 +3954,7 @@ export default function OrganizerDashboard() {
                         document.body.appendChild(form);
                         form.submit();
                       } else {
-                        if (!isBooking) handleUpdatePitch(checkoutPitch.id, 'Accepted');
+                        if (!isBooking && checkoutPitch) handleUpdatePitch(checkoutPitch.id, 'Accepted');
                         setCheckoutPitch(null);
                         setCheckoutBooking(null);
                         alert("Booking Successful!");
