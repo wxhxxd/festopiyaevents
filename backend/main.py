@@ -745,7 +745,7 @@ SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "festopiya@gmail.com")
 SMTP_PASS = os.getenv("SMTP_PASS", "mjxpijchhxkbhtyr")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://www.festopiya.com")
 
 # Detect placeholder values so we don't attempt a doomed SMTP connection
 _PLACEHOLDER_CREDS = {"yourapp@gmail.com", "your-gmail-app-password", ""}
@@ -1650,8 +1650,8 @@ def book_stall(
         )
 
     # PayU Integration
-    payu_key = os.getenv("PAYU_KEY", "YOUR_PAYU_KEY")
-    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    payu_key = os.getenv("PAYU_KEY", "tPlnCP")
+    payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     
     txnid = f"TXN_{uuid.uuid4().hex[:16].upper()}"
     amount_str = f"{total_amount:.2f}"
@@ -2341,8 +2341,8 @@ def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_
     if booking.status == "Booked" and booking.amount_paid >= booking.total_amount:
         raise HTTPException(status_code=400, detail="This booking is already fully paid.")
 
-    payu_key = os.getenv("PAYU_KEY", "YOUR_PAYU_KEY")
-    payu_salt = os.getenv("PAYU_SALT", "YOUR_PAYU_SALT")
+    payu_key = os.getenv("PAYU_KEY", "tPlnCP")
+    payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     
     amount_str = f"{booking.total_amount:.2f}"
     productinfo = f"Booking for stall {booking.stall_number}"
