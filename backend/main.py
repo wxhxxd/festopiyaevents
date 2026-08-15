@@ -243,6 +243,61 @@ except Exception as e:
 
 Base.metadata.create_all(bind=engine)
 
+def run_auto_migrations():
+    migrations = [
+        # (table_name, column_name, postgres_type, sqlite_type)
+        ("stall_bookings", "txnid", "VARCHAR", "TEXT"),
+        ("stall_bookings", "status", "VARCHAR DEFAULT 'Pending'", "TEXT DEFAULT 'Pending'"),
+        ("stall_bookings", "total_amount", "DOUBLE PRECISION DEFAULT 0.0", "FLOAT DEFAULT 0.0"),
+        ("stall_bookings", "amount_paid", "DOUBLE PRECISION DEFAULT 0.0", "FLOAT DEFAULT 0.0"),
+        ("stall_bookings", "image_url", "VARCHAR", "TEXT"),
+
+        ("users", "is_verified", "BOOLEAN DEFAULT TRUE", "INTEGER DEFAULT 1"),
+        ("users", "verification_token", "VARCHAR", "TEXT"),
+        ("users", "bio", "VARCHAR", "TEXT"),
+        ("users", "instagram_url", "VARCHAR", "TEXT"),
+        ("users", "website_url", "VARCHAR", "TEXT"),
+        ("users", "avatar_url", "VARCHAR", "TEXT"),
+        ("users", "username", "VARCHAR", "TEXT"),
+        ("users", "business_name", "VARCHAR", "TEXT"),
+        ("users", "category", "VARCHAR", "TEXT"),
+        ("users", "items_selling", "VARCHAR DEFAULT '[]'", "TEXT DEFAULT '[]'"),
+        ("users", "display_name", "VARCHAR", "TEXT"),
+
+        ("events", "standard_price", "DOUBLE PRECISION DEFAULT 0.0", "FLOAT DEFAULT 0.0"),
+        ("events", "premium_price", "DOUBLE PRECISION DEFAULT 0.0", "FLOAT DEFAULT 0.0"),
+        ("events", "premium_stall_ids", "VARCHAR DEFAULT '[]'", "TEXT DEFAULT '[]'"),
+        ("events", "image_urls", "VARCHAR DEFAULT '[]'", "TEXT DEFAULT '[]'"),
+        ("events", "banner_url", "VARCHAR", "TEXT"),
+        ("events", "maps_url", "VARCHAR", "TEXT"),
+        ("events", "standard_stall_size", "VARCHAR DEFAULT '10x10'", "TEXT DEFAULT '10x10'"),
+        ("events", "premium_stall_size", "VARCHAR DEFAULT '12x12'", "TEXT DEFAULT '12x12'"),
+        ("events", "standard_stall_location", "VARCHAR DEFAULT 'Main Hall'", "TEXT DEFAULT 'Main Hall'"),
+        ("events", "premium_stall_location", "VARCHAR DEFAULT 'VIP Area'", "TEXT DEFAULT 'VIP Area'"),
+        ("events", "payment_model", "VARCHAR DEFAULT 'vendor_pays'", "TEXT DEFAULT 'vendor_pays'")
+    ]
+
+    is_sqlite = SQLALCHEMY_DATABASE_URL.startswith("sqlite")
+    
+    with engine.begin() as conn:
+        for table, col, pg_type, sqlite_type in migrations:
+            col_type = sqlite_type if is_sqlite else pg_type
+            if is_sqlite:
+                sql = f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"
+            else:
+                sql = f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {col_type}"
+            try:
+                conn.execute(text(sql))
+            except Exception:
+                pass
+
+try:
+    run_auto_migrations()
+    print("[DATABASE] Auto-migration check completed.")
+except Exception as e:
+    print(f"[DATABASE] Auto-migration error: {e}")
+
+
 # ----------------- Supabase Storage Integration & Helper Functions -----------------
 import urllib.request
 import urllib.error
