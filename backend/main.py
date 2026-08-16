@@ -1576,10 +1576,10 @@ def book_stall(
             vendor_company = vendor_user.company_name
 
         if event.payment_model == "organizer_pays":
-            if current_user.role != "Organizer" or event.organizer_id != current_user.id:
+            if current_user.role != "Organizer" or str(event.organizer_id) != str(current_user.id):
                 raise HTTPException(status_code=403, detail="Only the organizer can pay for this.")
         elif event.payment_model == "vendor_pays":
-            if current_user.role != "Vendor" or vendor_id != current_user.id:
+            if current_user.role != "Vendor" or str(vendor_id) != str(current_user.id):
                 raise HTTPException(status_code=403, detail="Only the vendor can pay for this.")
     else:
         if current_user.role != "Vendor":
@@ -1727,8 +1727,7 @@ async def payu_webhook(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=failure&reason=booking_not_found", status_code=303)
 
     if status == "success":
-        booking.status = "Booked"
-        booking.amount_paid = booking.total_amount
+        booking.status = "Pending Approval"
         db.commit()
         return RedirectResponse(url=f"{FRONTEND_URL}/vendor/dashboard?payment=success", status_code=303)
     else:
@@ -1796,7 +1795,9 @@ def request_payment_approval(booking_id: int, current_user: User = Depends(get_c
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    if current_user.id != booking.vendor_id and current_user.role != "Admin":
+    event = db.query(Event).filter(Event.id == booking.event_id).first()
+    
+    if str(current_user.id) != str(booking.vendor_id) and current_user.role != "Admin" and (not event or str(current_user.id) != str(event.organizer_id)):
         raise HTTPException(status_code=403, detail="Unauthorized")
 
     booking.status = "Pending Approval"

@@ -1689,7 +1689,7 @@ export default function OrganizerDashboard() {
                         </div>
 
                         {/* Actions — only if not yet accepted */}
-                        {pitch.status !== 'Accepted' && (
+                        {['Pending', 'Counter_Offered'].includes(pitch.status) && (
                           <div className="border-t border-white/10 pt-4 space-y-3">
                             <div className="flex gap-2">
                               <input
@@ -1731,11 +1731,33 @@ export default function OrganizerDashboard() {
                           </div>
                         )}
 
-                        {pitch.status === 'Accepted' && (
+                        {['Accepted', 'Payment Submitted', 'Advance Paid', 'Paid'].includes(pitch.status) && (
                           <div className="border-t border-white/10 pt-3">
-                            <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
-                              <CheckCircle2 className="w-4 h-4" />
-                              Deal Secured @ ₹{pitch.offered_price}
+                            <div className="flex flex-col gap-2">
+                              {pitch.status === 'Accepted' && (
+                                <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  Deal Secured @ ₹{pitch.offered_price}
+                                </div>
+                              )}
+                              {pitch.status === 'Payment Submitted' && (
+                                <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold">
+                                  <Clock className="w-4 h-4" />
+                                  Payment Processing / Waiting for Approval
+                                </div>
+                              )}
+                              {pitch.status === 'Advance Paid' && (
+                                <div className="flex items-center gap-2 text-indigo-400 text-sm font-semibold">
+                                  <Unlock className="w-4 h-4" />
+                                  Advance Paid
+                                </div>
+                              )}
+                              {pitch.status === 'Paid' && (
+                                <div className="flex items-center gap-2 text-emerald-400 text-sm font-semibold">
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  Fully Paid & Booked
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
