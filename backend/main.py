@@ -1480,7 +1480,7 @@ def delete_event(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
         
-    if event.organizer_id != current_user.id:
+    if str(event.organizer_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to delete this event")
         
     # Delete associated records
@@ -1830,7 +1830,7 @@ def approve_payment(booking_id: int, req: ApprovePaymentRequest, current_user: U
 
     if current_user.role == "Organizer":
         event = db.query(Event).filter(Event.id == booking.event_id).first()
-        if not event or event.organizer_id != current_user.id:
+        if not event or str(event.organizer_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="Not authorized to approve for this event")
             
     if req.actual_amount is not None and req.actual_amount > 0:
@@ -1869,7 +1869,7 @@ def reject_payment(booking_id: int, current_user: User = Depends(get_current_use
         
     if current_user.role == "Organizer":
         event = db.query(Event).filter(Event.id == booking.event_id).first()
-        if not event or event.organizer_id != current_user.id:
+        if not event or str(event.organizer_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="Not authorized to reject for this event")
             
     booking.status = "Rejected"
@@ -1954,7 +1954,7 @@ def update_pitch(
     
     event = db.query(Event).filter(Event.id == pitch.event_id).first()
     is_vendor = current_user.id == pitch.vendor_id
-    is_organizer = event and current_user.id == event.organizer_id
+    is_organizer = event and str(current_user.id) == str(event.organizer_id)
     if not is_vendor and not is_organizer:
         raise HTTPException(status_code=403, detail="Not authorized to update this pitch")
     
