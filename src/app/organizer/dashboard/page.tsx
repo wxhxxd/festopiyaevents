@@ -3943,10 +3943,6 @@ export default function OrganizerDashboard() {
                           hash: data.payu_hash
                         };
 
-                        if (!isSandbox) {
-                          params.service_provider = "payu_paisa";
-                        }
-
                         for (const key in params) {
                           if (params.hasOwnProperty(key)) {
                             const input = document.createElement("input");
