@@ -2344,6 +2344,10 @@ def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_
     payu_key = os.getenv("PAYU_KEY", "tPlnCP")
     payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     
+    if not booking.txnid or booking.txnid.startswith("FREE_"):
+        booking.txnid = f"TXN_{uuid.uuid4().hex[:16].upper()}"
+        db.commit()
+
     amount_str = f"{booking.total_amount:.2f}"
     productinfo = f"Booking for stall {booking.stall_number}"
     firstname = current_user.company_name or "Vendor"
@@ -2351,7 +2355,7 @@ def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_
     
     # sha512(key|txnid|amount|productinfo|firstname|email|||||||||||SALT)
     hash_string = f"{payu_key}|{booking.txnid}|{amount_str}|{productinfo}|{firstname}|{email}|||||||||||{payu_salt}"
-    payu_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest()
+    payu_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest().lower()
     
     surl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
     furl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
