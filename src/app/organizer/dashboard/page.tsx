@@ -3930,10 +3930,11 @@ export default function OrganizerDashboard() {
                         form.setAttribute("method", "POST");
                         form.style.display = "none";
 
+                        const amountStr = typeof data.amount === "number" ? data.amount.toFixed(2) : String(data.amount);
                         const params: Record<string, any> = {
                           key: data.key,
                           txnid: data.txnid,
-                          amount: data.amount,
+                          amount: amountStr,
                           productinfo: data.productinfo,
                           firstname: data.firstname,
                           email: data.email,

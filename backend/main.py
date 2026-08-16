@@ -543,7 +543,7 @@ class PayUInitResponse(BaseModel):
     booking: StallBookingResponse
     payu_hash: str
     txnid: str
-    amount: float
+    amount: Union[float, str]
     key: str
     productinfo: str
     firstname: str
@@ -1678,7 +1678,7 @@ def book_stall(
         booking=db_booking,
         payu_hash=payu_hash,
         txnid=txnid,
-        amount=float(amount_str),
+        amount=amount_str,
         key=payu_key,
         productinfo=productinfo,
         firstname=firstname,
@@ -2372,7 +2372,7 @@ def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_
         booking=booking,
         payu_hash=payu_hash,
         txnid=booking.txnid,
-        amount=float(amount_str),
+        amount=amount_str,
         key=payu_key,
         productinfo=productinfo,
         firstname=firstname,
