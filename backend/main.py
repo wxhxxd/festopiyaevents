@@ -1151,7 +1151,10 @@ def get_admin_stats(
         bookings_list.append({
             "id": b.id,
             "organizerName": organizer.company_name if organizer else "Unknown",
+            "organizerEmail": organizer.email if organizer else "Unknown",
             "vendorName": vendor.company_name if vendor else "Unknown",
+            "vendorEmail": vendor.email if vendor else "Unknown",
+            "paymentModel": event.payment_model if event else "vendor_pays",
             "status": status,
             "realStatus": b.status,
             "advanceHeld": amount_paid,

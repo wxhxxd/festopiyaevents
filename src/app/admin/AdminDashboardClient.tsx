@@ -18,7 +18,10 @@ import FestopiyaBranding from "@/components/FestopiyaBranding";
 interface Booking {
   id: number;
   organizerName: string;
+  organizerEmail: string;
   vendorName: string;
+  vendorEmail: string;
+  paymentModel: string;
   status: "pending_advance" | "advance_paid" | "released";
   realStatus?: string;
   advanceHeld: number;
@@ -356,7 +359,7 @@ export default function AdminDashboardClient() {
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.01] text-xs font-bold uppercase tracking-wider text-zinc-500">
                       <th className="py-4 px-6">Booking ID</th>
-                      <th className="py-4 px-6">Organizer &amp; Vendor</th>
+                      <th className="py-4 px-6">Payer &amp; Receiver</th>
                       <th className="py-4 px-6">Status</th>
                       <th className="py-4 px-6">Advance Held</th>
                       <th className="py-4 px-6 text-right">Escrow Action</th>
@@ -385,10 +388,23 @@ export default function AdminDashboardClient() {
                               #{booking.id}
                             </td>
 
-                            {/* Organizer & Vendor */}
+                            {/* Payer & Receiver Contacts */}
                             <td className="py-4 px-6">
-                              <div className="font-semibold text-white">{booking.organizerName}</div>
-                              <div className="text-zinc-500 text-xs mt-0.5">Vendor: {booking.vendorName}</div>
+                              {booking.paymentModel === "organizer_pays" ? (
+                                <>
+                                  <div className="text-white text-xs mb-0.5 font-semibold"><span className="text-zinc-500 font-normal">Payer:</span> {booking.organizerName} (Org)</div>
+                                  <div className="text-emerald-400/80 text-[10px] mb-2 cursor-pointer hover:text-emerald-400" onClick={() => window.open(`mailto:${booking.organizerEmail}`)}>{booking.organizerEmail}</div>
+                                  <div className="text-white text-xs mb-0.5 font-semibold"><span className="text-zinc-500 font-normal">Receiver:</span> {booking.vendorName} (Vendor)</div>
+                                  <div className="text-zinc-400 text-[10px] cursor-pointer hover:text-zinc-300" onClick={() => window.open(`mailto:${booking.vendorEmail}`)}>{booking.vendorEmail}</div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="text-white text-xs mb-0.5 font-semibold"><span className="text-zinc-500 font-normal">Payer:</span> {booking.vendorName} (Vendor)</div>
+                                  <div className="text-emerald-400/80 text-[10px] mb-2 cursor-pointer hover:text-emerald-400" onClick={() => window.open(`mailto:${booking.vendorEmail}`)}>{booking.vendorEmail}</div>
+                                  <div className="text-white text-xs mb-0.5 font-semibold"><span className="text-zinc-500 font-normal">Receiver:</span> {booking.organizerName} (Org)</div>
+                                  <div className="text-zinc-400 text-[10px] cursor-pointer hover:text-zinc-300" onClick={() => window.open(`mailto:${booking.organizerEmail}`)}>{booking.organizerEmail}</div>
+                                </>
+                              )}
                             </td>
 
                             {/* Status Pill */}
