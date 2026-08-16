@@ -7,7 +7,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, text, UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Union, Dict, Any
 from datetime import datetime, timedelta
 import bcrypt
 from jose import JWTError, jwt
@@ -543,7 +543,7 @@ class PayUInitResponse(BaseModel):
     booking: StallBookingResponse
     payu_hash: str
     txnid: str
-    amount: Union[float, str]
+    amount: str
     key: str
     productinfo: str
     firstname: str
