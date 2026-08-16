@@ -1062,9 +1062,10 @@ export default function VendorDashboard() {
 
       if (data.payu_hash) {
         const form = document.createElement("form");
-        const payuUrl = process.env.NEXT_PUBLIC_PAYU_ENV === "production" 
-          ? "https://secure.payu.in/_payment" 
-          : "https://test.payu.in/_payment";
+        const isSandbox = process.env.NEXT_PUBLIC_PAYU_ENV === "sandbox";
+        const payuUrl = isSandbox 
+          ? "https://test.payu.in/_payment" 
+          : "https://secure.payu.in/_payment";
           
         form.setAttribute("action", payuUrl);
         form.setAttribute("method", "POST");
@@ -1080,9 +1081,12 @@ export default function VendorDashboard() {
           phone: "9999999999",
           surl: data.surl,
           furl: data.furl,
-          hash: data.payu_hash,
-          service_provider: "payu_paisa"
+          hash: data.payu_hash
         };
+
+        if (!isSandbox) {
+          params.service_provider = "payu_paisa";
+        }
 
         for (const key in params) {
           if (params.hasOwnProperty(key)) {
