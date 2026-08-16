@@ -1810,8 +1810,11 @@ def request_payment_approval(booking_id: int, current_user: User = Depends(get_c
     db.refresh(booking)
     return {"status": "success", "message": "Approval requested"}
 
+class ApprovePaymentRequest(BaseModel):
+    actual_amount: Optional[float] = None
+
 @app.post("/bookings/{booking_id}/approve_payment")
-def approve_payment(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def approve_payment(booking_id: int, req: ApprovePaymentRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     is_admin = current_user.role == "Admin" or (current_user.email and current_user.email.lower() == "abdulwaheed998922@gmail.com")
     if not is_admin and current_user.role != "Organizer":
         raise HTTPException(status_code=403, detail="Only Admins or Organizers can approve payments")
@@ -1825,21 +1828,29 @@ def approve_payment(booking_id: int, current_user: User = Depends(get_current_us
         if not event or event.organizer_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to approve for this event")
             
-    booking.status = "Booked"
-    booking.amount_paid = booking.total_amount
+    if req.actual_amount is not None and req.actual_amount > 0:
+        booking.amount_paid += req.actual_amount
+    else:
+        booking.amount_paid = booking.total_amount
     
-    # Update associated pitch if it exists
     pitch = db.query(Pitch).filter(
         Pitch.event_id == booking.event_id,
         Pitch.stall_number == booking.stall_number,
         Pitch.vendor_id == booking.vendor_id
     ).first()
-    if pitch:
-        pitch.status = "Paid"
+
+    if booking.amount_paid >= booking.total_amount:
+        booking.status = "Booked"
+        if pitch:
+            pitch.status = "Paid"
+    else:
+        booking.status = "Advance Paid"
+        if pitch:
+            pitch.status = "Advance Paid"
         
     db.commit()
     db.refresh(booking)
-    return {"status": "success", "message": "Payment approved and stall booked", "booking_id": booking.id, "booking_status": booking.status}
+    return {"status": "success", "message": "Payment approved", "booking_id": booking.id, "booking_status": booking.status}
 
 @app.post("/bookings/{booking_id}/reject_payment")
 def reject_payment(booking_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -1888,7 +1899,7 @@ def create_pitch(
     existing_booking = db.query(StallBooking).filter(
         StallBooking.event_id == pitch.event_id,
         StallBooking.stall_number == pitch.stall_number,
-        StallBooking.status == "Booked"
+        StallBooking.status.in_(["Booked", "Advance Paid"])
     ).first()
     
     if existing_booking:

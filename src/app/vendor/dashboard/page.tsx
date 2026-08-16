@@ -316,6 +316,9 @@ interface BookingData {
   stall_number: number;
   image_url?: string;
   status?: string;
+  vendor_id?: number;
+  amount_paid?: number;
+  total_amount?: number;
 }
 
 interface PitchData {
@@ -1832,6 +1835,7 @@ export default function VendorDashboard() {
                         {(() => {
                           const isAlreadyBooked = bookings.some(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Booked");
                           const isPendingApproval = bookings.some(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Pending Approval");
+                          const advanceBooking = bookings.find(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Advance Paid" && b.vendor_id === myUserId);
                           
                           if (isAlreadyBooked) {
                             return (
@@ -1849,6 +1853,25 @@ export default function VendorDashboard() {
                                 <div className="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 text-sm font-bold border border-amber-500/30 flex items-center justify-center gap-2">
                                   <span>⏳ Pending Admin Approval</span>
                                 </div>
+                              </div>
+                            );
+                          }
+
+                          if (advanceBooking) {
+                            const remaining = (advanceBooking.total_amount || 0) - (advanceBooking.amount_paid || 0);
+                            return (
+                              <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
+                                <div className="w-full py-2 rounded-xl bg-emerald-500/10 text-emerald-300 text-xs font-bold border border-emerald-500/20 flex flex-col items-center justify-center p-2 gap-1">
+                                  <span>✅ Stall Secured (Advance Paid: ₹{advanceBooking.amount_paid})</span>
+                                  <span className="text-amber-400">Remaining Balance: ₹{remaining}</span>
+                                </div>
+                                <button
+                                  onClick={() => handlePayAcceptedPitch(pitch)}
+                                  className="w-full py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 active:scale-[0.98] text-white text-sm font-bold shadow-[0_4px_12px_0_rgba(245,158,11,0.25)] transition-all flex items-center justify-center gap-2 mt-2"
+                                >
+                                  <CreditCard className="w-4 h-4" />
+                                  Pay Remaining (₹{remaining})
+                                </button>
                               </div>
                             );
                           }

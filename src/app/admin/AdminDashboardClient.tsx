@@ -93,16 +93,32 @@ export default function AdminDashboardClient() {
     );
   };
 
-  const handleApprovePayment = async (bookingId: number) => {
+  const handleApprovePayment = async (bookingId: number, totalAmount?: number) => {
     try {
+      const amountStr = prompt(`Enter the exact amount received from this user${totalAmount ? ` (Total Due: ₹${totalAmount})` : ''}:`);
+      if (amountStr === null) return; // User cancelled
+      
+      const actualAmount = parseFloat(amountStr);
+      if (isNaN(actualAmount) || actualAmount < 0) {
+        alert("Invalid amount entered.");
+        return;
+      }
+
       const token = localStorage.getItem("token");
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/approve_payment`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ actual_amount: actualAmount })
       });
+      
       if (res.ok) {
-        setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, realStatus: "Booked", status: "advance_paid" } : b));
-        alert("Payment approved and stall booked!");
+        const data = await res.json();
+        const newStatus = data.booking_status || "Booked"; // "Booked" or "Advance Paid"
+        setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, realStatus: newStatus, status: "advance_paid", advanceHeld: b.advanceHeld + actualAmount } : b));
+        alert(data.message || "Payment processed successfully!");
       } else {
         alert("Failed to approve payment");
       }
@@ -377,7 +393,12 @@ export default function AdminDashboardClient() {
 
                             {/* Status Pill */}
                             <td className="py-4 px-6">
-                              {booking.realStatus === "Pending Approval" ? (
+                              {booking.realStatus === "Advance Paid" ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                  <Unlock className="w-3 h-3" />
+                                  Advance Paid
+                                </span>
+                              ) : booking.realStatus === "Pending Approval" ? (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
                                   <Lock className="w-3 h-3" />
                                   Pending Approval
@@ -388,7 +409,7 @@ export default function AdminDashboardClient() {
                                   Pending Advance
                                 </span>
                               )}
-                              {isPaid && (
+                              {isPaid && booking.realStatus !== "Advance Paid" && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                   <Unlock className="w-3 h-3" />
                                   Advance Paid
@@ -412,7 +433,7 @@ export default function AdminDashboardClient() {
                               {booking.realStatus === "Pending Approval" ? (
                                 <div className="flex items-center justify-end gap-2">
                                   <button
-                                    onClick={() => handleApprovePayment(booking.id)}
+                                    onClick={() => handleApprovePayment(booking.id, booking.totalAmount)}
                                     className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_4px_12px_0_rgba(16,185,129,0.25)]"
                                   >
                                     Approve & Confirm

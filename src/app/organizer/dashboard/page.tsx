@@ -2420,8 +2420,13 @@ export default function OrganizerDashboard() {
                                     <span className="px-3 py-1 text-xs font-black rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                       Stall #{booking.stall_number}
                                     </span>
-                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${booking.status === 'Pending' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'}`}>
-                                      {booking.status === 'Pending' ? 'Payment Pending' : 'Booked'}
+                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${
+                                      booking.status === 'Advance Paid' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 
+                                      booking.status === 'Pending Approval' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 
+                                      booking.status === 'Booked' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 
+                                      'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                                    }`}>
+                                      {booking.status === 'Advance Paid' ? 'Advance Paid' : booking.status === 'Pending Approval' ? 'Pending Approval' : booking.status === 'Booked' ? 'Booked' : 'Payment Pending'}
                                     </span>
                                   </div>
 
@@ -3814,7 +3819,7 @@ export default function OrganizerDashboard() {
           const isBooking = !!checkoutBooking;
           const vendorName = isBooking ? checkoutBooking?.vendor_name : (checkoutPitch?.vendor?.company_name || 'Vendor');
           const vendorBasePrice = isBooking ? checkoutBooking?.total_amount : (checkoutPitch?.offered_price || 0);
-          const calculatedAdvance = vendorBasePrice; // 100% full amount now
+          const calculatedAdvance = isBooking ? Math.max(0, (checkoutBooking?.total_amount || 0) - (checkoutBooking?.amount_paid || 0)) : vendorBasePrice;
           const remainingBalance = 0;
 
           return (
@@ -3919,48 +3924,25 @@ export default function OrganizerDashboard() {
                       
                       const data = await res.json();
 
-                      if (data.payu_hash) {
-                        const form = document.createElement("form");
-                        const isSandbox = process.env.NEXT_PUBLIC_PAYU_ENV === "sandbox";
-                        const payuUrl = isSandbox 
-                          ? "https://test.payu.in/_payment" 
-                          : "https://secure.payu.in/_payment";
-                          
-                        form.setAttribute("action", payuUrl);
-                        form.setAttribute("method", "POST");
-                        form.style.display = "none";
-
-                        const amountStr = typeof data.amount === "number" ? data.amount.toFixed(2) : String(data.amount);
-                        const params: Record<string, any> = {
-                          key: data.key,
-                          txnid: data.txnid,
-                          amount: amountStr,
-                          productinfo: data.productinfo,
-                          firstname: data.firstname,
-                          email: data.email,
-                          phone: "9999999999",
-                          surl: data.surl,
-                          furl: data.furl,
-                          hash: data.payu_hash
-                        };
-
-                        for (const key in params) {
-                          if (params.hasOwnProperty(key)) {
-                            const input = document.createElement("input");
-                            input.setAttribute("type", "hidden");
-                            input.setAttribute("name", key);
-                            input.setAttribute("value", params[key]);
-                            form.appendChild(input);
-                          }
+                      if (data.booking && data.booking.id) {
+                        window.open("https://u.payu.in/ar6SshJj0gro", "_blank");
+                        
+                        const approvalRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${data.booking.id}/request_approval`, {
+                          method: "POST",
+                          headers: headers
+                        });
+                        
+                        if (approvalRes.ok) {
+                          alert("Payment initiated! The booking has been sent for Admin approval.");
+                        } else {
+                          alert("Payment initiated, but failed to automatically request approval.");
                         }
-                        document.body.appendChild(form);
-                        form.submit();
-                      } else {
-                        if (!isBooking && checkoutPitch) handleUpdatePitch(checkoutPitch.id, 'Accepted');
-                        setCheckoutPitch(null);
-                        setCheckoutBooking(null);
-                        alert("Booking Successful!");
                       }
+                      
+                      if (!isBooking && checkoutPitch) handleUpdatePitch(checkoutPitch.id, 'Payment Submitted');
+                      setCheckoutPitch(null);
+                      setCheckoutBooking(null);
+                      alert("Booking successfully queued for payment verification!");
                     } catch (err: any) {
                       alert(err.message);
                     }
@@ -3968,7 +3950,7 @@ export default function OrganizerDashboard() {
                   className="w-full py-4 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_0_rgba(16,185,129,0.3)]"
                 >
                   <CreditCard className="w-5 h-5" />
-                  Pay Full Amount
+                  {isBooking && (checkoutBooking?.amount_paid || 0) > 0 ? 'Pay Remaining Amount' : 'Pay Full Amount'}
                 </button>
               </motion.div>
             </motion.div>
