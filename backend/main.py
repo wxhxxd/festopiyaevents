@@ -2293,7 +2293,7 @@ async def payu_callback(
     # sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
     payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     hash_string = f"{payu_salt}|{status}|||||||||||{email}|{firstname}|{productinfo}|{amount}|{txnid}|{key}"
-    calculated_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest()
+    calculated_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest().lower()
     
     frontend_url = os.getenv("FRONTEND_URL", "https://www.festopiya.com")
     
@@ -2309,7 +2309,7 @@ async def payu_callback(
         if event and event.payment_model == "organizer_pays":
             redirect_url = f"{frontend_url}/organizer/dashboard?payment=failed"
         
-        if status == "success" and calculated_hash == hash_val:
+        if status == "success" and calculated_hash == hash_val.lower():
             booking.status = "Booked"
             booking.amount_paid = booking.total_amount
             db.commit()
