@@ -1080,7 +1080,6 @@ export default function VendorDashboard() {
       }
       
       await fetchBookings();
-      await fetchPitches();
       fetchMyPitches();
     } catch (err: any) {
       alert(err.message);
