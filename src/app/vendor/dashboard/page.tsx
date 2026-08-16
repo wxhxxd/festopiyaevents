@@ -1040,9 +1040,19 @@ export default function VendorDashboard() {
   };
 
   const handlePayAcceptedPitch = async (pitch: PitchData) => {
+    // Open window immediately to prevent popup blocker
+    const payWindow = window.open("about:blank", "_blank");
+    if (!payWindow) {
+      alert("Please allow popups to proceed with payment.");
+      return;
+    }
+    
     try {
       const headers = getHeaders();
-      if (!headers) return;
+      if (!headers) {
+        payWindow.close();
+        return;
+      }
 
       const formData = new FormData();
       formData.append("event_id", pitch.event_id.toString());
@@ -1064,8 +1074,8 @@ export default function VendorDashboard() {
       }
 
       if (data.booking && data.booking.id) {
-        // Open PayU handle link in new tab
-        window.open("https://u.payu.in/ar6SshJj0gro", "_blank");
+        // Redirect the already-opened window
+        payWindow.location.href = "https://u.payu.in/ar6SshJj0gro";
         
         // Immediately request approval
         const approvalRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${data.booking.id}/request_approval`, {
@@ -1078,14 +1088,19 @@ export default function VendorDashboard() {
         if (approvalRes.ok) {
           alert("Payment initiated! Your booking has been sent for Organizer/Admin approval.");
         } else {
-          alert("Payment initiated, but failed to automatically request approval. Please contact support.");
+          alert("Payment initiated, but failed to automatically request approval.");
         }
+      } else {
+        payWindow.close();
       }
       
       await fetchBookings();
       fetchMyPitches();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (error: any) {
+      if (payWindow && !payWindow.closed) {
+        payWindow.close();
+      }
+      alert(error.message || "Something went wrong.");
     }
   };
 

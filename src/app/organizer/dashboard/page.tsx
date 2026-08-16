@@ -3907,6 +3907,13 @@ export default function OrganizerDashboard() {
                 {/* Payment Button */}
                 <button
                   onClick={async () => {
+                    // Open window immediately to prevent popup blocker
+                    const payWindow = window.open("about:blank", "_blank");
+                    if (!payWindow) {
+                      alert("Please allow popups to proceed with payment.");
+                      return;
+                    }
+                    
                     try {
                       const headers = {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -3947,7 +3954,7 @@ export default function OrganizerDashboard() {
                       const data = await res.json();
 
                       if (data.booking && data.booking.id) {
-                        window.open("https://u.payu.in/ar6SshJj0gro", "_blank");
+                        payWindow.location.href = "https://u.payu.in/ar6SshJj0gro";
                         
                         const approvalRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${data.booking.id}/request_approval`, {
                           method: "POST",
@@ -3959,6 +3966,8 @@ export default function OrganizerDashboard() {
                         } else {
                           alert("Payment initiated, but failed to automatically request approval.");
                         }
+                      } else {
+                        payWindow.close();
                       }
                       
                       if (!isBooking && checkoutPitch) handleUpdatePitch(checkoutPitch.id, 'Payment Submitted');
@@ -3966,6 +3975,9 @@ export default function OrganizerDashboard() {
                       setCheckoutBooking(null);
                       alert("Booking successfully queued for payment verification!");
                     } catch (err: any) {
+                      if (payWindow && !payWindow.closed) {
+                        payWindow.close();
+                      }
                       alert(err.message);
                     }
                   }}
