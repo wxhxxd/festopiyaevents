@@ -20,7 +20,9 @@ interface Booking {
   organizerName: string;
   vendorName: string;
   status: "pending_advance" | "advance_paid" | "released";
+  realStatus?: string;
   advanceHeld: number;
+  totalAmount?: number;
 }
 
 export default function AdminDashboardClient() {
@@ -89,6 +91,42 @@ export default function AdminDashboardClient() {
     setBookings(prev => 
       prev.map(b => b.id === bookingId ? { ...b, status: "advance_paid" } : b)
     );
+  };
+
+  const handleApprovePayment = async (bookingId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/approve_payment`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, realStatus: "Booked", status: "advance_paid" } : b));
+        alert("Payment approved and stall booked!");
+      } else {
+        alert("Failed to approve payment");
+      }
+    } catch (err) {
+      alert("Error approving payment");
+    }
+  };
+
+  const handleRejectPayment = async (bookingId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/reject_payment`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, realStatus: "Rejected" } : b));
+        alert("Payment rejected.");
+      } else {
+        alert("Failed to reject payment");
+      }
+    } catch (err) {
+      alert("Error rejecting payment");
+    }
   };
 
   // Filter bookings based on search query
@@ -339,7 +377,12 @@ export default function AdminDashboardClient() {
 
                             {/* Status Pill */}
                             <td className="py-4 px-6">
-                              {isPending && (
+                              {booking.realStatus === "Pending Approval" ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                  <Lock className="w-3 h-3" />
+                                  Pending Approval
+                                </span>
+                              ) : isPending && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                                   <Lock className="w-3 h-3" />
                                   Pending Advance
@@ -361,12 +404,27 @@ export default function AdminDashboardClient() {
 
                             {/* Advance Held */}
                             <td className="py-4 px-6 font-semibold text-white">
-                              ₹{booking.advanceHeld.toLocaleString("en-IN")}
+                              ₹{(booking.realStatus === "Pending Approval" ? (booking.totalAmount || 0) : booking.advanceHeld).toLocaleString("en-IN")}
                             </td>
 
                             {/* Action Button */}
                             <td className="py-4 px-6 text-right">
-                              {isPending && (
+                              {booking.realStatus === "Pending Approval" ? (
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    onClick={() => handleApprovePayment(booking.id)}
+                                    className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_4px_12px_0_rgba(16,185,129,0.25)]"
+                                  >
+                                    Approve & Confirm
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejectPayment(booking.id)}
+                                    className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-500 to-rose-500 hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_4px_12px_0_rgba(244,63,94,0.25)]"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : isPending ? (
                                 <div className="flex items-center justify-end gap-2">
                                   {/* Test Simulator Button to trigger pay.captured */}
                                   <button
@@ -386,8 +444,7 @@ export default function AdminDashboardClient() {
                                     Release ₹1000
                                   </button>
                                 </div>
-                              )}
-                              {isPaid && (
+                              ) : isPaid ? (
                                 <button
                                   onClick={() => {
                                     handleReleasePayout(booking.id);
@@ -397,13 +454,12 @@ export default function AdminDashboardClient() {
                                 >
                                   Release ₹1000 to Vendor
                                 </button>
-                              )}
-                              {isReleased && (
+                              ) : isReleased ? (
                                 <span className="inline-flex items-center gap-1 text-xs font-bold text-zinc-500 pr-4">
                                   <Check className="w-4 h-4 text-indigo-450 dark:text-indigo-400" />
                                   Released
                                 </span>
-                              )}
+                              ) : null}
                             </td>
                           </tr>
                         );

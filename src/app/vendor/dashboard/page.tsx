@@ -1060,47 +1060,28 @@ export default function VendorDashboard() {
         throw new Error(data.detail || "Failed to process payment");
       }
 
-      if (data.payu_hash) {
-        const form = document.createElement("form");
-        const isSandbox = process.env.NEXT_PUBLIC_PAYU_ENV === "sandbox";
-        const payuUrl = isSandbox 
-          ? "https://test.payu.in/_payment" 
-          : "https://secure.payu.in/_payment";
-          
-        form.setAttribute("action", payuUrl);
-        form.setAttribute("method", "POST");
-        form.style.display = "none";
-
-        const amountStr = typeof data.amount === "number" ? data.amount.toFixed(2) : String(data.amount);
-        const params: Record<string, any> = {
-          key: data.key,
-          txnid: data.txnid,
-          amount: amountStr,
-          productinfo: data.productinfo,
-          firstname: data.firstname,
-          email: data.email,
-          phone: "9999999999",
-          surl: data.surl,
-          furl: data.furl,
-          hash: data.payu_hash
-        };
-
-        for (const key in params) {
-          if (params.hasOwnProperty(key)) {
-            const input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", key);
-            input.setAttribute("value", params[key]);
-            form.appendChild(input);
+      if (data.booking && data.booking.id) {
+        // Open PayU handle link in new tab
+        window.open("https://u.payu.in/ar6SshJj0gro", "_blank");
+        
+        // Immediately request approval
+        const approvalRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${data.booking.id}/request_approval`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${getStoredToken()}`
           }
+        });
+        
+        if (approvalRes.ok) {
+          alert("Payment initiated! Your booking has been sent for Organizer/Admin approval.");
+        } else {
+          alert("Payment initiated, but failed to automatically request approval. Please contact support.");
         }
-        document.body.appendChild(form);
-        form.submit();
-      } else {
-        await fetchBookings();
-        fetchMyPitches();
-        alert("Booking Successful!");
       }
+      
+      await fetchBookings();
+      await fetchPitches();
+      fetchMyPitches();
     } catch (err: any) {
       alert(err.message);
     }
@@ -1851,6 +1832,8 @@ export default function VendorDashboard() {
                         {/* Payment action — vendor pays advance to lock stall if vendor_pays */}
                         {(() => {
                           const isAlreadyBooked = bookings.some(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Booked");
+                          const isPendingApproval = bookings.some(b => b.event_id === pitch.event_id && b.stall_number === pitch.stall_number && b.status === "Pending Approval");
+                          
                           if (isAlreadyBooked) {
                             return (
                               <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
@@ -1860,6 +1843,17 @@ export default function VendorDashboard() {
                               </div>
                             );
                           }
+                          
+                          if (isPendingApproval) {
+                            return (
+                              <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
+                                <div className="w-full py-2 rounded-xl bg-amber-500/20 text-amber-400 text-sm font-bold border border-amber-500/30 flex items-center justify-center gap-2">
+                                  <span>⏳ Pending Admin Approval</span>
+                                </div>
+                              </div>
+                            );
+                          }
+
                           return isAccepted && (!events.find(e => e.id === pitch.event_id)?.payment_model || events.find(e => e.id === pitch.event_id)?.payment_model === 'vendor_pays') && (
                             <div className="border-t border-white/10 pt-4 space-y-2 mt-2">
                               <p className="text-xs text-emerald-300 font-semibold">Pitch accepted! Secure your stall:</p>
