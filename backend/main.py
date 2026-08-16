@@ -512,6 +512,7 @@ class EventBase(BaseModel):
     premium_stall_size: str = "12x12"
     standard_stall_location: str = "Main Hall"
     premium_stall_location: str = "VIP Area"
+    payment_model: Optional[str] = "vendor_pays"
 
 class EventCreate(EventBase):
     pass
@@ -1460,6 +1461,7 @@ def get_all_events(request: Request, all_events: Optional[str] = None, skip: int
             "premium_stall_size": event.premium_stall_size or "12x12",
             "standard_stall_location": event.standard_stall_location or "Main Hall",
             "premium_stall_location": event.premium_stall_location or "VIP Area",
+            "payment_model": event.payment_model or "vendor_pays",
         }
         result.append(event_dict)
         
@@ -1633,7 +1635,6 @@ def book_stall(
             db.refresh(db_booking)
     
     db_booking.vendor_name = vendor_company
-    db_booking.vendor_name = current_user.company_name
 
     # If amount is 0 or less, bypass PayU entirely and mark as Booked
     if total_amount <= 0:
