@@ -1654,9 +1654,11 @@ def book_stall(
     payu_salt = os.getenv("PAYU_SALT", "H7k1IBIGeZRCKBWfwfGOlZegyPq3Lm9c")
     
     txnid = f"TXN_{uuid.uuid4().hex[:16].upper()}"
+    import re
     amount_str = f"{total_amount:.2f}"
+    raw_firstname = current_user.company_name or "Vendor"
+    firstname = re.sub(r'[^a-zA-Z0-9 ]', '', raw_firstname).strip() or "Vendor"
     productinfo = f"Booking for stall {stall_number}"
-    firstname = current_user.company_name or "Vendor"
     email = current_user.email
     
     # sha512(key|txnid|amount|productinfo|firstname|email|||||||||||SALT)
@@ -1668,8 +1670,9 @@ def book_stall(
     db.commit()
     db.refresh(db_booking)
     
-    surl = f"{FRONTEND_URL}/vendor/dashboard?payment=success"
-    furl = f"{FRONTEND_URL}/vendor/dashboard?payment=failure"
+    api_url = os.getenv("API_URL", "https://festopiya-2vxm.onrender.com")
+    surl = f"{api_url}/payu/callback"
+    furl = f"{api_url}/payu/callback"
 
     return PayUInitResponse(
         booking=db_booking,
@@ -2348,17 +2351,20 @@ def initiate_payu_for_booking(booking_id: int, current_user: User = Depends(get_
         booking.txnid = f"TXN_{uuid.uuid4().hex[:16].upper()}"
         db.commit()
 
+    import re
     amount_str = f"{booking.total_amount:.2f}"
     productinfo = f"Booking for stall {booking.stall_number}"
-    firstname = current_user.company_name or "Vendor"
+    raw_firstname = current_user.company_name or "Vendor"
+    firstname = re.sub(r'[^a-zA-Z0-9 ]', '', raw_firstname).strip() or "Vendor"
     email = current_user.email
     
     # sha512(key|txnid|amount|productinfo|firstname|email|||||||||||SALT)
     hash_string = f"{payu_key}|{booking.txnid}|{amount_str}|{productinfo}|{firstname}|{email}|||||||||||{payu_salt}"
     payu_hash = hashlib.sha512(hash_string.encode('utf-8')).hexdigest().lower()
     
-    surl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
-    furl = f"{os.getenv('API_URL', 'http://127.0.0.1:8000')}/payu/callback"
+    api_url = os.getenv("API_URL", "https://festopiya-2vxm.onrender.com")
+    surl = f"{api_url}/payu/callback"
+    furl = f"{api_url}/payu/callback"
     
     return PayUInitResponse(
         booking=booking,

@@ -1080,7 +1080,8 @@ export default function VendorDashboard() {
           phone: "9999999999",
           surl: data.surl,
           furl: data.furl,
-          hash: data.payu_hash
+          hash: data.payu_hash,
+          service_provider: "payu_paisa"
         };
 
         for (const key in params) {
