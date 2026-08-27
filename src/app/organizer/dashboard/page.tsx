@@ -654,10 +654,30 @@ export default function OrganizerDashboard() {
   };
 
   // --- Vendor Hub Search States ---
-  const [vendorHubSubTab, setVendorHubSubTab] = useState<'pitches' | 'search'>('pitches');
+  const [vendorHubSubTab, setVendorHubSubTab] = useState<'pitches' | 'feed' | 'search'>('feed');
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [vendorFeed, setVendorFeed] = useState<any[]>([]);
+  const [isVendorFeedLoading, setIsVendorFeedLoading] = useState(false);
+
+  const fetchVendorFeed = async () => {
+    setIsVendorFeedLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vendors/feed`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVendorFeed(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch vendor feed", err);
+    } finally {
+      setIsVendorFeedLoading(false);
+    }
+  };
 
   const handleSearchVendors = async (query: string) => {
     setSearchQuery(query);
@@ -1031,8 +1051,13 @@ export default function OrganizerDashboard() {
 
   // Fetch pitches whenever the vendors tab is opened
   useEffect(() => {
-    if (activeTab === 'vendors') fetchPitches();
-  }, [activeTab]);
+    if (activeTab === 'vendors') {
+      fetchPitches();
+      if (vendorHubSubTab === 'feed') {
+        fetchVendorFeed();
+      }
+    }
+  }, [activeTab, vendorHubSubTab]);
 
   // Fetch user profile whenever the settings tab is opened
   useEffect(() => {
@@ -1593,10 +1618,20 @@ export default function OrganizerDashboard() {
               </div>
 
               {/* Sub Navigation */}
-              <div className="flex border-b border-black/10 dark:border-white/10 mb-8 gap-6">
+              <div className="flex border-b border-black/10 dark:border-white/10 mb-8 gap-6 overflow-x-auto scrollbar-hide">
+                <button
+                  onClick={() => setVendorHubSubTab('feed')}
+                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+                    vendorHubSubTab === 'feed' 
+                      ? 'border-fuchsia-500 text-fuchsia-500 dark:text-fuchsia-400' 
+                      : 'border-transparent text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Discover Vendors
+                </button>
                 <button
                   onClick={() => setVendorHubSubTab('pitches')}
-                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
+                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                     vendorHubSubTab === 'pitches' 
                       ? 'border-fuchsia-500 text-fuchsia-500 dark:text-fuchsia-400' 
                       : 'border-transparent text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white'
@@ -1606,7 +1641,7 @@ export default function OrganizerDashboard() {
                 </button>
                 <button
                   onClick={() => setVendorHubSubTab('search')}
-                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer ${
+                  className={`pb-4 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap ${
                     vendorHubSubTab === 'search' 
                       ? 'border-fuchsia-500 text-fuchsia-500 dark:text-fuchsia-400' 
                       : 'border-transparent text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white'
@@ -1615,6 +1650,85 @@ export default function OrganizerDashboard() {
                   Search Vendors
                 </button>
               </div>
+
+              {vendorHubSubTab === 'feed' && (
+                <div className="space-y-12">
+                  {isVendorFeedLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <UiverseLoader />
+                      <p className="text-gray-550 dark:text-white/60 mt-4">Loading vendors...</p>
+                    </div>
+                  ) : vendorFeed.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 border border-dashed border-black/10 dark:border-white/10 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02]">
+                      <Users className="w-10 h-10 text-gray-400 dark:text-white/20 mb-3" />
+                      <p className="text-gray-500 dark:text-white/50 font-medium text-sm">
+                        No vendors found.
+                      </p>
+                    </div>
+                  ) : (
+                    Array.from(new Set(vendorFeed.map(v => v.category || 'Other'))).map(category => {
+                      const categoryVendors = vendorFeed.filter(v => (v.category || 'Other') === category);
+                      return (
+                        <div key={category} className="space-y-4">
+                          <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2.5">
+                            <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                              {category}
+                            </h3>
+                          </div>
+                          
+                          <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                            {categoryVendors.map((vendor) => (
+                              <div
+                                key={vendor.id}
+                                onClick={() => handleOpenVendorProfile(vendor.id)}
+                                className="relative flex-none w-[260px] sm:w-[280px] h-[380px] sm:h-[420px] rounded-[2.2rem] border border-black/10 dark:border-white/10 overflow-hidden group cursor-pointer shadow-xl bg-gray-100 dark:bg-zinc-950 snap-start flex flex-col justify-end"
+                              >
+                                {vendor.cover_image_url ? (
+                                  <img
+                                    src={getFullImageUrl(vendor.cover_image_url)}
+                                    alt={vendor.display_name}
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 z-0"
+                                  />
+                                ) : (
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center">
+                                    <Users className="w-16 h-16 text-indigo-500/40" />
+                                  </div>
+                                )}
+                                
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 transition-opacity duration-300 z-10" />
+                                
+                                <div className="absolute top-6 right-6 z-20 flex flex-col items-center">
+                                  {vendor.avatar_url ? (
+                                    <img 
+                                      src={getFullImageUrl(vendor.avatar_url)} 
+                                      alt="avatar" 
+                                      className="w-12 h-12 rounded-full border-2 border-white/20 object-cover shadow-lg"
+                                    />
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-white font-bold text-lg border-2 border-white/20 shadow-lg">
+                                      {vendor.display_name?.charAt(0) || "V"}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="relative z-20 p-6 text-left space-y-1">
+                                  <h4 className="text-lg sm:text-xl font-black text-white leading-tight tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] group-hover:text-fuchsia-400 transition-colors duration-300 line-clamp-2">
+                                    {vendor.display_name}
+                                  </h4>
+                                  <p className="text-xs font-bold text-gray-300 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] flex items-center gap-1.5 pt-0.5">
+                                    <span className="inline-block w-2 h-2 rounded-full bg-fuchsia-500 shrink-0"></span>
+                                    <span className="truncate">{vendor.category || "General"}</span>
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
 
               {vendorHubSubTab === 'pitches' && (
                 <>

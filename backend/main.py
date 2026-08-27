@@ -1115,6 +1115,36 @@ def search_users(
         })
     return results
 
+@app.get("/api/vendors/feed")
+def get_vendors_feed(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    vendors = db.query(User).filter(User.role == "Vendor").all()
+    results = []
+    for u in vendors:
+        username = u.username
+        if not username:
+            base = u.email.split("@")[0] if u.email else "user"
+            username = "".join(c for c in base if c.isalnum() or c in ("_", "-")).lower() or f"user_{u.id[:8]}"
+            
+        latest_media = db.query(VendorMedia).filter(VendorMedia.vendor_id == u.id).order_by(VendorMedia.created_at.desc()).first()
+        cover_image_url = latest_media.media_url if latest_media else None
+        
+        results.append({
+            "id": u.id,
+            "username": username,
+            "display_name": u.display_name or u.company_name or username,
+            "business_name": u.business_name or u.company_name or "",
+            "bio": u.bio or "",
+            "category": u.category or "Other",
+            "items_selling": u.items_selling or "[]",
+            "avatar_url": u.avatar_url or "",
+            "cover_image_url": cover_image_url,
+            "role": u.role
+        })
+    return results
+
 @app.get("/api/admin/stats")
 def get_admin_stats(
     db: Session = Depends(get_db),
